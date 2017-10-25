@@ -1,0 +1,19 @@
+*.log
+config/*.json
+model/*
+data/files/*
+pids/*
+
+npm-debug.log
+npm-debug.log*
+yarn.lock
+
+# Mac system file
+.DS_Store
+node_modules
+
+# postgres db data
+data/postgres
+/data/logs/api/
+
+docker-compose-light.yml
