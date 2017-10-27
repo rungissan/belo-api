@@ -13,7 +13,8 @@ yarn.lock
 node_modules
 
 # postgres db data
-data/postgres
+/data/postgres
+/data/redis
 /data/logs/api/
 
 docker-compose-light.yml
