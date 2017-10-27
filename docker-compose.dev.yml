@@ -24,3 +24,7 @@ services:
       protocol: http
       LOG_LEVEL: "debug"
     command: node .
+
+  redis:
+    ports:
+      - "127.0.0.1:6380:6379"

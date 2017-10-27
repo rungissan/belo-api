@@ -26,7 +26,6 @@ services:
       - "./data/postgres/etc:/etc/postgresql"
       - "./data/postgres/log:/var/log/postgresql"
       - "./data/postgres/postgresdb:/var/lib/postgresql/data"
-      # - "./data/postgres/socket:/usr/src/postgresql"
       - "/var/run/postgresql:/var/run/postgresql"
     environment:
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
@@ -46,7 +45,6 @@ services:
     volumes:
       - "./api:/usr/src/app"
       - api_modules:/usr/src/app/node_modules/
-      # - "./data/postgres/socket:/usr/src/postgresql"
       - "/var/run/postgresql:/usr/src/postgresql"
     environment:
       PRODUCTION_MODE: "OFF"
@@ -54,10 +52,25 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: oporty
       POSTGRES_HOST: /usr/src/postgresql
+    depends_on:
+      - postgres
+      - redis
     logging:
       options:
         max-size: 1000m
     restart: 'no'
 
+  redis:
+    image: redis:alpine
+    volumes:
+      - "./data/redis:/data"
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    logging:
+      options:
+        max-size: 1000m
+    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB --appendonly yes
+    restart: 'no'
+
 volumes:
   api_modules:
+  redis_socket:

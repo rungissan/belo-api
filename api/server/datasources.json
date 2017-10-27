@@ -12,5 +12,14 @@
     "name": "postgres",
     "user": "admin",
     "connector": "postgresql"
+  },
+  "redis": {
+    "host": "redis",
+    "port": 6379,    
+    "url": "",
+    "password": "6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB",
+    "name": "redis",
+    "db": 0,
+    "connector": "kv-redis"
   }
 }
