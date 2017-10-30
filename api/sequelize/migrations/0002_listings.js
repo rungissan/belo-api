@@ -43,12 +43,12 @@ const listing_to_zipcode = (DataTypes) => {return {
 module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('zipcode', zipcode(DataTypes))
-      .then(() => queryInterface.createTable('listing', zipcode(DataTypes)))
+      .then(() => queryInterface.createTable('listing', listing(DataTypes)))
       .then(() => queryInterface.createTable('listing_to_zipcode', listing_to_zipcode(DataTypes)))
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('zipcode')
+    return queryInterface.dropTable('listing_to_zipcode')
       .then(() => queryInterface.dropTable('listing'))
-      .then(() => queryInterface.dropTable('listing_to_zipcode'))
+      .then(() => queryInterface.dropTable('zipcode'))
   }
 };

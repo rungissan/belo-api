@@ -1,20 +1,12 @@
 {
-  "name": "Client",
-  "base": "User",
+  "name": "Listing",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
   "properties": {
-    "firstname": {
-      "type": "string",
-      "required": true
-    },
-    "lastname": {
-      "type": "string",
-      "required": true
-    },
-    "username": {
+    "title": {
       "type": "string",
       "required": true
     },
@@ -25,5 +17,8 @@
   "validations": [],
   "relations": {},
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "mixins": {
+    "Timestamp": {}
+  }
 }
