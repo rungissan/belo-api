@@ -15,6 +15,7 @@
     "strict": 0,
     "comma-dangle": [2, "never"],
     "comma-spacing": [2, { "before": false, "after": true }],
-    "comma-style": [2, "last"]
+    "comma-style": [2, "last"],
+    "max-len": [1, 180, 4]
   }
 }
