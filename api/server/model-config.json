@@ -47,5 +47,9 @@
   "Listing": {
     "dataSource": "postgres",
     "public": true
+  },
+  "ListingToZipcode": {
+    "dataSource": "postgres",
+    "public": false
   }
 }

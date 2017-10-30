@@ -16,7 +16,15 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "zipcodes": {
+      "type": "hasMany",
+      "model": "Listing",
+      "foreignKey": "zipcode_id",
+      "keyThrough": "listing_id",
+      "through": "ListingToZipcode"
+    }
+  },
   "acls": [],
   "methods": {}
 }

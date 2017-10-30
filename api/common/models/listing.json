@@ -5,6 +5,9 @@
   "options": {
     "validateUpsert": true
   },
+  "mixins": {
+    "Timestamp": {}
+  },
   "properties": {
     "title": {
       "type": "string",
@@ -15,10 +18,15 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "zipcodes": {
+      "type": "hasMany",
+      "model": "Zipcode",
+      "through": "ListingToZipcode",
+      "foreignKey": "listing_id",
+      "keyThrough": "zipcode_id"
+    }
+  },
   "acls": [],
-  "methods": {},
-  "mixins": {
-    "Timestamp": {}
-  }
+  "methods": {}
 }
