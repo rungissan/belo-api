@@ -1,3 +1,12 @@
 {
-  "extends": "loopback"
+  "extends": "loopback",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "comma-dangle": [2, "never"],
+    "comma-spacing": [2, { "before": false, "after": true }],
+    "comma-style": [2, "last"],
+  }
 }

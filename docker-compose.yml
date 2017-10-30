@@ -48,9 +48,9 @@ services:
       - "/var/run/postgresql:/usr/src/postgresql"
     environment:
       PRODUCTION_MODE: "OFF"
-      POSTGRES_PASSWORD: ta2HhMxMjxxawMR
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: oporty
+      POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
     depends_on:
       - postgres

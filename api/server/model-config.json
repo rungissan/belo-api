@@ -9,12 +9,14 @@
     "mixins": [
       "loopback/common/mixins",
       "loopback/server/mixins",
+      "../node_modules/loopback-ds-timestamp-mixin",
       "../common/mixins",
       "./mixins"
     ]
   },
   "User": {
-    "dataSource": "postgres"
+    "dataSource": "postgres",
+    "public": false
   },
   "AccessToken": {
     "dataSource": "postgres",
@@ -34,5 +36,13 @@
   "Role": {
     "dataSource": "postgres",
     "public": false
+  },
+  "Client": {
+    "dataSource": "postgres",
+    "public": true
+  },
+  "Zipcode": {
+    "dataSource": "postgres",
+    "public": true
   }
 }
