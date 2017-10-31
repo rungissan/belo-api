@@ -9,6 +9,10 @@
     "Timestamp": {}
   },
   "properties": {
+    "ownerId": {
+      "type": "number",
+      "required": true
+    },
     "title": {
       "type": "string",
       "required": true
@@ -25,8 +29,33 @@
       "through": "ListingToZipcode",
       "foreignKey": "listing_id",
       "keyThrough": "zipcode_id"
+    },
+    "owner": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "ownerId"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY",
+      "property": ["__create__zipcodes", "__delete__zipcodes", "__destroyById__zipcodes","__update__zipcodes", "__updateById__zipcodes"]
+    }
+  ],
   "methods": {}
 }

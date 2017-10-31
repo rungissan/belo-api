@@ -10,6 +10,13 @@ const defaultFields = (DataTypes) => {
 
 const listing = (DataTypes) => {return {
   id:          { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
+  ownerid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: 'client', key: 'id'},
+    onUpdate: 'cascade',
+    onDelete: 'cascade'
+  },
   title:       { type: DataTypes.STRING(250), allowNull: false },
   description: { type: DataTypes.STRING },
   ...defaultFields(DataTypes)
@@ -44,11 +51,11 @@ module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('zipcode', zipcode(DataTypes))
       .then(() => queryInterface.createTable('listing', listing(DataTypes)))
-      .then(() => queryInterface.createTable('listing_to_zipcode', listing_to_zipcode(DataTypes)))
+      .then(() => queryInterface.createTable('listing_to_zipcode', listing_to_zipcode(DataTypes)));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('listing_to_zipcode')
       .then(() => queryInterface.dropTable('listing'))
-      .then(() => queryInterface.dropTable('zipcode'))
+      .then(() => queryInterface.dropTable('zipcode'));
   }
 };
