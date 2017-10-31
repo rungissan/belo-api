@@ -34,7 +34,19 @@ module.exports = (Model, bootOptions = {}) => {
   Model.destroyByIdForce = Model.destroyById;
   let destroy = Model.prototype.destroy;
 
-  Model.destroyAll = (where, cb) => {
+  Model.destroyAll = (where, options, cb) => {
+    if (options === undefined && cb === undefined) {
+      if (typeof where === 'function') {
+        cb = where;
+        where = {};
+      }
+    } else if (cb === undefined) {
+      if (typeof options === 'function') {
+        cb = options;
+        options = {};
+      }
+    }
+
     return Model.updateAll(where, {[options.deletedKey]: new Date()})
       .then(result => (typeof cb === 'function') ? cb(null, result) : result)
       .catch(error => (typeof cb === 'function') ? cb(error) : Promise.reject(error));
@@ -45,6 +57,11 @@ module.exports = (Model, bootOptions = {}) => {
       .then(result => (typeof cb === 'function') ? cb(null, result) : result)
       .catch(error => (typeof cb === 'function') ? cb(error) : Promise.reject(error));
   };
+
+  Model.remove = Model.destroyAll;
+  Model.deleteAll = Model.destroyAll;
+  Model.removeById = Model.destroyById;
+  Model.deleteById = Model.destroyById;
 
   Model.prototype.destroy = (options, cb) => {
     if (options && options.force) {
