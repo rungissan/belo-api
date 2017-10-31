@@ -23,7 +23,7 @@ services:
       domain: localhost
       protocol: http
       LOG_LEVEL: "debug"
-    command: node .
+    command: npm run development
 
   redis:
     ports:
