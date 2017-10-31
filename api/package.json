@@ -7,7 +7,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "development": "nodemon server/server.js",
+    "development": "nodemon -e js,json --exec babel-node server/server.js",
     "start": "node .",
     "posttest": "npm run lint && nsp check"
   },
@@ -26,6 +26,8 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0",

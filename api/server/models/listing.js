@@ -1,6 +1,6 @@
 'use strict';
 
-const errors = require('../../server/lib/errors.js');
+import errors from '../../server/lib/errors.js';
 
 module.exports = function(Listing) {
   Listing.beforeRemote('create', (ctx, modelInstance, next) => {

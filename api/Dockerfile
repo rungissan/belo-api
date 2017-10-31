@@ -6,4 +6,4 @@ WORKDIR /usr/src/app
 
 COPY package.json /usr/src/app
 
-RUN npm i && npm i -g nodemon loopback-cli sequelize-cli
+RUN npm i && npm i -g nodemon loopback-cli sequelize-cli babel-cli
