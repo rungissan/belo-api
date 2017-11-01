@@ -1,0 +1,19 @@
+*.log
+config/*.json
+model/*
+data/files/*
+pids/*
+
+npm-debug.log
+npm-debug.log*
+
+# Mac system file
+.DS_Store
+node_modules
+
+# postgres db data
+/data/postgres
+/data/redis
+/data/logs/api/
+
+docker-compose-light.yml

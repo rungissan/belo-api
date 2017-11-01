@@ -1,0 +1,49 @@
+{
+  "name": "ListingToZipcode",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "listing_to_zipcode"
+    }
+  },
+  "properties": {
+    "listing_id": {
+      "type": "number",
+      "required": true
+    },
+    "zipcode_id": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "listings": {
+      "type": "belongsTo",
+      "model": "Listing",
+      "foreignKey": "listing_id"
+    },
+    "zipcodes": {
+      "type": "belongsTo",
+      "model": "Zipcode",
+      "foreignKey": "zipcode_id"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}
