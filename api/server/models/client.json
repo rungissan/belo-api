@@ -6,7 +6,7 @@
     "emailVerificationRequired": true,
     "validateUpsert": true,
     "restrictResetPasswordTokenScope": true,
-    "rejectPasswordChangesViaPatchOrReplace": true,
+    "rejectPasswordChangesViaPatchOrReplace": false,
     "resetPasswordTokenTTL": 900
   },
   "properties": {

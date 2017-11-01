@@ -4,6 +4,42 @@ import path       from 'path';
 import { randomString } from 'lib/util';
 
 export default function(Client) {
+  // TODO remove this after issue fixed
+  // If use rejectPasswordChangesViaPatchOrReplace option to allow password change only via changePassword() or setPassword()
+  // there is a bug when try to validate/confirm user - https://github.com/strongloop/loopback/issues/3393
+  // because user user.save() method that try to update all user properties.
+  // Temporary workaround - check password update in remote hooks.
+  function rejectInsecurePasswordChange(ctx, client, next) {
+    let data = ctx.args && (ctx.args.data || ctx.args.instance) || {};
+
+    if (!data.password) {
+      return next();
+    }
+
+    const err = new Error(
+      'Changing user password via patch/replace API is not allowed. ' +
+      'Use password reset instead');
+    err.statusCode = 401;
+    err.code = 'PASSWORD_CHANGE_NOT_ALLOWED';
+    next(err);
+  }
+
+  [
+    'replaceById',
+    'updateAll',
+    '*.patchAttributes',
+    'patchOrCreate',
+    'replaceOrCreate',
+    'upsertWithWhere',
+    'upsert',
+    'updateAll',
+    'bulkUpdate',
+    'upsertWithWhere',
+    'replaceOrCreate',
+    'replaceById',
+    'findOrCreate'
+  ].forEach(remoteHook => Client.beforeRemote(remoteHook, rejectInsecurePasswordChange));
+
   Client.afterRemote('create', function(context, client, next) {
     let options = {
       type: 'email',
