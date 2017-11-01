@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+
+  pgadmin4:
+    image: chorss/docker-pgadmin4
+    volumes:
+      - "pgadmin4data:/data"
+      - "/var/run/postgresql:/var/run/postgresql"
+    ports:
+      - "5050:5050"
+    restart: 'no'
+
+volumes:
+  pgadmin4data:

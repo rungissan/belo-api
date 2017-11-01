@@ -10,9 +10,9 @@ const defaultFields = (DataTypes) => {
 
 const clients = (DataTypes) => {return {
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
-  firstname:         { type: DataTypes.STRING(100), allowNull: false },
-  lastname:          { type: DataTypes.STRING(100), allowNull: false },
-  username:          { type: DataTypes.STRING(100), allowNull: false },
+  firstname:         { type: DataTypes.STRING(100) },
+  lastname:          { type: DataTypes.STRING(100) },
+  username:          { type: DataTypes.STRING(100) },
   email:             { type: DataTypes.STRING,      allowNull: false, unique: true },
   realm:             { type: DataTypes.STRING },
   password:          { type: DataTypes.STRING,      allowNull: false },

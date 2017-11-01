@@ -52,7 +52,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
-      DEBUG: loopback:connector:postgresql
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail
     depends_on:
       - postgres
       - redis

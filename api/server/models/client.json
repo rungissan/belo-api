@@ -3,20 +3,21 @@
   "base": "User",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "emailVerificationRequired": true,
+    "validateUpsert": true,
+    "restrictResetPasswordTokenScope": true,
+    "rejectPasswordChangesViaPatchOrReplace": true,
+    "resetPasswordTokenTTL": 900
   },
   "properties": {
     "firstname": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "lastname": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "username": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "description": {
       "type": "string"

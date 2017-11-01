@@ -1,0 +1,3 @@
+virtual_mailbox_domains =
+local_recipient_maps =
+mydestination = localhost

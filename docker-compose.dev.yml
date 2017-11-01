@@ -25,6 +25,31 @@ services:
       LOG_LEVEL: "debug"
     command: npm run development
 
+  mail:
+    image: tvial/docker-mailserver:latest
+    hostname: mail
+    domainname: domain.com
+    ports:
+    - "25:25"
+    - "143:143"
+    - "587:587"
+    - "993:993"
+    volumes:
+      - "./data/mailserver/mail:/var/mail"
+      - "./data/mailserver/mail-state:/var/mail-state"
+      - "./mailserver/:/tmp/docker-mailserver/"
+    environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
+    - ENABLE_FAIL2BAN=1
+    - ENABLE_POSTGREY=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
+    - PERMIT_DOCKER=host
+    cap_add:
+    - NET_ADMIN
+    - SYS_PTRACE
+
   redis:
     ports:
       - "127.0.0.1:6380:6379"
