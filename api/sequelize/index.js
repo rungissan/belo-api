@@ -1,5 +1,7 @@
 'use strict';
 
+require('babel-core/register');
+
 module.exports = {
   db: {
     username: process.env.POSTGRES_USER,
