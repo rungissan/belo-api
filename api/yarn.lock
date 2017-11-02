@@ -713,6 +713,10 @@ base64-js@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-0.0.2.tgz#024f0f72afa25b75f9c0ee73cd4f55ec1bed9784"
 
+base64url@2.0.0, base64url@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/base64url/-/base64url-2.0.0.tgz#eac16e03ea1438eff9423d69baa36262ed1f70bb"
+
 bcrypt-pbkdf@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.1.tgz#63bc5dcb61331b92bc05fd528953c33462a06f8d"
@@ -733,7 +737,7 @@ bluebird@^3.1.1, bluebird@^3.3.4, bluebird@^3.4.6, bluebird@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
 
-body-parser@1.18.2, body-parser@^1.12.0, body-parser@^1.12.4:
+body-parser@1.18.2, body-parser@^1.12.0, body-parser@^1.12.4, body-parser@^1.15.2:
   version "1.18.2"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.18.2.tgz#87678a19d84b47d859b83199bd59bce222b10454"
   dependencies:
@@ -797,6 +801,10 @@ browserslist@^2.1.2:
 btoa@1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/btoa/-/btoa-1.1.2.tgz#3e40b81663f81d2dd6596a4cb714a8dc16cfabe0"
+
+buffer-equal-constant-time@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/buffer-equal-constant-time/-/buffer-equal-constant-time-1.0.1.tgz#f8e71132f7ffe6e01a5c9697a4c6f3e48d5cc819"
 
 buffer-writer@1.0.1:
   version "1.0.1"
@@ -950,6 +958,10 @@ concat-stream@^1.5.2:
     inherits "^2.0.3"
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
+
+connect-ensure-login@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/connect-ensure-login/-/connect-ensure-login-0.1.1.tgz#174dcc51243b9eac23f8d98215aeb6694e2e8a12"
 
 connect@3.4.1:
   version "3.4.1"
@@ -1159,6 +1171,13 @@ ecc-jsbn@~0.1.1:
   resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"
   dependencies:
     jsbn "~0.1.0"
+
+ecdsa-sig-formatter@1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/ecdsa-sig-formatter/-/ecdsa-sig-formatter-1.0.9.tgz#4bc926274ec3b5abb5016e7e1d60921ac262b2a1"
+  dependencies:
+    base64url "^2.0.0"
+    safe-buffer "^5.0.1"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -1875,6 +1894,10 @@ is-typedarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
 
+isarray@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/isarray/-/isarray-0.0.1.tgz#8a18acfca9a8f4177e09abfc6038939b05d1eedf"
+
 isarray@^1.0.0, isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
@@ -2010,6 +2033,23 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
+jwa@^1.1.4:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/jwa/-/jwa-1.1.5.tgz#a0552ce0220742cd52e153774a32905c30e756e5"
+  dependencies:
+    base64url "2.0.0"
+    buffer-equal-constant-time "1.0.1"
+    ecdsa-sig-formatter "1.0.9"
+    safe-buffer "^5.0.1"
+
+jws@^3.0.0:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/jws/-/jws-3.1.4.tgz#f9e8b9338e8a847277d6444b1464f61880e050a2"
+  dependencies:
+    base64url "^2.0.0"
+    jwa "^1.1.4"
+    safe-buffer "^5.0.1"
+
 keypress@0.1.x:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
@@ -2144,6 +2184,27 @@ loopback-component-explorer@^5.0.0:
     loopback-swagger "^5.0.0"
     strong-globalize "^3.1.0"
     swagger-ui "^2.2.5"
+
+loopback-component-oauth2@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/loopback-component-oauth2/-/loopback-component-oauth2-3.1.0.tgz#e08cc39859f9bb2c7d9b159781e266f23703a949"
+  dependencies:
+    async "^1.5.2"
+    body-parser "^1.15.2"
+    connect-ensure-login "^0.1.1"
+    debug "^2.2.0"
+    jws "^3.0.0"
+    passport "^0.3.2"
+    passport-http "^0.3.0"
+    passport-http-bearer "^1.0.1"
+    passport-local "^1.0.0"
+    passport-oauth2-client-password "^0.1.2"
+    passport-strategy "^1.0.0"
+    path-to-regexp "^1.2.0"
+    pkginfo "^0.4.0"
+    strong-globalize "^2.6.2"
+    uid2 "^0.0.3"
+    utils-merge "^1.0.0"
 
 loopback-connector-kv-redis@^1.1.0:
   version "1.1.0"
@@ -2598,6 +2659,41 @@ parseurl@~1.3.1, parseurl@~1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/parseurl/-/parseurl-1.3.2.tgz#fc289d4ed8993119460c156253262cdc8de65bf3"
 
+passport-http-bearer@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/passport-http-bearer/-/passport-http-bearer-1.0.1.tgz#147469ea3669e2a84c6167ef99dbb77e1f0098a8"
+  dependencies:
+    passport-strategy "1.x.x"
+
+passport-http@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/passport-http/-/passport-http-0.3.0.tgz#8ee53d4380be9c60df2151925029826f77115603"
+  dependencies:
+    passport-strategy "1.x.x"
+
+passport-local@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/passport-local/-/passport-local-1.0.0.tgz#1fe63268c92e75606626437e3b906662c15ba6ee"
+  dependencies:
+    passport-strategy "1.x.x"
+
+passport-oauth2-client-password@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/passport-oauth2-client-password/-/passport-oauth2-client-password-0.1.2.tgz#4f378b678b92d16dbbd233a6c706520093e561ba"
+  dependencies:
+    passport-strategy "1.x.x"
+
+passport-strategy@1.x.x, passport-strategy@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/passport-strategy/-/passport-strategy-1.0.0.tgz#b5539aa8fc225a3d1ad179476ddf236b440f52e4"
+
+passport@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/passport/-/passport-0.3.2.tgz#9dd009f915e8fe095b0124a01b8f82da07510102"
+  dependencies:
+    passport-strategy "1.x.x"
+    pause "0.0.1"
+
 path-exists@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/path-exists/-/path-exists-3.0.0.tgz#ce0ebeaa5f78cb18925ea7d810d7b59b010fd515"
@@ -2621,6 +2717,16 @@ path-parse@^1.0.5:
 path-to-regexp@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
+
+path-to-regexp@^1.2.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.7.0.tgz#59fde0f435badacba103a84e9d3bc64e96b9937d"
+  dependencies:
+    isarray "0.0.1"
+
+pause@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/pause/-/pause-0.0.1.tgz#1d408b3fdb76923b9543d96fb4c9dfd535d9cb5d"
 
 performance-now@^2.1.0:
   version "2.1.0"
@@ -2678,6 +2784,10 @@ pinkie-promise@^2.0.0:
 pinkie@^2.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
+
+pkginfo@^0.4.0:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/pkginfo/-/pkginfo-0.4.1.tgz#b5418ef0439de5425fc4995042dced14fb2a84ff"
 
 platform@1.3.1:
   version "1.3.1"
@@ -3406,7 +3516,7 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
-uid2@0.0.3:
+uid2@0.0.3, uid2@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/uid2/-/uid2-0.0.3.tgz#483126e11774df2f71b8b639dcd799c376162b82"
 
@@ -3446,7 +3556,7 @@ utils-merge@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.0.tgz#0294fb922bb9375153541c4f7096231f287c8af8"
 
-utils-merge@1.0.1:
+utils-merge@1.0.1, utils-merge@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
 
