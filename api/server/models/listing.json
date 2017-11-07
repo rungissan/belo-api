@@ -38,6 +38,18 @@
   },
   "acls": [
     {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "$everyone",
@@ -57,5 +69,12 @@
       "property": ["__create__zipcodes", "__delete__zipcodes", "__destroyById__zipcodes","__update__zipcodes", "__updateById__zipcodes"]
     }
   ],
-  "methods": {}
+  "methods": {
+    "prototype.findById": {
+      "accessScopes": ["profile_read"]
+    },
+    "findById": {
+      "accessScopes": ["profile_read"]
+    }
+  }
 }

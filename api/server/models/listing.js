@@ -18,4 +18,21 @@ module.exports = function(Listing) {
 
     next();
   });
+
+  Listing.remoteMethod('findById', {
+    accessScopes: ['profile_read'],
+  });
+
+  Listing.remoteMethod('findById', {
+    accessScopes: ['profile_read'],
+  });
+
+  Listing.greet = function(cb) {
+    cb(null, 'Greetings... ');
+  }
+
+  Listing.remoteMethod('greet', {
+    returns: {arg: 'greeting', type: 'string'},
+    accessScopes: ['profile_read']
+  });
 };

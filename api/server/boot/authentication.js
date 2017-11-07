@@ -30,13 +30,13 @@ module.exports = function enableAuthentication(app) {
 
 
 
-  app.middleware('session', sessions({
-    store: sessionStore,
-    saveUninitialized: true,
-    resave: true,
-    secure: false,
-    secret: 'dAZVfD5at3l0rl419t4Qr6MIbQmrTLBiidbi5TVoCghBy5Ipb'
-  }));
+  // app.middleware('session', sessions({
+  //   store: sessionStore,
+  //   saveUninitialized: true,
+  //   resave: true,
+  //   secure: false,
+  //   secret: 'dAZVfD5at3l0rl419t4Qr6MIbQmrTLBiidbi5TVoCghBy5Ipb'
+  // }));
 
 
 
