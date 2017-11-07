@@ -25,6 +25,15 @@ services:
       LOG_LEVEL: "debug"
     command: npm run development
 
+  auth:
+    tty: true
+    environment:
+      NODE_ENV: development
+      domain: localhost
+      protocol: http
+      LOG_LEVEL: "debug"
+    command: npm run development
+
   mail:
     image: tvial/docker-mailserver:latest
     hostname: mail

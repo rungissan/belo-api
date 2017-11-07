@@ -5,10 +5,6 @@ var boot = require('loopback-boot');
 
 var app = module.exports = loopback();
 
-var site = require('./controllers/login');
-
-import path from 'path';
-
 app.start = function() {
   // start the web server
   return app.listen(function() {
@@ -22,15 +18,10 @@ app.start = function() {
   });
 };
 
-app.set('views', path.resolve(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
   if (err) throw err;
-
-  app.get('/login', site.loginForm);
 
   // start the server if `$ node server.js`
   if (require.main === module)

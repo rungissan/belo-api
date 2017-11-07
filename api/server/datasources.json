@@ -23,6 +23,15 @@
     "db": 0,
     "connector": "kv-redis"
   },
+  "redisSession": {
+    "host": "redis",
+    "port": 6379,
+    "url": "",
+    "password": "6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB",
+    "name": "redis",
+    "db": 1,
+    "connector": "kv-redis"
+  },
   "emailLocal": {
     "name": "emailLocal",
     "connector": "mail",

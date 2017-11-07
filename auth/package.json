@@ -1,5 +1,5 @@
 {
-  "name": "spiti",
+  "name": "auth",
   "version": "1.0.0",
   "main": "server/server.js",
   "engines": {
@@ -7,28 +7,19 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "development": "nodemon -e js,json --exec babel-node server/server.js",
     "start": "node .",
+    "development": "nodemon -e js,json --exec babel-node server/server.js",
     "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "body-parser": "^1.18.2",
     "compression": "^1.0.3",
-    "connect-redis": "^3.3.2",
-    "cookie-parser": "^1.4.3",
     "cors": "^2.5.2",
-    "express-session": "^1.15.6",
     "helmet": "^1.3.0",
-    "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
-    "loopback-component-explorer": "^5.0.0",
-    "loopback-component-oauth2": "^3.1.0",
-    "loopback-connector-kv-redis": "^1.1.0",
-    "loopback-connector-postgresql": "^2.8.0",
-    "loopback-ds-timestamp-mixin": "^3.4.1",
     "serve-favicon": "^2.0.1",
-    "strong-error-handler": "^2.0.0"
+    "strong-error-handler": "^2.0.0",
+    "loopback-component-explorer": "^5.0.0",
+    "loopback": "^3.0.0"
   },
   "devDependencies": {
     "babel-plugin-module-resolver": "^2.7.1",
@@ -37,13 +28,12 @@
     "babel-register": "^6.26.0",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
-    "nsp": "^2.1.0",
-    "sequelize": "^4.20.1"
+    "nsp": "^2.1.0"
   },
   "repository": {
     "type": "",
     "url": ""
   },
   "license": "UNLICENSED",
-  "description": "spiti"
+  "description": "auth"
 }
