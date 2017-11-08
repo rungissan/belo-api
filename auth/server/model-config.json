@@ -12,5 +12,13 @@
       "../common/mixins",
       "./mixins"
     ]
+  },
+  "Client": {
+    "dataSource": "postgres",
+    "public": true
+  },
+  "AccessToken": {
+    "dataSource": "postgres",
+    "public": false
   }
 }
