@@ -27,7 +27,27 @@ const accesstoken = (DataTypes) => {return {
   ttl:     { type: DataTypes.INTEGER, defaultValue: 1209600 },
   scopes:  { type: DataTypes.TEXT },
   created: { type: DataTypes.DATE },
-  userid:  { type: DataTypes.INTEGER }
+  userid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: 'client', key: 'id'},
+    onUpdate: 'cascade',
+    onDelete: 'cascade'
+  }
+}};
+
+const verifytoken = (DataTypes) => {return {
+  id:      { type: DataTypes.TEXT,    allowNull: false },
+  ttl:     { type: DataTypes.INTEGER, defaultValue: 900 },
+  scopes:  { type: DataTypes.TEXT },
+  created: { type: DataTypes.DATE },
+  userid: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: 'client', key: 'id'},
+    onUpdate: 'cascade',
+    onDelete: 'cascade'
+  }
 }};
 
 const acl = (DataTypes) => {return {
@@ -59,6 +79,7 @@ module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('client', clients(DataTypes))
       .then(() => queryInterface.createTable('accesstoken', accesstoken(DataTypes)))
+      .then(() => queryInterface.createTable('verification_token', verifytoken(DataTypes)))
       .then(() => queryInterface.createTable('acl', acl(DataTypes)))
       .then(() => queryInterface.createTable('role', role(DataTypes)))
       .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
@@ -66,6 +87,7 @@ module.exports = {
   down: (queryInterface) => {
     return queryInterface.dropTable('client')
       .then(() => queryInterface.dropTable('accesstoken'))
+      .then(() => queryInterface.dropTable('verification_token'))
       .then(() => queryInterface.dropTable('acl'))
       .then(() => queryInterface.dropTable('role'))
       .then(() => queryInterface.dropTable('rolemapping'))

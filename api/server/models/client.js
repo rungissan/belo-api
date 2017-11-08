@@ -1,9 +1,77 @@
 'use strict';
 
 import path       from 'path';
+import Promise from 'bluebird';
 import { randomString } from 'lib/util';
 
 export default function(Client) {
+  Client.prototype.createVerificationToken = function(tokenData) {
+    const clientSettings = this.constructor.settings;
+    tokenData.ttl = Math.min(tokenData.ttl || clientSettings.ttl, clientSettings.maxTTL);
+    return this.verificationTokens.create(tokenData);
+  };
+
+  Client.prototype.verifyEmail = function(verifyOptions) {
+    let client = this;
+    let registry = Client.registry;
+    verifyOptions = Object.assign({}, verifyOptions);
+
+    verifyOptions.mailer = verifyOptions.mailer || Client.email;
+
+    var pkName = Client.definition.idName() || 'id';
+    var defaultTemplate = path.join(__dirname, '..', '..', 'templates', 'verify.ejs');
+    verifyOptions.template = path.resolve(verifyOptions.template || defaultTemplate);
+    verifyOptions.user = client;
+
+    const app = Client.app;
+
+    verifyOptions.to = verifyOptions.to || user.email;
+
+    return client.createVerificationToken({
+      scopes: ['email_verification']
+    })
+      .then(verificationToken => {
+        verifyOptions.code = verificationToken.id;
+        verifyOptions.verificationToken = verificationToken;
+        verifyOptions.text = verificationToken.id;
+
+        var template = Client.app.loopback.template(verifyOptions.template);
+        var body = template(verifyOptions);
+
+        const Email = verifyOptions.mailer;
+        return Email.send(verifyOptions);
+      });
+  };
+
+  Client.afterRemote('create', function(context, client, next) {
+    let options = {
+      type: 'email',
+      to: client.email,
+      from: 'test@domain.com',
+      subject: 'Thanks for registering.',
+      template: path.resolve(__dirname, '../../server/views/verify.ejs'),
+      user: client
+    };
+
+    client.verifyEmail(options)
+      .then(response => {
+        return next();
+      })
+      .catch(err => {
+        Client.deleteById(client.id);
+        return next(err);
+      });
+  });
+
+  Client.confirmEmail = function(code, cb) {
+    cb(null);
+  }
+
+  Client.remoteMethod('confirmEmail', {
+    accepts: {arg: 'code', type: 'string'}
+  });
+
+
   // TODO remove this after issue fixed
   // If use rejectPasswordChangesViaPatchOrReplace option to allow password change only via changePassword() or setPassword()
   // there is a bug when try to validate/confirm user - https://github.com/strongloop/loopback/issues/3393
@@ -40,26 +108,26 @@ export default function(Client) {
     'findOrCreate'
   ].forEach(remoteHook => Client.beforeRemote(remoteHook, rejectInsecurePasswordChange));
 
-  Client.afterRemote('create', function(context, client, next) {
-    let options = {
-      type: 'email',
-      to: client.email,
-      from: 'test@domain.com',
-      subject: 'Thanks for registering.',
-      template: path.resolve(__dirname, '../../server/views/verify.ejs'),
-      user: client,
-      generateVerificationToken: generateUserVerifyToken
-    };
-
-    client.verify(options)
-      .then(response => {
-        return next();
-      })
-      .catch(err => {
-        Client.deleteById(client.id);
-        return next(err);
-      });
-  });
+  // Client.afterRemote('create', function(context, client, next) {
+  //   let options = {
+  //     type: 'email',
+  //     to: client.email,
+  //     from: 'test@domain.com',
+  //     subject: 'Thanks for registering.',
+  //     template: path.resolve(__dirname, '../../server/views/verify.ejs'),
+  //     user: client,
+  //     generateVerificationToken: generateUserVerifyToken
+  //   };
+  //
+  //   client.verify(options)
+  //     .then(response => {
+  //       return next();
+  //     })
+  //     .catch(err => {
+  //       Client.deleteById(client.id);
+  //       return next(err);
+  //     });
+  // });
 
   Client.on('resetPasswordRequest', function(info) {
     var url = 'http://' + 'localhost' + '/reset-password';
@@ -77,7 +145,3 @@ export default function(Client) {
     });
   });
 };
-
-function generateUserVerifyToken(user, options, cb) {
-  cb(null, randomString(7));
-}

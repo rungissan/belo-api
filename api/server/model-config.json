@@ -21,6 +21,10 @@
     "dataSource": "postgres",
     "public": false
   },
+  "VerificationToken": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "ACL": {
     "dataSource": "postgres",
     "public": false

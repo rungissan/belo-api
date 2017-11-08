@@ -24,10 +24,19 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "verificationTokens": {
+      "type": "hasMany",
+      "model": "VerificationToken",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
+    }
+  },
   "acls": [],
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
-  } 
+  }
 }
