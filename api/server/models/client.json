@@ -26,5 +26,8 @@
   "validations": [],
   "relations": {},
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "remoting": {
+    "normalizeHttpPath": true
+  } 
 }

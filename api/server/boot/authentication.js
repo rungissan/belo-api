@@ -18,7 +18,23 @@ module.exports = function enableAuthentication(app) {
     scopes: ['DEFAULT']
   });
 
-  app.use(['/api'], auth);
+  const PUBLIC_ROUTES = [{
+    path: '/clients',
+    method: 'POST'
+  }, {
+    path: '/clients/confirm',
+    method: 'GET'
+  }];
+
+  app.use('/api', function(req, res, next) {
+    if (PUBLIC_ROUTES.some(route => {
+      return (req.path.toLowerCase() == route.path && (!route.method || route.method == req.method));
+    })) {
+      return next();
+    } else {
+      return auth(req, res, next);
+    }
+  });
 
   app.get('/me', function(req, res, next) {
     res.json({ 'user_id': req.user.id, name: req.user.username,

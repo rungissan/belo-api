@@ -1,13 +1,10 @@
 'use strict';
 
-var loopback = require('loopback');
-var boot = require('loopback-boot');
+import loopback from 'loopback';
+import boot     from 'loopback-boot';
+import path     from 'path';
 
-var app = module.exports = loopback();
-
-var site = require('./controllers/login');
-
-import path from 'path';
+const app = module.exports = loopback();
 
 app.start = function() {
   // start the web server
@@ -29,8 +26,6 @@ app.set('view engine', 'ejs');
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
   if (err) throw err;
-
-  app.get('/login', site.loginForm);
 
   // start the server if `$ node server.js`
   if (require.main === module)
