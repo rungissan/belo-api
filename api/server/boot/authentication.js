@@ -1,6 +1,7 @@
 'use strict';
 
-import oauth2 from 'loopback-component-oauth2';
+// import oauth2 from 'loopback-component-oauth2';
+import oauth2 from '../lib/oauth';
 
 module.exports = function enableAuthentication(app) {
   const options = {

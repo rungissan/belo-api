@@ -27,6 +27,7 @@
     "loopback-connector-kv-redis": "^1.1.0",
     "loopback-connector-postgresql": "^2.8.0",
     "loopback-ds-timestamp-mixin": "^3.4.1",
+    "oauth2orize": "^1.11.0",
     "serve-favicon": "^2.0.1",
     "strong-error-handler": "^2.0.0"
   },

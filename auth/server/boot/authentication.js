@@ -1,6 +1,7 @@
 'use strict';
 
-import oauth2 from 'loopback-component-oauth2';
+// import oauth2 from 'loopback-component-oauth2';
+import oauth2 from '../lib/oauth';
 
 // import sessions    from 'express-session';
 // import RedisStore  from 'connect-redis';
@@ -25,7 +26,7 @@ module.exports = function enableAuthentication(app) {
   //   secure: false,
   //   secret: 'dAZVfD5at3l0rl419t4Qr6MIbQmrTLBiidbi5TVoCghBy5Ipb'
   // }));
-  
+
   const options = {
     dataSource: app.dataSources.postgres,
     loginPage: '/login',
