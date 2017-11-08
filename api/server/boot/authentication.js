@@ -22,6 +22,12 @@ module.exports = function enableAuthentication(app) {
     path: '/clients',
     method: 'POST'
   }, {
+    path: '/clients/reset',
+    method: 'POST'
+  }, {
+    path: '/clients/reset-password',
+    method: 'POST'
+  }, {
     path: '/clients/confirm',
     method: 'GET'
   }];
