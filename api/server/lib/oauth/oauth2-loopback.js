@@ -6,8 +6,14 @@
 'use strict';
 
 import passport from 'passport';
+import log from 'debug';
+import { BasicStrategy } from 'passport-http';
+import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password';
+
 import modelBuilder        from './models/index';
 import setupResourceServer from './resource-server';
+
+const debug = log('loopback:oauth2');
 
 /**
  *
@@ -34,9 +40,40 @@ module.exports = function(app, options) {
     app.middleware('auth', passport.session());
   }
 
-  if (options.resourceServer !== false) {
-    handlers.authenticate = setupResourceServer(app, options, models, true);
+  handlers.authenticate = setupResourceServer(app, options, models, true);
+
+  if (options.useClientCredentialsStrategy == false) {
+    return handlers;
   }
+
+  function clientLogin(clientId, clientSecret, done) {
+    debug('clientLogin: %s', clientId);
+    models.clients.findByClientId(clientId, function(err, client) {
+      if (err) {
+        return done(err);
+      }
+      if (!client) {
+        return done(null, false);
+      }
+      var secret = client.clientSecret || client.restApiKey;
+      if (secret !== clientSecret) {
+        return done(null, false);
+      }
+      return done(null, client);
+    });
+  }
+
+  // Strategies for oauth2 client-id/client-secret login
+  // HTTP basic
+  passport.use('loopback-oauth2-client-basic', new BasicStrategy(clientLogin));
+  // Body
+  passport.use('loopback-oauth2-client-password',
+    new ClientPasswordStrategy(clientLogin));
+
+  handlers.authenticateClientMiddleware = passport.authenticate(
+    ['loopback-oauth2-client-password', 'loopback-oauth2-client-basic'],
+    {session: false}
+  );
 
   return handlers;
 };

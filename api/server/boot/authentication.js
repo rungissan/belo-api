@@ -9,10 +9,11 @@ module.exports = function enableAuthentication(app) {
     loginPage: false,
     loginPath: false,
     resourceServer: true,
-    authorizationServer: false
+    authorizationServer: false,
+    useClientCredentialsStrategy: true
   };
 
-  oauth2.oAuth2Provider(app, options);
+  const handlers = oauth2.oAuth2Provider(app, options);
 
   const auth = oauth2.authenticate({
     session: false,
@@ -37,7 +38,7 @@ module.exports = function enableAuthentication(app) {
     if (PUBLIC_ROUTES.some(route => {
       return (req.path.toLowerCase() == route.path && (!route.method || route.method == req.method));
     })) {
-      return next();
+      return handlers.authenticateClientMiddleware(req, res, next);
     } else {
       return auth(req, res, next);
     }
