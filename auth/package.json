@@ -7,7 +7,9 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "node .",
+    "start": "npm run build && node dist/server/server.js",
+    "build": "babel server -d dist/server -D",
+    "clean": "rm -rf build && mkdir build",
     "development": "nodemon -e js,json --exec babel-node server/server.js",
     "posttest": "npm run lint && nsp check"
   },
