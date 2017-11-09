@@ -3,6 +3,12 @@
 import path       from 'path';
 import Promise from 'bluebird';
 import { randomString } from 'lib/util';
+import {
+  userNotFound,
+  invalidVerificationToken
+} from 'lib/errors';
+
+const DEFAULT_VERIFICATION_TTL = 900;
 
 export default function(Client) {
   Client.prototype.createVerificationToken = function(tokenData) {
@@ -18,17 +24,15 @@ export default function(Client) {
 
     verifyOptions.mailer = verifyOptions.mailer || Client.email;
 
-    var pkName = Client.definition.idName() || 'id';
     var defaultTemplate = path.join(__dirname, '..', '..', 'templates', 'verify.ejs');
     verifyOptions.template = path.resolve(verifyOptions.template || defaultTemplate);
     verifyOptions.user = client;
 
     const app = Client.app;
 
-    verifyOptions.to = verifyOptions.to || user.email;
-
     return client.createVerificationToken({
-      scopes: ['email_verification']
+      scopes: ['email_verification'],
+      ttl: DEFAULT_VERIFICATION_TTL
     })
       .then(verificationToken => {
         verifyOptions.code = verificationToken.id;
@@ -63,14 +67,52 @@ export default function(Client) {
       });
   });
 
-  Client.confirmEmail = function(code, cb) {
-    cb(null);
-  }
+  Client.confirmEmail = function(userId, code, next) {
+    return this.findById(userId)
+      .then(client => {
+        if (!client) {
+          throw userNotFound(userId);
+        }
+
+        return Client.app.models.VerificationToken.findOne({
+          where: {
+            id: code,
+            userid: userId
+          }
+        })
+          .then(verificationToken => {
+            if (!verificationToken) {
+              throw invalidVerificationToken(code);
+            }
+
+            return verificationToken.validate()
+              .then(isValid => {
+                if (!isValid) {
+                  throw invalidVerificationToken(code);
+                }
+
+                return verificationToken.delete();
+              })
+              .then(() => {
+                client.emailVerified = true;
+                return client.save();
+              });
+          });
+      })
+      .catch(next);
+  };
 
   Client.remoteMethod('confirmEmail', {
-    accepts: {arg: 'code', type: 'string'}
+    accepts: [{
+      arg: 'userId',
+      type: 'number'
+    }, {
+      arg: 'code',
+      type: 'string'
+    }],
+    description: 'Confirm a user email with verification token.',
+    http: {verb: 'get', path: '/confirm-email'}
   });
-
 
   // TODO remove this after issue fixed
   // If use rejectPasswordChangesViaPatchOrReplace option to allow password change only via changePassword() or setPassword()
@@ -107,27 +149,6 @@ export default function(Client) {
     'replaceById',
     'findOrCreate'
   ].forEach(remoteHook => Client.beforeRemote(remoteHook, rejectInsecurePasswordChange));
-
-  // Client.afterRemote('create', function(context, client, next) {
-  //   let options = {
-  //     type: 'email',
-  //     to: client.email,
-  //     from: 'test@domain.com',
-  //     subject: 'Thanks for registering.',
-  //     template: path.resolve(__dirname, '../../server/views/verify.ejs'),
-  //     user: client,
-  //     generateVerificationToken: generateUserVerifyToken
-  //   };
-  //
-  //   client.verify(options)
-  //     .then(response => {
-  //       return next();
-  //     })
-  //     .catch(err => {
-  //       Client.deleteById(client.id);
-  //       return next(err);
-  //     });
-  // });
 
   Client.on('resetPasswordRequest', function(info) {
     var url = 'http://' + 'localhost' + '/reset-password';

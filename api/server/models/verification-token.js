@@ -1,6 +1,8 @@
 
 'use strict';
 
+import Promise from 'bluebird';
+
 import { randomString } from 'lib/util';
 
 const DEFAULT_TOKEN_LEN = 6;
@@ -48,4 +50,17 @@ module.exports = function(VerificationToken) {
       })
       .catch(next);
   });
+
+  VerificationToken.prototype.validate = function() {
+    let now = Date.now();
+    let created = this.created.getTime();
+    let elapsedSeconds = (now - created) / 1000;
+    let isValid = elapsedSeconds < this.ttl;
+
+    if (isValid) {
+      return Promise.resolve(isValid);
+    } else {
+      return this.destroy().then(() => isValid);
+    }
+  };
 };

@@ -1,7 +1,6 @@
 'use strict';
 
-// import oauth2 from 'loopback-component-oauth2';
-import oauth2 from '../lib/oauth';
+import oauth2 from 'lib/oauth';
 
 module.exports = function enableAuthentication(app) {
   const options = {
@@ -30,7 +29,7 @@ module.exports = function enableAuthentication(app) {
     path: '/clients/reset-password',
     method: 'POST'
   }, {
-    path: '/clients/confirm',
+    path: '/clients/confirm-email',
     method: 'GET'
   }];
 

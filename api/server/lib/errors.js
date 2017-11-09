@@ -1,6 +1,6 @@
 'use strict';
 
-const unauthorized = () => {
+export const unauthorized = () => {
   let error = new Error();
   error.status = 401;
   error.message = 'Authorization Required';
@@ -9,6 +9,18 @@ const unauthorized = () => {
   return error;
 };
 
-module.exports = {
-  unauthorized
+export const userNotFound = (uid) => {
+  let error = new Error(`User not found: ${uid}`);
+  error.statusCode = 404;
+  error.code = 'USER_NOT_FOUND';
+
+  return error;
+};
+
+export const invalidVerificationToken = (token) => {
+  let error = new Error(`Invalid verification code: ${token}`);
+  error.statusCode = 400;
+  error.code = 'INVALID_TOKEN';
+
+  return error;
 };

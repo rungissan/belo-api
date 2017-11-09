@@ -34,7 +34,14 @@
       }
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "confirmEmail"
+    }
+  ],
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
