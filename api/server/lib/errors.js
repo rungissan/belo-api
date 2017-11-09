@@ -1,6 +1,6 @@
 'use strict';
 
-export const unauthorized = () => {
+export const errUnauthorized = () => {
   let error = new Error();
   error.status = 401;
   error.message = 'Authorization Required';
@@ -9,7 +9,7 @@ export const unauthorized = () => {
   return error;
 };
 
-export const userNotFound = (uid) => {
+export const errUserNotFound = (uid) => {
   let error = new Error(`User not found: ${uid}`);
   error.statusCode = 404;
   error.code = 'USER_NOT_FOUND';
@@ -17,7 +17,7 @@ export const userNotFound = (uid) => {
   return error;
 };
 
-export const emailNotFound = () => {
+export const errEmailNotFound = () => {
   let error = new Error('Email not found');
   error.statusCode = 404;
   error.code = 'EMAIL_NOT_FOUND';
@@ -25,7 +25,7 @@ export const emailNotFound = () => {
   return error;
 };
 
-export const emailNotVerified = () => {
+export const errEmailNotVerified = () => {
   let error = new Error('Email not verified');
   error.statusCode = 400;
   error.code = 'EMAIL_NOT_VERIFIED';
@@ -33,10 +33,27 @@ export const emailNotVerified = () => {
   return error;
 };
 
-export const invalidVerificationToken = (token) => {
+export const errInvalidVerificationToken = (token) => {
   let error = new Error(`Invalid verification code: ${token}`);
   error.statusCode = 400;
   error.code = 'INVALID_TOKEN';
+
+  return error;
+};
+
+export const errUnsupportedRole = (roleName = '') => {
+  let error = new Error(`Invalid role ${roleName}`);
+  error.statusCode = 422;
+  error.code = 'INVALID_ROLE';
+
+  return error;
+};
+
+
+export const errUserAlreadyHaveRole = () => {
+  let error = new Error('User already have role');
+  error.statusCode = 422;
+  error.code = 'INVALID_ROLE';
 
   return error;
 };

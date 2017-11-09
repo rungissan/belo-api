@@ -34,6 +34,7 @@ var userInfo = helpers.userInfo;
 var isExpired = helpers.isExpired;
 var validateClient = helpers.validateClient;
 
+import { errEmailNotVerified } from 'lib/errors';
 // var setupResourceServer = require('./resource-server');
 
 /**
@@ -268,6 +269,11 @@ module.exports = function(app, options) {
       if (!user) {
         return done(null, false);
       }
+      if (!user.emailVerified) {
+        let error = errEmailNotVerified();
+        return done(error);
+      }
+
       user.hasPassword(password, function(err, matched) {
         if (err || !matched) {
           return done(err, false);

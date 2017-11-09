@@ -4,10 +4,12 @@ import path       from 'path';
 import Promise from 'bluebird';
 import { randomString } from 'lib/util';
 import {
-  userNotFound,
-  invalidVerificationToken,
-  emailNotFound,
-  emailNotVerified
+  errUserNotFound,
+  errInvalidVerificationToken,
+  errEmailNotFound,
+  errEmailNotVerified,
+  errUnsupportedRole,
+  errUserAlreadyHaveRole
 } from 'lib/errors';
 
 const DEFAULT_VERIFICATION_TTL = 900;
@@ -73,7 +75,7 @@ export default function(Client) {
     return this.findById(userId)
       .then(client => {
         if (!client) {
-          throw userNotFound(userId);
+          throw errUserNotFound(userId);
         }
 
         return Client.app.models.VerificationToken.findOne({
@@ -84,13 +86,13 @@ export default function(Client) {
         })
           .then(verificationToken => {
             if (!verificationToken) {
-              throw invalidVerificationToken(code);
+              throw errInvalidVerificationToken(code);
             }
 
             return verificationToken.validate({scope: 'email_verification'})
               .then(isValid => {
                 if (!isValid) {
-                  throw invalidVerificationToken(code);
+                  throw errInvalidVerificationToken(code);
                 }
 
                 return verificationToken.delete();
@@ -120,11 +122,11 @@ export default function(Client) {
     return Client.findOne({where: {email}})
       .then(client => {
         if (!client) {
-          throw emailNotFound();
+          throw errEmailNotFound();
         }
 
         if (!client.emailVerified) {
-          throw emailNotVerified();
+          throw errEmailNotVerified();
         }
 
         return client.createVerificationToken({
@@ -164,9 +166,6 @@ export default function(Client) {
   );
 
   Client.passwordUpdate = function(email, code, newPassword, next) {
-    console.log('.............validatePassword....', Client.validatePassword);
-    // return Client.validatePassword(newPassword)
-
     return new Promise((resolve, reject) => {
       return resolve(Client.validatePassword(newPassword))
     })
@@ -175,11 +174,11 @@ export default function(Client) {
       })
       .then(client => {
         if (!client) {
-          throw emailNotFound();
+          throw errEmailNotFound();
         }
 
         if (!client.emailVerified) {
-          throw emailNotVerified();
+          throw errEmailNotVerified();
         }
 
         return Client.app.models.VerificationToken.findOne({
@@ -190,13 +189,13 @@ export default function(Client) {
         })
           .then(verificationToken => {
             if (!verificationToken) {
-              throw invalidVerificationToken(code);
+              throw errInvalidVerificationToken(code);
             }
 
             return verificationToken.validate({scope: 'password_reset'})
               .then(isValid => {
                 if (!isValid) {
-                  throw invalidVerificationToken(code);
+                  throw errInvalidVerificationToken(code);
                 }
 
                 return client.setPassword(newPassword);
@@ -221,4 +220,77 @@ export default function(Client) {
       http: {verb: 'post', path: '/password-update'},
     }
   );
+
+  Client.remoteMethod(
+    'passwordUpdate',
+    {
+      description: 'Update client password using verification code.',
+      accepts: [
+        {arg: 'email', type: 'string', required: true},
+        {arg: 'code', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true},
+      ],
+      http: {verb: 'post', path: '/password-update'},
+    }
+  );
+
+
+  Client.prototype.setRole = function(role, next) {
+    if (!['user', 'prof'].includes(role)) {
+      return next(errUnsupportedRole(role));
+    }
+
+    let client = this;
+
+    let Role        = Client.app.models.Role;
+    let RoleMapping = Client.app.models.RoleMapping;
+
+    return RoleMapping.count({
+      where: {
+        principaltype: 'USER',
+        principalid: client.id
+      }
+    })
+      .then(roleMappings => {
+        if (roleMappings > 0) {
+          throw errUserAlreadyHaveRole();
+        }
+
+        return Role.findOne({
+          where: { name: role }
+        });
+      })
+      .then(clientRole => {
+        if (!clientRole) {
+          throw errUnsupportedRole(role);
+        }
+
+        return clientRole.principals.create({
+          principalType: RoleMapping.USER,
+          principalId: client.id
+        });
+      })
+      .catch(next);
+  };
+
+  Client.remoteMethod(
+    'prototype.setRole',
+    {
+      description: 'Set user role.',
+      accepts: [
+        {arg: 'role', type: 'string', required: true}
+      ],
+      http: {verb: 'post', path: '/role'},
+    }
+  );
+
+  const DISABLED_METHODS = [
+    'login',
+    'confirm',
+    'resetPassword',
+    'changePassword',
+    'setPassword'
+  ];
+
+  DISABLED_METHODS.forEach(method => Client.disableRemoteMethodByName(method));
 };
