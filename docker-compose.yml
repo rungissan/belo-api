@@ -44,7 +44,8 @@ services:
       - "127.0.0.1::3000"
     volumes:
       - "./api:/usr/src/app"
-      - api_modules:/usr/src/app/node_modules/
+      # - api_modules:/usr/src/app/node_modules/
+      - ./api/node_modules:/usr/src/app/node_modules/
       - "/var/run/postgresql:/usr/src/postgresql"
     environment:
       PRODUCTION_MODE: "OFF"
@@ -52,7 +53,29 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
-      DEBUG: loopback:connector:postgresql
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+  auth:
+    build: ./api
+    ports:
+      - "127.0.0.1::3000"
+    volumes:
+      - "./auth:/usr/src/app"
+      - auth_modules:/usr/src/app/node_modules/
+      - "/var/run/postgresql:/usr/src/postgresql"
+    environment:
+      PRODUCTION_MODE: "OFF"
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
+      POSTGRES_USER: admin
+      POSTGRES_DB: spiti
+      POSTGRES_HOST: /usr/src/postgresql
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2
     depends_on:
       - postgres
       - redis
@@ -74,4 +97,5 @@ services:
 
 volumes:
   api_modules:
+  auth_modules:
   redis_socket:

@@ -8,7 +8,7 @@ module.exports = function(Listing) {
     const userId = token && token.userId;
 
     if (!userId) {
-      return next(errors.unauthorized());
+      return next(errors.errUnauthorized());
     }
 
     let instance = ctx.args.instance || ctx.args.data;

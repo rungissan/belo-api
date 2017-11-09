@@ -21,6 +21,10 @@
     "dataSource": "postgres",
     "public": false
   },
+  "VerificationToken": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "ACL": {
     "dataSource": "postgres",
     "public": false
@@ -39,6 +43,9 @@
   "Client": {
     "dataSource": "postgres",
     "public": true
+  },
+  "Email": {
+    "dataSource": "emailLocal"
   },
   "Zipcode": {
     "dataSource": "postgres",

@@ -1,0 +1,13 @@
+{
+  "postgres": {
+    "host": "/usr/src/postgresql",
+    "port": 5432,
+    "url": "",
+    "database": "spiti",
+    "password": "UU6iyHsoTxAUznVgJDjewr8S",
+    "name": "postgres",
+    "user": "admin",
+    "connector": "postgresql",
+    "debug": true
+  }
+}

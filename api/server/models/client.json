@@ -3,27 +3,65 @@
   "base": "User",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "emailVerificationRequired": true,
+    "validateUpsert": true,
+    "restrictResetPasswordTokenScope": true,
+    "rejectPasswordChangesViaPatchOrReplace": true,
+    "resetPasswordTokenTTL": 900
   },
   "properties": {
     "firstname": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "lastname": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "username": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "description": {
       "type": "string"
     }
   },
   "validations": [],
-  "relations": {},
-  "acls": [],
-  "methods": {}
+  "relations": {
+    "verificationTokens": {
+      "type": "hasMany",
+      "model": "VerificationToken",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "confirmEmail"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "passwordReset"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "passwordUpdate"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "setRole"
+    }
+  ],
+  "methods": {},
+  "remoting": {
+    "normalizeHttpPath": true
+  }
 }

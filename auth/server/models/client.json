@@ -1,0 +1,30 @@
+{
+  "name": "Client",
+  "base": "User",
+  "idInjection": true,
+  "options": {
+    "emailVerificationRequired": true,
+    "validateUpsert": true,
+    "restrictResetPasswordTokenScope": true,
+    "rejectPasswordChangesViaPatchOrReplace": false,
+    "resetPasswordTokenTTL": 900
+  },
+  "properties": {
+    "firstname": {
+      "type": "string"
+    },
+    "lastname": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

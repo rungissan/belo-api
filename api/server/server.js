@@ -1,9 +1,10 @@
 'use strict';
 
-var loopback = require('loopback');
-var boot = require('loopback-boot');
+import loopback from 'loopback';
+import boot     from 'loopback-boot';
+import path     from 'path';
 
-var app = module.exports = loopback();
+const app = module.exports = loopback();
 
 app.start = function() {
   // start the web server
@@ -17,6 +18,9 @@ app.start = function() {
     }
   });
 };
+
+app.set('views', path.resolve(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.

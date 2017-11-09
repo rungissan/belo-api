@@ -1,0 +1,42 @@
+{
+  "name": "VerificationToken",
+  "options": {
+    "postgresql": {
+      "table": "verification_token"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true
+    },
+    "ttl": {
+      "type": "number",
+      "ttl": true,
+      "default": 900,
+      "description": "time to live in seconds (15 min default)"
+    },
+    "scopes": {
+      "type": ["string"],
+      "description": "Array of scopes granted to this access token."
+    },
+    "created": {
+      "type": "Date",
+      "defaultFn": "now"
+    }
+  },
+  "relations": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ]
+}
