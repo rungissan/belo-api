@@ -51,7 +51,12 @@ module.exports = function(VerificationToken) {
       .catch(next);
   });
 
-  VerificationToken.prototype.validate = function() {
+  VerificationToken.prototype.validate = function(options = {}) {
+    let scope = options.scope;
+    if (scope && !(this.scopes && this.scopes.includes(scope))) {
+      return Promise.resolve(false);
+    }
+
     let now = Date.now();
     let created = this.created.getTime();
     let elapsedSeconds = (now - created) / 1000;

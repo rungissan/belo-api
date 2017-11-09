@@ -6,7 +6,7 @@
     "emailVerificationRequired": true,
     "validateUpsert": true,
     "restrictResetPasswordTokenScope": true,
-    "rejectPasswordChangesViaPatchOrReplace": false,
+    "rejectPasswordChangesViaPatchOrReplace": true,
     "resetPasswordTokenTTL": 900
   },
   "properties": {
@@ -40,6 +40,18 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "confirmEmail"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "passwordReset"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "passwordUpdate"
     }
   ],
   "methods": {},

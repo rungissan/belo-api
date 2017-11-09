@@ -23,10 +23,10 @@ module.exports = function enableAuthentication(app) {
     path: '/clients',
     method: 'POST'
   }, {
-    path: '/clients/reset',
+    path: '/clients/password-reset',
     method: 'POST'
   }, {
-    path: '/clients/reset-password',
+    path: '/clients/password-update',
     method: 'POST'
   }, {
     path: '/clients/confirm-email',

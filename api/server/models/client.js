@@ -5,7 +5,9 @@ import Promise from 'bluebird';
 import { randomString } from 'lib/util';
 import {
   userNotFound,
-  invalidVerificationToken
+  invalidVerificationToken,
+  emailNotFound,
+  emailNotVerified
 } from 'lib/errors';
 
 const DEFAULT_VERIFICATION_TTL = 900;
@@ -85,7 +87,7 @@ export default function(Client) {
               throw invalidVerificationToken(code);
             }
 
-            return verificationToken.validate()
+            return verificationToken.validate({scope: 'email_verification'})
               .then(isValid => {
                 if (!isValid) {
                   throw invalidVerificationToken(code);
@@ -114,55 +116,109 @@ export default function(Client) {
     http: {verb: 'get', path: '/confirm-email'}
   });
 
-  // TODO remove this after issue fixed
-  // If use rejectPasswordChangesViaPatchOrReplace option to allow password change only via changePassword() or setPassword()
-  // there is a bug when try to validate/confirm user - https://github.com/strongloop/loopback/issues/3393
-  // because user user.save() method that try to update all user properties.
-  // Temporary workaround - check password update in remote hooks.
-  function rejectInsecurePasswordChange(ctx, client, next) {
-    let data = ctx.args && (ctx.args.data || ctx.args.instance) || {};
+  Client.passwordReset = function(email, next) {
+    return Client.findOne({where: {email}})
+      .then(client => {
+        if (!client) {
+          throw emailNotFound();
+        }
 
-    if (!data.password) {
-      return next();
+        if (!client.emailVerified) {
+          throw emailNotVerified();
+        }
+
+        return client.createVerificationToken({
+          scopes: ['password_reset'],
+          ttl: DEFAULT_VERIFICATION_TTL
+        });
+      })
+      .then(verificationToken => {
+        let verifyOptions = {
+          code: verificationToken.id,
+          text: verificationToken.id,
+          type: 'email',
+          to: email,
+          from: 'test@domain.com',
+          subject: 'Password reset.',
+          template: path.resolve(__dirname, '../../server/views/password-reset.ejs'),
+        }
+
+        var template = Client.app.loopback.template(verifyOptions.template);
+        var body = template(verifyOptions);
+
+        const Email = Client.email;
+        return Email.send(verifyOptions);
+      })
+      .catch(next);
+  };
+
+  Client.remoteMethod(
+    'passwordReset',
+    {
+      description: 'Reset password for a user with email.',
+      accepts: [
+        {arg: 'email', type: 'string', required: true}
+      ],
+      http: {verb: 'post', path: '/password-reset'},
     }
+  );
 
-    const err = new Error(
-      'Changing user password via patch/replace API is not allowed. ' +
-      'Use password reset instead');
-    err.statusCode = 401;
-    err.code = 'PASSWORD_CHANGE_NOT_ALLOWED';
-    next(err);
-  }
+  Client.passwordUpdate = function(email, code, newPassword, next) {
+    console.log('.............validatePassword....', Client.validatePassword);
+    // return Client.validatePassword(newPassword)
 
-  [
-    'replaceById',
-    'updateAll',
-    '*.patchAttributes',
-    'patchOrCreate',
-    'replaceOrCreate',
-    'upsertWithWhere',
-    'upsert',
-    'updateAll',
-    'bulkUpdate',
-    'upsertWithWhere',
-    'replaceOrCreate',
-    'replaceById',
-    'findOrCreate'
-  ].forEach(remoteHook => Client.beforeRemote(remoteHook, rejectInsecurePasswordChange));
+    return new Promise((resolve, reject) => {
+      return resolve(Client.validatePassword(newPassword))
+    })
+      .then(() => {
+        return Client.findOne({where: {email}});
+      })
+      .then(client => {
+        if (!client) {
+          throw emailNotFound();
+        }
 
-  Client.on('resetPasswordRequest', function(info) {
-    var url = 'http://' + 'localhost' + '/reset-password';
-    var html = 'Click <a href="' + url + '?access_token=' +
-        info.accessToken.id + '">here</a> to reset your password';
+        if (!client.emailVerified) {
+          throw emailNotVerified();
+        }
 
-    Client.app.models.Email.send({
-      to: info.email,
-      from: info.email,
-      subject: 'Password reset',
-      html: html
-    }, function(err) {
-      if (err) return console.log('> error sending password reset email');
-      console.log('> sending password reset email to:', info.email);
-    });
-  });
+        return Client.app.models.VerificationToken.findOne({
+          where: {
+            id: code,
+            userid: client.id
+          }
+        })
+          .then(verificationToken => {
+            if (!verificationToken) {
+              throw invalidVerificationToken(code);
+            }
+
+            return verificationToken.validate({scope: 'password_reset'})
+              .then(isValid => {
+                if (!isValid) {
+                  throw invalidVerificationToken(code);
+                }
+
+                return client.setPassword(newPassword);
+              })
+              .then(() => {
+                return verificationToken.delete();
+              });
+          });
+      })
+      .catch(next);
+  };
+
+  Client.remoteMethod(
+    'passwordUpdate',
+    {
+      description: 'Update client password using verification code.',
+      accepts: [
+        {arg: 'email', type: 'string', required: true},
+        {arg: 'code', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true},
+      ],
+      http: {verb: 'post', path: '/password-update'},
+    }
+  );
 };
