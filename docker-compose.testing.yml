@@ -6,7 +6,7 @@ services:
       - "127.0.0.1:80:80"
       - "127.0.0.1:443:443"
     environment:
-      NGINX_HOST: "localhost"
+      NGINX_HOST: "spiti.clever-hosting.com"
       NGINX_SSL: "OFF"
       NGINX_PROD: "OFF"
 
@@ -14,7 +14,7 @@ services:
     tty: true
     environment:
       NODE_ENV: production
-      domain: localhost
+      domain: spiti.clever-hosting.com
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
@@ -24,7 +24,7 @@ services:
     tty: true
     environment:
       NODE_ENV: production
-      domain: localhost
+      domain: spiti.clever-hosting.com
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
