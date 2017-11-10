@@ -46,5 +46,19 @@
         "rejectUnauthorized": false
       }
     }]
+  },
+  "gmail": {
+    "name": "gmail",
+    "connector": "mail",
+    "transports": [{
+      "type": "SMTP",
+      "host": "smtp.gmail.com",
+      "secure": true,
+      "port": 465,
+      "auth": {
+        "user": "spiti.social.testing@gmail.com",
+        "pass": "VVz9iG9z7yPcOw7SgLnVVz9"
+      }
+    }]
   }
 }

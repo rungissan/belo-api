@@ -42,6 +42,7 @@ export default function(Client) {
         verifyOptions.code = verificationToken.id;
         verifyOptions.verificationToken = verificationToken;
         verifyOptions.text = verificationToken.id;
+        verifyOptions.from = 'spiti.social.testing@gmail.com';
 
         var template = Client.app.loopback.template(verifyOptions.template);
         var body = template(verifyOptions);
@@ -140,7 +141,7 @@ export default function(Client) {
           text: verificationToken.id,
           type: 'email',
           to: email,
-          from: 'test@domain.com',
+          from: 'spiti.social.testing@gmail.com',
           subject: 'Password reset.',
           template: path.resolve(__dirname, '../../server/views/password-reset.ejs'),
         }
