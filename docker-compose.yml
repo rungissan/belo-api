@@ -44,8 +44,7 @@ services:
       - "127.0.0.1::3000"
     volumes:
       - "./api:/usr/src/app"
-      # - api_modules:/usr/src/app/node_modules/
-      - ./api/node_modules:/usr/src/app/node_modules/
+      - api_modules:/usr/src/app/node_modules/
       - "/var/run/postgresql:/usr/src/postgresql"
     environment:
       PRODUCTION_MODE: "OFF"
