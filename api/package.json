@@ -14,6 +14,10 @@
     "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
+    "babel-plugin-module-resolver": "^2.7.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "compression": "^1.0.3",
@@ -37,10 +41,6 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
-    "babel-plugin-module-resolver": "^2.7.1",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-stage-2": "^6.24.1",
-    "babel-register": "^6.26.0",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0",
