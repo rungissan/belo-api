@@ -61,7 +61,7 @@ services:
     restart: 'no'
 
   auth:
-    build: ./api
+    build: ./auth
     ports:
       - "127.0.0.1::3000"
     volumes:

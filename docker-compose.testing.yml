@@ -3,8 +3,8 @@ services:
 
   balancer:
     ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
+      - "80:80"
+      - "443:443"
     environment:
       NGINX_HOST: "spiti.clever-hosting.com"
       NGINX_SSL: "OFF"

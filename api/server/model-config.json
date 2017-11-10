@@ -45,7 +45,7 @@
     "public": true
   },
   "Email": {
-    "dataSource": "emailLocal"
+    "dataSource": "gmail"
   },
   "Zipcode": {
     "dataSource": "postgres",
