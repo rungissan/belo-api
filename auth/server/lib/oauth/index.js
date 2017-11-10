@@ -8,9 +8,6 @@
  * Module dependencies.
  */
 var path = require('path');
-// var SG = require('strong-globalize');
-// SG.SetRootDir(path.join(__dirname, '..'));
-// var g = SG();
 var loopbackOAuth2 = require('./oauth2-loopback');
 var exports = module.exports = loopbackOAuth2;
 

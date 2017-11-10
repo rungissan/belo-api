@@ -76,6 +76,19 @@ curl -X POST \
 }'
 ```
 
+## Revoke token (logout)
+
+No sessions used. To logout just need to remove token from database.
+```
+curl -X POST \
+  http://localhost/auth/oauth/revoke \
+  -H 'authorization: Basic base64_encoded_client_credentials' \
+  -H 'content-type: application/json' \
+  -d '{
+	"token": "L0eht7rL1t2OrklObpaeQgWUshRybVLq"
+}'
+```
+
 ## Reset password
 
 To change forgotten password use /clients/password-reset route:

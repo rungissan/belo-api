@@ -104,6 +104,8 @@ module.exports = function(app, options) {
     }, done);
   };
 
+  users.settings = {...userModel.settings};
+
   var clients = {};
   clients.find = clients.findByClientId = function(clientId, done) {
     applicationModel.findById(clientId, done);

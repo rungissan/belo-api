@@ -53,6 +53,10 @@ export default function(Client) {
   };
 
   Client.afterRemote('create', function(context, client, next) {
+    if (!Client.settings.emailVerificationRequired) {
+      return next();
+    }
+
     let options = {
       type: 'email',
       to: client.email,

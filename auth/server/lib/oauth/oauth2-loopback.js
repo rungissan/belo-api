@@ -4,38 +4,38 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-/**
- * Module dependencies.
- */
-// var SG = require('strong-globalize');
-// var g = SG();
-var url = require('url'),
-  oauth2Provider = require('oauth2orize'),
-  // TokenError = require('./errors/tokenerror'),
-  // AuthorizationError = require('./errors/authorizationerror'),
-  utils = require('./utils'),
-  helpers = require('./oauth2-helper'),
-  MacTokenGenerator = require('./mac-token'),
-  modelBuilder = require('./models/index'),
-  debug = require('debug')('loopback:oauth2'),
-  passport = require('passport'),
-  login = require('connect-ensure-login'),
-  LocalStrategy = require('passport-local').Strategy,
-  BasicStrategy = require('passport-http').BasicStrategy,
-  ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy,
-  // ClientJWTBearerStrategy = require('./strategy/jwt-bearer').Strategy,
-  bodyParser = require('body-parser');
 
-const TokenError = oauth2Provider.TokenError;
-const AuthorizationError = oauth2Provider.AuthorizationError;
+import url            from 'url';
+import oauth2Provider from 'oauth2orize';
+import passport       from 'passport';
+import login          from 'connect-ensure-login';
+import bodyParser     from 'body-parser';
+import log            from 'debug';
 
-var clientInfo = helpers.clientInfo;
-var userInfo = helpers.userInfo;
-var isExpired = helpers.isExpired;
-var validateClient = helpers.validateClient;
+import { Strategy as LocalStrategy }           from 'passport-local';
+import { BasicStrategy }                       from 'passport-http';
+import { Strategy as ClientPasswordStrategy }  from 'passport-oauth2-client-password';
+// import { Strategy as ClientJWTBearerStrategy } from './strategy/jwt-bearer';
+
+import utils             from './utils';
+import helpers           from './oauth2-helper';
+import MacTokenGenerator from './mac-token';
+import modelBuilder      from './models/index';
 
 import { errEmailNotVerified } from 'lib/errors';
-// var setupResourceServer = require('./resource-server');
+
+const debug = log('loopback:oauth2');
+
+const TokenError         = oauth2Provider.TokenError;
+const AuthorizationError = oauth2Provider.AuthorizationError;
+
+const clientInfo     = helpers.clientInfo;
+const userInfo       = helpers.userInfo;
+const isExpired      = helpers.isExpired;
+const validateClient = helpers.validateClient;
+
+import revokeMiddleware from './middleware/revoke';
+// oauth2Provider.revoke = revokeMiddleware(TokenError);
 
 /**
  *
@@ -101,6 +101,7 @@ module.exports = function(app, options) {
 
   // create OAuth 2.0 server
   var server = oauth2Provider.createServer();
+  server.revoke = revokeMiddleware;
 
   /*
    Register serialization and deserialization functions.
@@ -269,7 +270,7 @@ module.exports = function(app, options) {
       if (!user) {
         return done(null, false);
       }
-      if (!user.emailVerified) {
+      if (!user.emailVerified && models.users.settings.emailVerificationRequired) {
         let error = errEmailNotVerified();
         return done(error);
       }
@@ -682,23 +683,25 @@ module.exports = function(app, options) {
     passport.authenticate(
       ['loopback-oauth2-client-password',
         'loopback-oauth2-client-basic',
-        'loopback-oauth2-jwt-bearer'],
+        // 'loopback-oauth2-jwt-bearer'
+      ],
       {session: false}),
     server.token(),
     server.errorHandler(),
   ];
 
-  // handlers.revoke = [
-  //   passport.authenticate(
-  //     ['loopback-oauth2-client-password',
-  //       'loopback-oauth2-client-basic',
-  //       'loopback-oauth2-jwt-bearer'],
-  //     {session: false}),
-  //   server.revoke(function(client, token, tokenType, cb) {
-  //     models.accessTokens.delete(client.id, token, tokenType, cb);
-  //   }),
-  //   server.errorHandler(),
-  // ];
+  handlers.revoke = [
+    passport.authenticate(
+      ['loopback-oauth2-client-password',
+        'loopback-oauth2-client-basic',
+        // 'loopback-oauth2-jwt-bearer'
+      ],
+      {session: false}),
+    server.revoke(function(client, token, tokenType, cb) {
+      models.accessTokens.delete(client.id, token, tokenType, cb);
+    }),
+    server.errorHandler(),
+  ];
 
   /**
    * BasicStrategy & ClientPasswordStrategy
@@ -804,7 +807,7 @@ module.exports = function(app, options) {
     app.post(options.tokenPath || '/oauth/token', handlers.token);
   }
   if (options.revokePath !== false) {
-    // app.post(options.revokePath || '/oauth/revoke', handlers.revoke);
+    app.post(options.revokePath || '/oauth/revoke', handlers.revoke);
   }
 
   if (options.loginPath !== false) {
