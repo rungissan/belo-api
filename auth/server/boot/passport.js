@@ -11,10 +11,10 @@ try {
   process.exit(1); // fatal
 }
 
-import { generateToken } from 'lib/oauth/utils';
+import { createAccessToken } from 'lib/oauth/token-utils';
 
-function generateAccessToken (client, cb) {
-  return generateToken({ client });
+function generateAccessToken(client, cb) {
+  return createAccessToken({ client });
 }
 
 module.exports = function(app) {
@@ -26,14 +26,14 @@ module.exports = function(app) {
   passportConfigurator.setupModels({
     userModel: app.models.Client,
     userIdentityModel: app.models.userIdentity,
-    userCredentialModel: app.models.userCredential,
+    userCredentialModel: app.models.userCredential
   });
 
   Object.keys(providersConfig).forEach(name => {
     let config = providersConfig[name];
 
     config.session = config.session !== false;
-    config.createAccessToken = generateToken;
-    passportConfigurator.configureProvider(name, config);  
-  })
+    config.createAccessToken = generateAccessToken;
+    passportConfigurator.configureProvider(name, config);
+  });
 };

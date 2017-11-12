@@ -15,12 +15,12 @@ import log            from 'debug';
 import { Strategy as LocalStrategy }           from 'passport-local';
 import { BasicStrategy }                       from 'passport-http';
 import { Strategy as ClientPasswordStrategy }  from 'passport-oauth2-client-password';
-// import { Strategy as ClientJWTBearerStrategy } from './strategy/jwt-bearer';
 
-import utils             from './utils';
-import helpers           from './oauth2-helper';
-import MacTokenGenerator from './mac-token';
-import modelBuilder      from './models/index';
+import utils                 from './utils';
+import helpers               from './oauth2-helper';
+import MacTokenGenerator     from './mac-token';
+import modelBuilder          from './models/index';
+import { createAccessToken } from './token-utils';
 
 import { errEmailNotVerified } from 'lib/errors';
 
@@ -73,7 +73,7 @@ module.exports = function(app, options) {
 
   var macTokenGenerator = new MacTokenGenerator('sha256');
 
-  var generateToken = options.generateToken || utils.generateToken;
+  var generateToken = options.generateToken || createAccessToken;
 
   // var generateToken = options.generateToken || function(options) {
   //   options = options || {};

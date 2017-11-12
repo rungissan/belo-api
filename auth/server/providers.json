@@ -8,7 +8,7 @@
     "clientSecret": "3da326c85530ce6e073adb28de1eae35",
     "callbackURL": "http://localhost:3000/auth/facebook/callback",
     "authPath": "/auth/facebook",
-    "callbackPath": "http://localhost/auth/facebook/callback",
+    "callbackPath": "/auth/facebook/callback",
     "successRedirect": "/auth/account",
     "failureRedirect": "/login",
     "scope": ["email"],
