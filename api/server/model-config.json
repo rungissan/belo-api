@@ -40,6 +40,10 @@
     "dataSource": "postgres",
     "public": false
   },
+  "OAuthClientApplication": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "Client": {
     "dataSource": "postgres",
     "public": true
