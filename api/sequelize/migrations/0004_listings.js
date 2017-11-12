@@ -5,31 +5,31 @@ const defaultFields = (DataTypes) => {
     created_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
     updated_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
     deleted_at: {type: DataTypes.DATE, allowNull: true}
-  }
+  };
 };
 
-const listing = (DataTypes) => {return {
+const listing = (DataTypes) => ({
   id:          { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
   ownerid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {model: 'client', key: 'id'},
+    references: {model: 'user', key: 'id'},
     onUpdate: 'cascade',
     onDelete: 'cascade'
   },
   title:       { type: DataTypes.STRING(250), allowNull: false },
   description: { type: DataTypes.STRING },
   ...defaultFields(DataTypes)
-}};
+});
 
-const zipcode = (DataTypes) => {return {
+const zipcode = (DataTypes) => ({
   id:      { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
   zipcode: { type: DataTypes.STRING(50), allowNull: false },
   name:    { type: DataTypes.STRING(50) },
   ...defaultFields(DataTypes)
-}};
+});
 
-const listing_to_zipcode = (DataTypes) => {return {
+const listing_to_zipcode = (DataTypes) => ({
   id:         { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   listing_id: {
     type: DataTypes.INTEGER,
@@ -45,7 +45,7 @@ const listing_to_zipcode = (DataTypes) => {return {
     onUpdate: 'cascade',
     onDelete: 'cascade'
   }
-}};
+});
 
 module.exports = {
   up: (queryInterface, DataTypes) => {
