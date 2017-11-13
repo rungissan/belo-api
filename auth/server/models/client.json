@@ -7,7 +7,10 @@
     "validateUpsert": true,
     "restrictResetPasswordTokenScope": true,
     "rejectPasswordChangesViaPatchOrReplace": false,
-    "resetPasswordTokenTTL": 900
+    "resetPasswordTokenTTL": 900,
+    "postgresql": {
+      "table": "user"
+    }
   },
   "properties": {
     "firstname": {

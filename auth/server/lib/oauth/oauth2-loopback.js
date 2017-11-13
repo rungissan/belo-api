@@ -15,12 +15,12 @@ import log            from 'debug';
 import { Strategy as LocalStrategy }           from 'passport-local';
 import { BasicStrategy }                       from 'passport-http';
 import { Strategy as ClientPasswordStrategy }  from 'passport-oauth2-client-password';
-// import { Strategy as ClientJWTBearerStrategy } from './strategy/jwt-bearer';
 
-import utils             from './utils';
-import helpers           from './oauth2-helper';
-import MacTokenGenerator from './mac-token';
-import modelBuilder      from './models/index';
+import utils                 from './utils';
+import helpers               from './oauth2-helper';
+import MacTokenGenerator     from './mac-token';
+import modelBuilder          from './models/index';
+import { createAccessToken } from './token-utils';
 
 import { errEmailNotVerified } from 'lib/errors';
 
@@ -73,31 +73,33 @@ module.exports = function(app, options) {
 
   var macTokenGenerator = new MacTokenGenerator('sha256');
 
-  var generateToken = options.generateToken || function(options) {
-    options = options || {};
-    var id = utils.uid(32);
-    if (options.client && options.client.tokenType === 'jwt') {
-      var secret = options.client.clientSecret || options.client.restApiKey;
-      var payload = {
-        id: id,
-        clientId: options.client.id,
-        userId: options.user && options.user.id,
-        scope: options.scope,
-        createdAt: new Date(),
-      };
-      var token = helpers.generateJWT(payload, secret, 'HS256');
-      return {
-        id: token,
-      };
-    } else if (options.client && options.client.tokenType === 'mac') {
-      options.jwtAlgorithm = 'HS256'; // HS256 for mac token
-      return macTokenGenerator.generateToken(options);
-    } else {
-      return {
-        id: id,
-      };
-    }
-  };
+  var generateToken = options.generateToken || createAccessToken;
+
+  // var generateToken = options.generateToken || function(options) {
+  //   options = options || {};
+  //   var id = utils.uid(32);
+  //   if (options.client && options.client.tokenType === 'jwt') {
+  //     var secret = options.client.clientSecret || options.client.restApiKey;
+  //     var payload = {
+  //       id: id,
+  //       clientId: options.client.id,
+  //       userId: options.user && options.user.id,
+  //       scope: options.scope,
+  //       createdAt: new Date(),
+  //     };
+  //     var token = helpers.generateJWT(payload, secret, 'HS256');
+  //     return {
+  //       id: token,
+  //     };
+  //   } else if (options.client && options.client.tokenType === 'mac') {
+  //     options.jwtAlgorithm = 'HS256'; // HS256 for mac token
+  //     return macTokenGenerator.generateToken(options);
+  //   } else {
+  //     return {
+  //       id: id,
+  //     };
+  //   }
+  // };
 
   // create OAuth 2.0 server
   var server = oauth2Provider.createServer();
