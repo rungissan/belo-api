@@ -62,5 +62,13 @@
   "ListingToZipcode": {
     "dataSource": "postgres",
     "public": false
+  },
+  "Container": {
+    "dataSource": "storage",
+    "public": true
+  },
+  "Attachment": {
+    "dataSource": "postgres",
+    "public": true
   }
 }

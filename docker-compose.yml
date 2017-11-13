@@ -46,6 +46,7 @@ services:
       - "./api:/usr/src/app"
       - api_modules:/usr/src/app/node_modules/
       - "/var/run/postgresql:/usr/src/postgresql"
+      - "./data/storage:/usr/src/storage"
     environment:
       PRODUCTION_MODE: "OFF"
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S

@@ -8,6 +8,8 @@ const defaultFields = (DataTypes) => {
   }
 };
 
+const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+
 const user = (DataTypes) => ({
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
   firstname:         { type: DataTypes.STRING(100) },
@@ -75,6 +77,15 @@ const rolemapping = (DataTypes) => ({
   roleid:        { type: DataTypes.INTEGER }
 });
 
+const attachment = (DataTypes) => ({
+  id:         { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  ownerid:    { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  url:        { type: DataTypes.STRING },
+  public_url: { type: DataTypes.STRING },
+  type:       { type: DataTypes.STRING(20) },
+  name:       { type: DataTypes.STRING }
+});
+
 module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('user', user(DataTypes))
@@ -82,7 +93,8 @@ module.exports = {
       .then(() => queryInterface.createTable('verification_token', verifytoken(DataTypes)))
       .then(() => queryInterface.createTable('acl', acl(DataTypes)))
       .then(() => queryInterface.createTable('role', role(DataTypes)))
-      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)));
+      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
+      .then(() => queryInterface.createTable('attachment', attachment(DataTypes)));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('user')
@@ -90,6 +102,7 @@ module.exports = {
       .then(() => queryInterface.dropTable('verification_token'))
       .then(() => queryInterface.dropTable('acl'))
       .then(() => queryInterface.dropTable('role'))
-      .then(() => queryInterface.dropTable('rolemapping'));
+      .then(() => queryInterface.dropTable('rolemapping'))
+      .then(() => queryInterface.dropTable('attachment'));
   }
 };

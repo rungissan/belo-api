@@ -66,5 +66,8 @@
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
+  },
+  "mixins": {
+    "Timestamp": {}
   }
 }
