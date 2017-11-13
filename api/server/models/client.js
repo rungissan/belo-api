@@ -251,10 +251,8 @@ export default function(Client) {
     let RoleMapping = Client.app.models.RoleMapping;
 
     return RoleMapping.count({
-      where: {
-        principaltype: 'USER',
-        principalid: client.id
-      }
+      principalType: 'USER',
+      principalId: client.id
     })
       .then(roleMappings => {
         if (roleMappings > 0) {
