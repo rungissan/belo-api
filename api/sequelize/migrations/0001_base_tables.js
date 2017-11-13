@@ -79,11 +79,13 @@ const rolemapping = (DataTypes) => ({
 
 const attachment = (DataTypes) => ({
   id:         { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  ownerid:    { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  userid:     { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
   url:        { type: DataTypes.STRING },
   public_url: { type: DataTypes.STRING },
   type:       { type: DataTypes.STRING(20) },
-  name:       { type: DataTypes.STRING }
+  size:       { type: DataTypes.INTEGER },
+  name:       { type: DataTypes.STRING },
+  container:  { type: DataTypes.STRING }
 });
 
 module.exports = {
