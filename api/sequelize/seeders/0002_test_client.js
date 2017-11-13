@@ -9,7 +9,7 @@ const Application = server.models.OAuthClientApplication;
 
 const clientData = {
   id: 'spiti_web',
-  clientSecret: 'spiti_web_pass',
+  clientSecret: 'spiti_seb_pass',
   name: 'spiti_web'
 };
 

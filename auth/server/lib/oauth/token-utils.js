@@ -1,13 +1,14 @@
 'use strict';
 
 import helpers           from './oauth2-helper';
+import utils             from './utils';
 import MacTokenGenerator from './mac-token';
 
 const macTokenGenerator = new MacTokenGenerator('sha256');
 
 export function createAccessToken(options) {
   options = options || {};
-  var id = exports.uid(32);
+  var id = utils.uid(32);
   if (options.client && options.client.tokenType === 'jwt') {
     var secret = options.client.clientSecret || options.client.restApiKey;
     var payload = {
