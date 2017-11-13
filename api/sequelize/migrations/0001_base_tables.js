@@ -8,7 +8,7 @@ const defaultFields = (DataTypes) => {
   }
 };
 
-const clients = (DataTypes) => {return {
+const user = (DataTypes) => ({
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
   firstname:         { type: DataTypes.STRING(100) },
   lastname:          { type: DataTypes.STRING(100) },
@@ -20,9 +20,9 @@ const clients = (DataTypes) => {return {
   description:       { type: DataTypes.STRING },
   emailverified:     { type: DataTypes.BOOLEAN },
   ...defaultFields(DataTypes)
-}};
+});
 
-const accesstoken = (DataTypes) => {return {
+const accesstoken = (DataTypes) => ({
   id:      { type: DataTypes.TEXT,    allowNull: false },
   ttl:     { type: DataTypes.INTEGER, defaultValue: 1209600 },
   scopes:  { type: DataTypes.TEXT },
@@ -30,66 +30,66 @@ const accesstoken = (DataTypes) => {return {
   userid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {model: 'client', key: 'id'},
+    references: {model: 'user', key: 'id'},
     onUpdate: 'cascade',
     onDelete: 'cascade'
   }
-}};
+});
 
-const verifytoken = (DataTypes) => {return {
-  id:      { type: DataTypes.TEXT,    allowNull: false },
+const verifytoken = (DataTypes) => ({
+  id:      { type: DataTypes.STRING(20),    allowNull: false },
   ttl:     { type: DataTypes.INTEGER, defaultValue: 900 },
   scopes:  { type: DataTypes.TEXT },
   created: { type: DataTypes.DATE },
   userid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {model: 'client', key: 'id'},
+    references: {model: 'user', key: 'id'},
     onUpdate: 'cascade',
     onDelete: 'cascade'
   }
-}};
+});
 
-const acl = (DataTypes) => {return {
+const acl = (DataTypes) => ({
   id:            { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  model:         { type: DataTypes.TEXT },
-  property:      { type: DataTypes.TEXT },
-  accesstype:    { type: DataTypes.TEXT },
-  permission:    { type: DataTypes.TEXT },
-  principaltype: { type: DataTypes.TEXT },
-  principalid:   { type: DataTypes.TEXT }
-}};
+  model:         { type: DataTypes.STRING(50) },
+  property:      { type: DataTypes.STRING },
+  accesstype:    { type: DataTypes.STRING },
+  permission:    { type: DataTypes.STRING },
+  principaltype: { type: DataTypes.STRING },
+  principalid:   { type: DataTypes.STRING }
+});
 
-const role = (DataTypes) => {return {
+const role = (DataTypes) => ({
   id:          { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   name:        { type: DataTypes.TEXT, allowNull: false },
-  description: { type: DataTypes.TEXT },
+  description: { type: DataTypes.STRING(100) },
   created:     { type: DataTypes.DATE },
   modified:    { type: DataTypes.DATE }
-}};
+});
 
-const rolemapping = (DataTypes) => {return {
+const rolemapping = (DataTypes) => ({
   id:            { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   principaltype: { type: DataTypes.TEXT },
   principalid:   { type: DataTypes.TEXT },
   roleid:        { type: DataTypes.INTEGER }
-}};
+});
 
 module.exports = {
   up: (queryInterface, DataTypes) => {
-    return queryInterface.createTable('client', clients(DataTypes))
+    return queryInterface.createTable('user', user(DataTypes))
       .then(() => queryInterface.createTable('accesstoken', accesstoken(DataTypes)))
       .then(() => queryInterface.createTable('verification_token', verifytoken(DataTypes)))
       .then(() => queryInterface.createTable('acl', acl(DataTypes)))
       .then(() => queryInterface.createTable('role', role(DataTypes)))
-      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
+      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)));
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('client')
+    return queryInterface.dropTable('user')
       .then(() => queryInterface.dropTable('accesstoken'))
       .then(() => queryInterface.dropTable('verification_token'))
       .then(() => queryInterface.dropTable('acl'))
       .then(() => queryInterface.dropTable('role'))
-      .then(() => queryInterface.dropTable('rolemapping'))
+      .then(() => queryInterface.dropTable('rolemapping'));
   }
 };
