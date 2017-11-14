@@ -283,7 +283,7 @@ export default function(Client) {
       accepts: [
         {arg: 'role', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/role'},
+      http: {verb: 'post', path: '/role'}
     }
   );
 

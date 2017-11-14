@@ -65,11 +65,11 @@
   },
   "ContainerPrivate": {
     "dataSource": "storagePrivate",
-    "public": true
+    "public": false
   },
   "ContainerPublic": {
     "dataSource": "storagePublic",
-    "public": true
+    "public": false
   },
   "Attachment": {
     "dataSource": "postgres",
