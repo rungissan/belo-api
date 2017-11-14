@@ -74,5 +74,15 @@
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
+  },
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "@create",
+        "updateAttributes"
+      ]
+    }
   }
 }

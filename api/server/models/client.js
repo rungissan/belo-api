@@ -286,14 +286,4 @@ export default function(Client) {
       http: {verb: 'post', path: '/role'}
     }
   );
-
-  const DISABLED_METHODS = [
-    'login',
-    'confirm',
-    'resetPassword',
-    'changePassword',
-    'setPassword'
-  ];
-
-  DISABLED_METHODS.forEach(method => Client.disableRemoteMethodByName(method));
 };
