@@ -2488,6 +2488,12 @@ loopback-phase@^3.0.0, loopback-phase@^3.1.0:
     debug "^2.1.0"
     strong-globalize "^3.1.0"
 
+loopback-remote-routing@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/loopback-remote-routing/-/loopback-remote-routing-1.5.2.tgz#554f60c7073eab1026b4361b2e0aedb6c490b822"
+  dependencies:
+    lodash "^3.10.1"
+
 loopback-swagger@^5.0.0:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/loopback-swagger/-/loopback-swagger-5.2.1.tgz#60a0fd9048b7d183c136c04d4bb736c76786c731"
