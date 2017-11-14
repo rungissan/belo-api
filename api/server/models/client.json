@@ -35,6 +35,14 @@
       "options": {
         "disableInclude": true
       }
+    },
+    "attachments": {
+      "type": "hasMany",
+      "model": "Attachment",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
     }
   },
   "acls": [

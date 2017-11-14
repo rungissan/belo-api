@@ -60,5 +60,19 @@
         "pass": "VVz9iG9z7yPcOw7SgLnVVz9"
       }
     }]
+  },
+  "storagePrivate": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "/usr/src/storage/private",
+    "nameConflict": "makeUnique"
+  },
+  "storagePublic": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "/usr/src/storage/public",
+    "nameConflict": "makeUnique"
   }
 }
