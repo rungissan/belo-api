@@ -1,8 +1,7 @@
 'use strict';
 
-import path       from 'path';
+import path    from 'path';
 import Promise from 'bluebird';
-import { randomString } from 'lib/util';
 import {
   errUserNotFound,
   errInvalidVerificationToken,
@@ -10,7 +9,7 @@ import {
   errEmailNotVerified,
   errUnsupportedRole,
   errUserAlreadyHaveRole
-} from 'lib/errors';
+} from '../lib/errors';
 
 const DEFAULT_VERIFICATION_TTL = 900;
 

@@ -2,7 +2,7 @@
 
 const Promise = require('bluebird');
 
-module.exports = (Model, bootOptions = {}) => {
+export default function(Model, bootOptions = {}) {
   const options = {
     createdKey: 'created_at',
     updatedKey: 'updated_at',

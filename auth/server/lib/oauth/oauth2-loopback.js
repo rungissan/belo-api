@@ -22,7 +22,7 @@ import MacTokenGenerator     from './mac-token';
 import modelBuilder          from './models/index';
 import { createAccessToken } from './token-utils';
 
-import { errEmailNotVerified } from 'lib/errors';
+import { errEmailNotVerified } from '../errors';
 
 const debug = log('loopback:oauth2');
 
