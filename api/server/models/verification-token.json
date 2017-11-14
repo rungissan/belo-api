@@ -10,6 +10,9 @@
       "type": "string",
       "id": true
     },
+    "userId": {
+      "type": "number"
+    },
     "ttl": {
       "type": "number",
       "ttl": true,

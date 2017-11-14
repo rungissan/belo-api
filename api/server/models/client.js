@@ -251,10 +251,8 @@ export default function(Client) {
     let RoleMapping = Client.app.models.RoleMapping;
 
     return RoleMapping.count({
-      where: {
-        principaltype: 'USER',
-        principalid: client.id
-      }
+      principalType: 'USER',
+      principalId: client.id
     })
       .then(roleMappings => {
         if (roleMappings > 0) {
@@ -285,17 +283,7 @@ export default function(Client) {
       accepts: [
         {arg: 'role', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/role'},
+      http: {verb: 'post', path: '/role'}
     }
   );
-
-  const DISABLED_METHODS = [
-    'login',
-    'confirm',
-    'resetPassword',
-    'changePassword',
-    'setPassword'
-  ];
-
-  DISABLED_METHODS.forEach(method => Client.disableRemoteMethodByName(method));
 };

@@ -10,7 +10,8 @@
       "loopback/common/mixins",
       "loopback/server/mixins",
       "../common/mixins",
-      "./mixins"
+      "./mixins",
+      "../node_modules/loopback-remote-routing"
     ]
   },
   "User": {
@@ -62,5 +63,17 @@
   "ListingToZipcode": {
     "dataSource": "postgres",
     "public": false
+  },
+  "ContainerPrivate": {
+    "dataSource": "storagePrivate",
+    "public": false
+  },
+  "ContainerPublic": {
+    "dataSource": "storagePublic",
+    "public": false
+  },
+  "Attachment": {
+    "dataSource": "postgres",
+    "public": true
   }
 }

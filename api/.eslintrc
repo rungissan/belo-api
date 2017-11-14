@@ -18,6 +18,7 @@
     "comma-style": [2, "last"],
     "max-len": [1, 180, 4],
     "object-curly-spacing": 0,
-    "key-spacing": 0
+    "key-spacing": 0,
+    "one-var": [2, "never"]
   }
 }

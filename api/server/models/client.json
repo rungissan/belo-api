@@ -35,6 +35,14 @@
       "options": {
         "disableInclude": true
       }
+    },
+    "attachments": {
+      "type": "hasMany",
+      "model": "Attachment",
+      "foreignKey": "userId",
+      "options": {
+        "disableInclude": true
+      }
     }
   },
   "acls": [
@@ -66,5 +74,15 @@
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
+  },
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "@create",
+        "updateAttributes"
+      ]
+    }
   }
 }
