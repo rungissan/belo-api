@@ -3,7 +3,7 @@
 import Promise from 'bluebird';
 
 const CONTAINERS_URL    = '/api/containers/';
-const PUBLIC_DIR        = '/uploads';
+const PUBLIC_DIR        = '/public';
 
 module.exports = function(Attachment) {
   Attachment.upload = function(ctx, hidden, cb) {
@@ -38,7 +38,7 @@ module.exports = function(Attachment) {
         size: fileInfo.size,
         container: fileInfo.container,
         url: CONTAINERS_URL + fileInfo.container + '/download/' + fileInfo.name,
-        publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.name}`
+        publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.container}/${fileInfo.name}`
       };
 
       return Attachment.create(attachmentData)
