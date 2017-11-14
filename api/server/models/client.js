@@ -130,7 +130,7 @@ export default function(Client) {
           throw errEmailNotFound();
         }
 
-        if (!client.emailVerified) {
+        if (!client.emailVerified && Client.settings.emailVerificationRequired) {
           throw errEmailNotVerified();
         }
 
