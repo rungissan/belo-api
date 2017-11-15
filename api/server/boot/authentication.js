@@ -1,6 +1,6 @@
 'use strict';
 
-import oauth2 from 'lib/oauth';
+import oauth2 from '../lib/oauth';
 
 module.exports = function enableAuthentication(app) {
   const options = {

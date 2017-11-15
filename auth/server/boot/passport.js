@@ -11,7 +11,7 @@ try {
   process.exit(1); // fatal
 }
 
-import { createAccessToken } from 'lib/oauth/token-utils';
+import { createAccessToken } from '../lib/oauth/token-utils';
 
 function generateAccessToken(client, cb) {
   return createAccessToken({ client });

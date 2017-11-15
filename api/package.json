@@ -8,8 +8,8 @@
   "scripts": {
     "lint": "eslint .",
     "development": "nodemon -e js,json --exec babel-node server/server.js",
-    "start": "npm run build && node dist/server/server.js",
-    "build": "babel server -d dist/server -D",
+    "start": "npm run build && node dist/server.js",
+    "build": "babel server -d dist -D",
     "clean": "rm -rf build && mkdir build",
     "posttest": "npm run lint && nsp check"
   },
@@ -46,7 +46,7 @@
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0",
-    "sequelize": "^4.20.1"
+    "sequelize": "^4.22.6"
   },
   "repository": {
     "type": "",

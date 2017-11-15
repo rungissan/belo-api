@@ -4,18 +4,18 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var tokenDef = require('models/oauth-token.json');
+var tokenDef = require('../../../models/oauth-token.json');
 var authorizationCodeDef =
-  require('models/oauth-authorization-code.json');
+  require('../../../models/oauth-authorization-code.json');
 var clientApplicationDef =
-  require('models/oauth-client-application.json');
+  require('../../../models/oauth-client-application.json');
 var permissionDef =
-  require('models/oauth-permission.json');
+  require('../../../models/oauth-permission.json');
 var scopeDef =
-  require('models/oauth-scope.json');
+  require('../../../models/oauth-scope.json');
 
 var scopeMappingDef =
-  require('models/oauth-scope-mapping.json');
+  require('../../../models/oauth-scope-mapping.json');
 
 // Remove proerties that will confuse LB
 function getSettings(def) {

@@ -3,7 +3,7 @@
 
 import Promise from 'bluebird';
 
-import { randomString } from 'lib/util';
+import { randomString } from '../lib/util';
 
 const DEFAULT_TOKEN_LEN = 6;
 
