@@ -5,6 +5,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - "/etc/letsencrypt/live/spiti.cert/:/etc/nginx/certs/"
+      - "/etc/nginx/certroot:/etc/nginx/certroot"
     environment:
       NGINX_HOST: "spiti.clever-hosting.com"
       NGINX_SSL: "OFF"
