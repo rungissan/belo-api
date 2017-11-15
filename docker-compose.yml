@@ -8,6 +8,7 @@ services:
       - "./nginx/nginx2.conf:/etc/nginx/nginx.conf"
       - "./nginx/nginx.conf:/etc/nginx/conf.d/default.j2"
       - "./data/storage/public:/uploads-public"
+      - "/etc/letsencrypt/live/spiti.cert/:/etc/nginx/certs/"
     ports:
       - "127.0.0.1::80"
       - "127.0.0.1::443"
