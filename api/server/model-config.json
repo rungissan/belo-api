@@ -49,6 +49,10 @@
     "dataSource": "postgres",
     "public": true
   },
+  "Account": {
+    "dataSource": "postgres",
+    "public": true
+  },
   "Email": {
     "dataSource": "gmail"
   },

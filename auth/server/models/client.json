@@ -12,20 +12,7 @@
       "table": "user"
     }
   },
-  "properties": {
-    "firstname": {
-      "type": "string"
-    },
-    "lastname": {
-      "type": "string"
-    },
-    "username": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string"
-    }
-  },
+  "properties": {},
   "validations": [],
   "relations": {},
   "acls": [],

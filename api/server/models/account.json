@@ -1,0 +1,148 @@
+{
+  "name": "Account",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {
+    "Timestamp": {}
+  },
+  "properties": {
+    "userId": {
+      "type": "number",
+      "id": true
+    },
+    "type": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying",
+        "dataLength": 20
+      }
+    },
+    "firstName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "first_name",
+        "dataType": "character varying",
+        "dataLength": 30
+      }
+    },
+    "lastName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "last_name",
+        "dataType": "character varying",
+        "dataLength": 30
+      }
+    },
+    "userName": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "username",
+        "dataType": "character varying",
+        "dataLength": 30
+      }
+    },
+    "phone": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying",
+        "dataLength": 30
+      }
+    },
+    "about": {
+      "type": "string"
+    },
+    "biography": {
+      "type": "string"
+    },
+    "brokerage": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying",
+        "dataLength": 100
+      }
+    },
+    "licenseType": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "license_type",
+        "dataLength": 50
+      }
+    },
+    "licenseState": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "license_state",
+        "dataLength": 4
+      }
+    },
+    "licenseNumber": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "license_number",
+        "dataLength": 50
+      }
+    },
+    "licenseExpiration": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "license_expiration"
+      }
+    },
+    "avatarId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "avatar_id",
+        "dataType": "integer"
+      }
+    },
+    "backgroundId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "background_id",
+        "dataType": "integer"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "userId"
+    },
+    "avatar": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "avatarId"
+    },
+    "background": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "backgroundId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": []
+}
