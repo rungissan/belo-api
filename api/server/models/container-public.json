@@ -3,7 +3,12 @@
   "base": "Model",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "validateUpsert": true,
+    "validContainers": [
+      "user",
+      "listing",
+      "post"
+    ]
   },
   "properties": {},
   "validations": [],

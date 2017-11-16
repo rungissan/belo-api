@@ -41,6 +41,7 @@ services:
 
   api:
     build: ./api
+    user: "${UID}:${GID}"
     ports:
       - "127.0.0.1::3000"
     volumes:
@@ -64,6 +65,7 @@ services:
 
   auth:
     build: ./auth
+    user: "${UID}:${GID}"
     ports:
       - "127.0.0.1::3000"
     volumes:
@@ -76,7 +78,6 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
-      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2
     depends_on:
       - postgres
       - redis
