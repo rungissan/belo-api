@@ -6,7 +6,10 @@
     "validateUpsert": true
   },
   "mixins": {
-    "Timestamp": {}
+    "Timestamp": {},
+    "ReadOnly" : {
+      "type" : true
+    }
   },
   "properties": {
     "userId": {

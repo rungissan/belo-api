@@ -52,7 +52,7 @@ export default function(Client) {
   };
 
   Client.afterRemote('create', function(context, client, next) {
-    return client.account.create({})
+    client.account.create({})
       .then(account => {
         if (!Client.settings.emailVerificationRequired) {
           return next();
@@ -270,10 +270,17 @@ export default function(Client) {
           throw errUnsupportedRole(role);
         }
 
-        return clientRole.principals.create({
-          principalType: RoleMapping.USER,
-          principalId: client.id
+        return Client.app.dataSources.postgres.transaction(async models => {
+          const { RoleMapping, Account } = models;
+
+          await RoleMapping.create({
+            roleid: clientRole.id,
+            principalType: RoleMapping.USER,
+            principalId: client.id
+          });
+          await Account.updateAll({userid: client.id}, {type: role});
         });
+
       })
       .catch(next);
   };
