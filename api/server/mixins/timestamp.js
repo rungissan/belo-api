@@ -90,10 +90,15 @@ export default function(Model, bootOptions = {}) {
       return next();
     }
     if (ctx.instance) {
+      ctx.instance.unsetAttribute(options.createdKey);
+      ctx.instance.unsetAttribute(options.deletedKey);
       ctx.instance[options.updatedKey] = new Date();
     } else {
       ctx.data[options.updatedKey] = new Date();
+      delete ctx.data[options.createdKey];
+      delete ctx.data[options.deletedKey];
     }
+
     return next();
   });
 };

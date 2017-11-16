@@ -12,15 +12,39 @@ const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
 
 const user = (DataTypes) => ({
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
-  firstname:         { type: DataTypes.STRING(100) },
-  lastname:          { type: DataTypes.STRING(100) },
+  // firstname:         { type: DataTypes.STRING(100) },
+  // lastname:          { type: DataTypes.STRING(100) },
   username:          { type: DataTypes.STRING(100) },
   email:             { type: DataTypes.STRING,      allowNull: false, unique: true },
   realm:             { type: DataTypes.STRING },
   password:          { type: DataTypes.STRING,      allowNull: false },
   verificationtoken: { type: DataTypes.STRING },
-  description:       { type: DataTypes.STRING },
+  // description:       { type: DataTypes.STRING },
   emailverified:     { type: DataTypes.BOOLEAN },
+  ...defaultFields(DataTypes)
+});
+
+const account = (DataTypes) => ({
+  userid: { type: DataTypes.INTEGER,
+    allowNull: false,
+    unique: true,
+    references: {model: 'user', key: 'id'},
+    ...cascadeRules
+  },
+  type:               { type: DataTypes.STRING(20) },
+  first_name:         { type: DataTypes.STRING(30) },
+  last_name:          { type: DataTypes.STRING(30) },
+  username:           { type: DataTypes.STRING(30) },
+  phone:              { type: DataTypes.STRING(30) },
+  about:              { type: DataTypes.TEXT },
+  biography:          { type: DataTypes.TEXT },
+  brokerage:          { type: DataTypes.STRING(100) },
+  license_type:       { type: DataTypes.STRING(50) },
+  license_state:      { type: DataTypes.STRING(4) },
+  license_number:     { type: DataTypes.INTEGER },
+  license_expiration: { type: DataTypes.DATE },
+  avatar_id:     { type: DataTypes.INTEGER, references: {model: 'attachment', key: 'id'}, ...cascadeRules },
+  background_id: { type: DataTypes.INTEGER, references: {model: 'attachment', key: 'id'}, ...cascadeRules },
   ...defaultFields(DataTypes)
 });
 
@@ -96,10 +120,12 @@ module.exports = {
       .then(() => queryInterface.createTable('acl', acl(DataTypes)))
       .then(() => queryInterface.createTable('role', role(DataTypes)))
       .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
-      .then(() => queryInterface.createTable('attachment', attachment(DataTypes)));
+      .then(() => queryInterface.createTable('attachment', attachment(DataTypes)))
+      .then(() => queryInterface.createTable('account', account(DataTypes)))
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('user')
+      .then(() => queryInterface.dropTable('account'))
       .then(() => queryInterface.dropTable('accesstoken'))
       .then(() => queryInterface.dropTable('verification_token'))
       .then(() => queryInterface.dropTable('acl'))

@@ -52,22 +52,25 @@ export default function(Client) {
   };
 
   Client.afterRemote('create', function(context, client, next) {
-    if (!Client.settings.emailVerificationRequired) {
-      return next();
-    }
+    return client.account.create({})
+      .then(account => {
+        if (!Client.settings.emailVerificationRequired) {
+          return next();
+        }
 
-    let options = {
-      type: 'email',
-      to: client.email,
-      from: 'test@domain.com',
-      subject: 'Thanks for registering.',
-      template: path.resolve(__dirname, '../../server/views/verify.ejs'),
-      user: client
-    };
+        let options = {
+          type: 'email',
+          to: client.email,
+          from: 'test@domain.com',
+          subject: 'Thanks for registering.',
+          template: path.resolve(__dirname, '../../server/views/verify.ejs'),
+          user: client
+        };
 
-    client.verifyEmail(options)
-      .then(response => {
-        return next();
+        return client.verifyEmail(options)
+          .then(() => {
+            return next();
+          });
       })
       .catch(err => {
         Client.deleteById(client.id);
