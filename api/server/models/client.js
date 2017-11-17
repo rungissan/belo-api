@@ -149,8 +149,8 @@ export default function(Client) {
           to: email,
           from: 'spiti.social.testing@gmail.com',
           subject: 'Password reset.',
-          template: path.resolve(__dirname, '../../server/views/password-reset.ejs'),
-        }
+          template: path.resolve(__dirname, '../../server/views/password-reset.ejs')
+        };
 
         var template = Client.app.loopback.template(verifyOptions.template);
         var body = template(verifyOptions);
@@ -168,13 +168,13 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-reset'},
+      http: {verb: 'post', path: '/password-reset'}
     }
   );
 
   Client.passwordUpdate = function(email, code, newPassword, next) {
     return new Promise((resolve, reject) => {
-      return resolve(Client.validatePassword(newPassword))
+      return resolve(Client.validatePassword(newPassword));
     })
       .then(() => {
         return Client.findOne({where: {email}});
@@ -222,9 +222,9 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true},
         {arg: 'code', type: 'string', required: true},
-        {arg: 'newPassword', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-update'},
+      http: {verb: 'post', path: '/password-update'}
     }
   );
 
@@ -235,9 +235,9 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true},
         {arg: 'code', type: 'string', required: true},
-        {arg: 'newPassword', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-update'},
+      http: {verb: 'post', path: '/password-update'}
     }
   );
 
@@ -274,14 +274,12 @@ export default function(Client) {
     return client;
   }
 
-  Client.prototype.setRole = function(role, next) {
+  Client.prototype.setRole = async function(role) {
     if (!['user', 'prof'].includes(role)) {
-      return next(errUnsupportedRole(role));
+      throw errUnsupportedRole(role);
     }
 
-    setRole(this, role)
-      .then(client => next(null, client))
-      .catch(next);
+    return await setRole(this, role);
   };
 
   Client.remoteMethod(
@@ -291,6 +289,7 @@ export default function(Client) {
       accepts: [
         {arg: 'role', type: 'string', required: true}
       ],
+      returns: { arg: 'data', type: 'Client', root: true},
       http: {verb: 'post', path: '/role'}
     }
   );

@@ -11,7 +11,7 @@ module.exports = (app) => {
 };
 
 function createContainersIfNotExist(StorageContainer, directories = []) {
-  StorageContainer.getContainers(function (err, containers) {
+  StorageContainer.getContainers((err, containers) => {
     if (err) {
       debug('Containers boot error: ', err);
     }
@@ -26,6 +26,6 @@ function createContainersIfNotExist(StorageContainer, directories = []) {
           }
         });
       }
-    })
+    });
   });
 }
