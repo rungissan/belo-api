@@ -11,7 +11,8 @@
       "loopback/server/mixins",
       "../common/mixins",
       "./mixins",
-      "../node_modules/loopback-remote-routing"
+      "../node_modules/loopback-remote-routing",
+      "../node_modules/loopback-ds-readonly-mixin/lib"
     ]
   },
   "User": {
