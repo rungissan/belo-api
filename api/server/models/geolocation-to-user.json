@@ -1,0 +1,49 @@
+{
+  "name": "GeolocationToUser",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "geolocation_to_user"
+    }
+  },
+  "properties": {
+    "user_id": {
+      "type": "number",
+      "required": true
+    },
+    "geolocation_id": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "clients": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "user_id"
+    },
+    "geolocation": {
+      "type": "belongsTo",
+      "model": "Geolocation",
+      "foreignKey": "geolocation_id"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "prof",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}

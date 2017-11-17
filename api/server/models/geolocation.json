@@ -1,0 +1,102 @@
+{
+  "name": "Geolocation",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {
+    "Timestamp": {},
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById"
+      ]
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "place_id": {
+      "type": "string",
+      "required": "true"
+    },
+    "formatted_address": {
+      "type": "string",
+      "required": "true"
+    },
+    "country": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "administrative_area_level_1": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "administrative_area_level_2": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "administrative_area_level_3": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "locality": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "sublocality": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "route": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "street_number": {
+      "type": "number"
+    },
+    "postal_code": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying",
+        "dataLength": 20
+      }
+    },
+    "location": {
+      "type": "GeoPoint"
+    },
+    "data": {
+      "type": "Object"
+    }
+  },
+  "hidden": ["data"],
+  "validations": [],
+  "relations": {
+    "clients": {
+      "type": "hasMany",
+      "model": "Client",
+      "through": "GeolocationToUser",
+      "foreignKey": "geolocation_id",
+      "keyThrough": "user_id"
+    }
+  },
+  "acls": [],
+  "methods": []
+}
