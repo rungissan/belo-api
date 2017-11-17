@@ -241,47 +241,46 @@ export default function(Client) {
     }
   );
 
+  async function setRole(client, roleName) {
+    let Role        = Client.app.models.Role;
+    let RoleMapping = Client.app.models.RoleMapping;
+
+    let roleMappings = await RoleMapping.count({
+      principalType: 'USER',
+      principalId: client.id
+    });
+    if (roleMappings > 0) {
+      throw errUserAlreadyHaveRole();
+    }
+
+    let clientRole = await Role.findOne({
+      where: { name: roleName }
+    });
+    if (!clientRole) {
+      throw errUnsupportedRole(roleName);
+    }
+
+    await Client.app.dataSources.postgres.transaction(async models => {
+      const { RoleMapping, Account } = models;
+
+      await RoleMapping.create({
+        roleId: clientRole.id,
+        principalType: RoleMapping.USER,
+        principalId: client.id
+      });
+      await Account.updateAll({userid: client.id}, {type: roleName});
+    });
+
+    return client;
+  }
 
   Client.prototype.setRole = function(role, next) {
     if (!['user', 'prof'].includes(role)) {
       return next(errUnsupportedRole(role));
     }
 
-    let client = this;
-
-    let Role        = Client.app.models.Role;
-    let RoleMapping = Client.app.models.RoleMapping;
-
-    return RoleMapping.count({
-      principalType: 'USER',
-      principalId: client.id
-    })
-      .then(roleMappings => {
-        if (roleMappings > 0) {
-          throw errUserAlreadyHaveRole();
-        }
-
-        return Role.findOne({
-          where: { name: role }
-        });
-      })
-      .then(clientRole => {
-        if (!clientRole) {
-          throw errUnsupportedRole(role);
-        }
-
-        return Client.app.dataSources.postgres.transaction(async models => {
-          const { RoleMapping, Account } = models;
-
-          await RoleMapping.create({
-            roleid: clientRole.id,
-            principalType: RoleMapping.USER,
-            principalId: client.id
-          });
-          await Account.updateAll({userid: client.id}, {type: role});
-        });
-
-      })
+    setRole(this, role)
+      .then(client => next(null, client))
       .catch(next);
   };
 
