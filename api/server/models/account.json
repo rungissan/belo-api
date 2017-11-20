@@ -11,6 +11,11 @@
       "type" : true
     }
   },
+  "ajv-validations": {
+    "remoteHooks": {
+      "updateAttributes": "account/create"
+    }
+  },
   "properties": {
     "userId": {
       "type": "number",
