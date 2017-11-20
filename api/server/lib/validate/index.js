@@ -2,17 +2,14 @@
 
 import Promise from 'bluebird';
 
-import ajv from './jsonValidator';
+import ajv, { getSchema, formatErrors } from './jsonValidator';
 
-export default function validate(data, schema) {
+export default function validate(data, modelName, schemaName) {
+  let schema = getSchema(`${modelName}/${schemaName}`);
   let validate = ajv.compile(schema);
 
   if (!validate(data)) {
-    let err = new Error('validation_error');
-    err.status = 422;
-    err.type = 'json-schema';
-
-    return Promise.reject(err);
+    return Promise.reject(formatErrors(validate.errors, modelName));
   }
 
   return Promise.resolve(data);

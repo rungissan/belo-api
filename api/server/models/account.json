@@ -9,11 +9,11 @@
     "Timestamp": {},
     "ReadOnly" : {
       "type" : true
-    }
-  },
-  "ajv-validations": {
-    "remoteHooks": {
-      "updateAttributes": "account/create"
+    },
+    "AjvValidation": {
+      "remoteHooks": {
+        "prototype.patchAttributes": "patch-attributes"
+      }
     }
   },
   "properties": {

@@ -2,7 +2,6 @@
 
 module.exports = function() {
   return function(err, req, res, next) {
-    console.log('custom................................................')
     err = buildError(err);
     next(err);
   };

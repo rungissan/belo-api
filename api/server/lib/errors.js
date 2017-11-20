@@ -49,11 +49,19 @@ export const errUnsupportedRole = (roleName = '') => {
   return error;
 };
 
-
 export const errUserAlreadyHaveRole = () => {
   let error = new Error('User already have role');
   error.statusCode = 422;
   error.code = 'INVALID_ROLE';
+
+  return error;
+};
+
+export const errAjvValidation = (message = 'Validation error') => {
+  let error = new Error(message);
+  error.statusCode = 422;
+  error.code = 'VALIDATION_ERROR';
+  error.type = 'json-schema';
 
   return error;
 };
