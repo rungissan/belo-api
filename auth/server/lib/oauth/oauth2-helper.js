@@ -171,7 +171,7 @@ function generateJWT(payload, secret, alg) {
   return jwt.sign(body);
 }
 
-function buildTokenParams(accessToken, token) {
+function buildTokenParams(accessToken, token, options = {}) {
   var params = {
     expires_in: accessToken.expiresIn,
   };
@@ -189,6 +189,11 @@ function buildTokenParams(accessToken, token) {
       }
     }
   }
+  // add user id to response
+  if (options.hideUserId !== false) {
+    params.userId = accessToken.userId;
+  }
+
   return params;
 }
 
