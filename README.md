@@ -8,3 +8,4 @@ Spiti
 
 ### Guides
   * [Auth](/auth/README.md)
+  * [Api](/api/README.md)
