@@ -94,6 +94,22 @@ export default function(Model, bootOptions = {}) {
     } else {
       ctx.data[options.updatedKey] = new Date();
     }
+
     return next();
   });
+
+  Model.settings.mixins.ReadOnly = {
+    ...{
+      [options.createdKey]: true,
+      [options.updatedKey]: true,
+      [options.deletedKey]: true
+    },
+    ...Model.settings.mixins.ReadOnly
+  };
+  // 
+  // Model.mixin('ReadOnly', {
+  //   [options.createdKey]: true,
+  //   [options.updatedKey]: true,
+  //   [options.deletedKey]: true
+  // });
 };

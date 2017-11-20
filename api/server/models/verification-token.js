@@ -35,7 +35,7 @@ module.exports = function(VerificationToken) {
    */
 
   VerificationToken.createVerificationTokenId = function(fn) {
-    return Promise.resolve(randomString(6));
+    return Promise.resolve(randomString(6, '0123456789'));
   };
 
   VerificationToken.observe('before save', function(ctx, next) {

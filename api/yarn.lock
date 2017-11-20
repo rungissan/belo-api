@@ -2480,6 +2480,13 @@ loopback-datatype-geopoint@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/loopback-datatype-geopoint/-/loopback-datatype-geopoint-1.0.0.tgz#fdaa5c7ab8d730a9ab7e54554be165f31cdf6100"
 
+loopback-ds-readonly-mixin@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/loopback-ds-readonly-mixin/-/loopback-ds-readonly-mixin-2.0.4.tgz#f3f1eb873825a3b0eafe1f46f504a1822927db26"
+  dependencies:
+    debug "^3.0.0"
+    depd "^1.1.0"
+
 loopback-phase@^3.0.0, loopback-phase@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/loopback-phase/-/loopback-phase-3.1.0.tgz#91adc8e9847cfb521a3d29f96be35f67860cae42"

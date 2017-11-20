@@ -4,22 +4,26 @@ import Promise from 'bluebird';
 
 const CONTAINERS_URL    = '/api/containers/';
 const PUBLIC_DIR        = '/public';
+const DEFAULT_CONTAINER = 'uploads';
 
 module.exports = function(Attachment) {
-  Attachment.upload = function(ctx, hidden, cb) {
-    let options = {};
-
+  Attachment.upload = function(ctx, hidden, containerName = DEFAULT_CONTAINER, cb) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
 
     let StorageContainer;
-    let containerName;
     if (hidden) {
       StorageContainer = Attachment.app.models.ContainerPrivate;
-      containerName = 'uploads';
     } else {
       StorageContainer = Attachment.app.models.ContainerPublic;
-      containerName = 'uploads';
+    }
+
+    let validContainers = StorageContainer.settings.validContainers || [];
+
+    if (containerName != DEFAULT_CONTAINER && !validContainers.includes(containerName)) {
+      const error = new Error(`Unsupported container ${containerName}`);
+      error.status = 422;
+      return cb(error);
     }
 
     ctx.req.params.container = containerName;
@@ -54,8 +58,9 @@ module.exports = function(Attachment) {
     {
       description: 'Uploads a file',
       accepts: [
-        { arg: 'ctx',     type: 'object',  http: { source: 'context' } },
-        { arg: 'hidden',  type: 'boolean', http: { source: 'query' } }
+        { arg: 'ctx',       type: 'object',  http: { source: 'context' } },
+        { arg: 'hidden',    type: 'boolean', http: { source: 'query' } },
+        { arg: 'container', type: 'string',  http: { source: 'query' } }
       ],
       returns: { arg: 'fileObject', type: 'object', root: true },
       http: { verb: 'post' }

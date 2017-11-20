@@ -52,22 +52,25 @@ export default function(Client) {
   };
 
   Client.afterRemote('create', function(context, client, next) {
-    if (!Client.settings.emailVerificationRequired) {
-      return next();
-    }
+    client.account.create({})
+      .then(account => {
+        if (!Client.settings.emailVerificationRequired) {
+          return next();
+        }
 
-    let options = {
-      type: 'email',
-      to: client.email,
-      from: 'test@domain.com',
-      subject: 'Thanks for registering.',
-      template: path.resolve(__dirname, '../../server/views/verify.ejs'),
-      user: client
-    };
+        let options = {
+          type: 'email',
+          to: client.email,
+          from: 'test@domain.com',
+          subject: 'Thanks for registering.',
+          template: path.resolve(__dirname, '../../server/views/verify.ejs'),
+          user: client
+        };
 
-    client.verifyEmail(options)
-      .then(response => {
-        return next();
+        return client.verifyEmail(options)
+          .then(() => {
+            return next();
+          });
       })
       .catch(err => {
         Client.deleteById(client.id);
@@ -146,8 +149,8 @@ export default function(Client) {
           to: email,
           from: 'spiti.social.testing@gmail.com',
           subject: 'Password reset.',
-          template: path.resolve(__dirname, '../../server/views/password-reset.ejs'),
-        }
+          template: path.resolve(__dirname, '../../server/views/password-reset.ejs')
+        };
 
         var template = Client.app.loopback.template(verifyOptions.template);
         var body = template(verifyOptions);
@@ -165,13 +168,14 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-reset'},
+      returns: { arg: 'data', type: 'object', root: true},
+      http: {verb: 'post', path: '/password-reset'}
     }
   );
 
   Client.passwordUpdate = function(email, code, newPassword, next) {
     return new Promise((resolve, reject) => {
-      return resolve(Client.validatePassword(newPassword))
+      return resolve(Client.validatePassword(newPassword));
     })
       .then(() => {
         return Client.findOne({where: {email}});
@@ -219,9 +223,9 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true},
         {arg: 'code', type: 'string', required: true},
-        {arg: 'newPassword', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-update'},
+      http: {verb: 'post', path: '/password-update'}
     }
   );
 
@@ -232,47 +236,51 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true},
         {arg: 'code', type: 'string', required: true},
-        {arg: 'newPassword', type: 'string', required: true},
+        {arg: 'newPassword', type: 'string', required: true}
       ],
-      http: {verb: 'post', path: '/password-update'},
+      http: {verb: 'post', path: '/password-update'}
     }
   );
 
-
-  Client.prototype.setRole = function(role, next) {
-    if (!['user', 'prof'].includes(role)) {
-      return next(errUnsupportedRole(role));
-    }
-
-    let client = this;
-
+  async function setRole(client, roleName) {
     let Role        = Client.app.models.Role;
     let RoleMapping = Client.app.models.RoleMapping;
 
-    return RoleMapping.count({
+    let roleMappings = await RoleMapping.count({
       principalType: 'USER',
       principalId: client.id
-    })
-      .then(roleMappings => {
-        if (roleMappings > 0) {
-          throw errUserAlreadyHaveRole();
-        }
+    });
+    if (roleMappings > 0) {
+      throw errUserAlreadyHaveRole();
+    }
 
-        return Role.findOne({
-          where: { name: role }
-        });
-      })
-      .then(clientRole => {
-        if (!clientRole) {
-          throw errUnsupportedRole(role);
-        }
+    let clientRole = await Role.findOne({
+      where: { name: roleName }
+    });
+    if (!clientRole) {
+      throw errUnsupportedRole(roleName);
+    }
 
-        return clientRole.principals.create({
-          principalType: RoleMapping.USER,
-          principalId: client.id
-        });
-      })
-      .catch(next);
+    await Client.app.dataSources.postgres.transaction(async models => {
+      const { RoleMapping, Account } = models;
+
+      await RoleMapping.create({
+        roleId: clientRole.id,
+        principalType: RoleMapping.USER,
+        principalId: client.id
+      });
+      await Account.updateAll({userid: client.id}, {type: roleName});
+    });
+
+    return client;
+  }
+
+  Client.prototype.setRole = async function(role) {
+    if (!['user', 'prof'].includes(role)) {
+      throw errUnsupportedRole(role);
+    }
+
+    return await setRole(this, role);
   };
 
   Client.remoteMethod(
@@ -282,6 +290,7 @@ export default function(Client) {
       accepts: [
         {arg: 'role', type: 'string', required: true}
       ],
+      returns: { arg: 'data', type: 'Client', root: true},
       http: {verb: 'post', path: '/role'}
     }
   );
