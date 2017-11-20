@@ -12,6 +12,18 @@
       "table": "user"
     }
   },
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "@create",
+        "updateAttributes",
+        "__link__geolocations",
+        "__unlink__geolocations"
+      ]
+    }
+  },
   "properties": {},
   "validations": [],
   "relations": {
@@ -35,6 +47,13 @@
       "type": "hasOne",
       "model": "Account",
       "foreignKey": "userId"
+    },
+    "geolocations": {
+      "type": "hasMany",
+      "model": "Geolocation",
+      "through": "GeolocationToUser",
+      "foreignKey": "user_id",
+      "keyThrough": "geolocation_id"
     }
   },
   "acls": [
@@ -61,20 +80,16 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "setRole"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "prof",
+      "permission": "ALLOW",
+      "property": "__link__geolocations"
     }
   ],
   "methods": {},
   "remoting": {
     "normalizeHttpPath": true
-  },
-  "mixins": {
-    "RemoteRouting" : {
-      "only": [
-        "@find",
-        "@findById",
-        "@create",
-        "updateAttributes"
-      ]
-    }
   }
 }

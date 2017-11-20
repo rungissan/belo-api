@@ -80,5 +80,13 @@
   "Attachment": {
     "dataSource": "postgres",
     "public": true
+  },
+  "Geolocation": {
+    "dataSource": "postgres",
+    "public": true
+  },
+  "GeolocationToUser": {
+    "dataSource": "postgres",
+    "public": false
   }
 }

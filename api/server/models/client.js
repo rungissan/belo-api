@@ -168,6 +168,7 @@ export default function(Client) {
       accepts: [
         {arg: 'email', type: 'string', required: true}
       ],
+      returns: { arg: 'data', type: 'object', root: true},
       http: {verb: 'post', path: '/password-reset'}
     }
   );

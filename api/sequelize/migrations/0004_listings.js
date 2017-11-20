@@ -47,15 +47,18 @@ const listing_to_zipcode = (DataTypes) => ({
   }
 });
 
+// TODO: implement listings table, refactor zipcodes (use gmaps geolocation)
 module.exports = {
   up: (queryInterface, DataTypes) => {
-    return queryInterface.createTable('zipcode', zipcode(DataTypes))
-      .then(() => queryInterface.createTable('listing', listing(DataTypes)))
-      .then(() => queryInterface.createTable('listing_to_zipcode', listing_to_zipcode(DataTypes)));
+    return true;
+    // return queryInterface.createTable('zipcode', zipcode(DataTypes))
+    //   .then(() => queryInterface.createTable('listing', listing(DataTypes)))
+    //   .then(() => queryInterface.createTable('listing_to_zipcode', listing_to_zipcode(DataTypes)));
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('listing_to_zipcode')
-      .then(() => queryInterface.dropTable('listing'))
-      .then(() => queryInterface.dropTable('zipcode'));
+    return true;
+    // return queryInterface.dropTable('listing_to_zipcode')
+    //   .then(() => queryInterface.dropTable('listing'))
+    //   .then(() => queryInterface.dropTable('zipcode'));
   }
 };
