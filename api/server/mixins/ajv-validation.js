@@ -18,17 +18,9 @@ export default function(Model, options = {}) {
 };
 
 function getValidteMiddleware(modelName, schemaName) {
-  return function validateMiddleware(ctx, modelInstance, next) {
-    if (!next && typeof modelInstance == 'function') {
-      next = modelInstance;
-    }
-
+  return async function validateMiddleware(ctx, modelInstance) {
+    debug(`Validating by model: ${modelName}, schema ${schemaName}`);
     let instance = ctx.args.instance || ctx.args.data;
-
-    validate(instance, modelName, schemaName)
-      .then(() => {
-        return next();
-      })
-      .catch(err => next(err));
+    return await validate(instance, modelName, schemaName);
   };
 }
