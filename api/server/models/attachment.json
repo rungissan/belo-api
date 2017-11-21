@@ -23,14 +23,16 @@
       "type": "string"
     },
     "url": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "publicUrl": {
       "type": "string",
       "postgresql": {
         "columnName": "public_url"
       }
+    },
+    "copies": {
+      "type": "object"
     }
   },
   "validations": [],

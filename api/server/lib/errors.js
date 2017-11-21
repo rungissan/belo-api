@@ -65,3 +65,11 @@ export const errAjvValidation = (message = 'Validation error') => {
 
   return error;
 };
+
+export const errUnsupportedContainer = (containerName) => {
+  let error = new Error(`Unsupported container ${containerName}`);
+  error.statusCode = 422;
+  error.code = 'VALIDATION_ERROR';
+
+  return error;
+};
