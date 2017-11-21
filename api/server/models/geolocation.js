@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(Geolocation) {
-  Geolocation.findOrCreateByPlaceId = async function(geolocationData, place_id) {
+  Geolocation.searchOrCreate = async function(geolocationData, place_id) {
     let existentGeolocation = await Geolocation.findOne({
       where: { place_id }
     });
@@ -14,17 +14,19 @@ module.exports = function(Geolocation) {
   };
 
   Geolocation.remoteMethod(
-    'findOrCreateByPlaceId',
+    'searchOrCreate',
     {
-      description: 'Find or create golocation',
-      accepts: [
-        {arg: 'geolocationData', type: 'object', http: { source: 'body' }},
-        {arg: 'place_id',        type: 'string', required: true}
-      ],
+      description: 'Find or create geolocation',
+      accepts: [{
+        arg: 'geolocationData',
+        type: 'Geolocatin',
+        http: { source: 'body' },
+        description: 'data property can be used to store original gmaps geolocation data'
+      }],
       returns: [
-        {arg: 'geolocation', type: 'Geolocation'}
+        {arg: 'geolocation', type: 'Geolocation', root: true}
       ],
-      http: {verb: 'post'}
+      http: {verb: 'post', path: '/search-or-create'}
     }
   );
 };

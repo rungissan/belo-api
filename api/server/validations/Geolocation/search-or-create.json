@@ -1,0 +1,63 @@
+{
+  "type" : "object",
+  "additionalProperties": false,
+  "properties" : {
+    "place_id": {
+      "type": "string"
+    },
+    "formatted_address": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "administrative_area_level_1": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "administrative_area_level_2": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "administrative_area_level_3": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "locality": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "sublocality": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "route": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "street_number": {
+      "type": "number"
+    },
+    "postal_code": {
+      "type": "string",
+      "maxLength": 20
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        }
+      },
+      "required": ["lat", "lng"]
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": ["place_id", "formatted_address"]
+}
