@@ -9,6 +9,11 @@
     "Timestamp": {},
     "ReadOnly" : {
       "type" : true
+    },
+    "AjvValidation": {
+      "remoteHooks": {
+        "prototype.patchAttributes": "patch-attributes"
+      }
     }
   },
   "properties": {

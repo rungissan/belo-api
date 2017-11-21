@@ -12,6 +12,11 @@
         "@find",
         "@findById"
       ]
+    },
+    "AjvValidation": {
+      "remoteHooks": {
+        "findOrCreateByPlaceId": {}
+      }
     }
   },
   "properties": {
