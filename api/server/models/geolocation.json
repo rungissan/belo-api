@@ -15,7 +15,10 @@
     },
     "AjvValidation": {
       "remoteHooks": {
-        "findOrCreateByPlaceId": {}
+        "searchOrCreate": {
+          "schema": "search-or-create",
+          "args": "geolocationData"
+        }
       }
     }
   },
