@@ -46,6 +46,7 @@
     "loopback#urlNotFound": {}
   },
   "final:after": {
+    "./middleware/format-error": {},
     "strong-error-handler": {}
   }
 }
