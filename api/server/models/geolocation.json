@@ -34,42 +34,49 @@
     },
     "country": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "administrative_area_level_1": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "administrative_area_level_2": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "administrative_area_level_3": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "locality": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "sublocality": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
     },
     "route": {
       "type": "string",
+      "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
       }
@@ -79,6 +86,7 @@
     },
     "postal_code": {
       "type": "string",
+      "maxLength": 20,
       "postgresql": {
         "dataType": "character varying",
         "dataLength": 20

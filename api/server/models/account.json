@@ -30,6 +30,8 @@
     },
     "firstName": {
       "type": "string",
+      "minLength": 2,
+      "maxLength": 30,
       "postgresql": {
         "columnName": "first_name",
         "dataType": "character varying",
@@ -38,6 +40,8 @@
     },
     "lastName": {
       "type": "string",
+      "minLength": 2,
+      "maxLength": 30,
       "postgresql": {
         "columnName": "last_name",
         "dataType": "character varying",
@@ -46,6 +50,8 @@
     },
     "userName": {
       "type": "string",
+      "minLength": 2,
+      "maxLength": 30,
       "postgresql": {
         "columnName": "username",
         "dataType": "character varying",
@@ -54,6 +60,8 @@
     },
     "phone": {
       "type": "string",
+      "minLength": 3,
+      "maxLength": 30,
       "postgresql": {
         "dataType": "character varying",
         "dataLength": 30
@@ -67,6 +75,7 @@
     },
     "brokerage": {
       "type": "string",
+      "maxLength": 100,
       "postgresql": {
         "dataType": "character varying",
         "dataLength": 100
@@ -74,6 +83,7 @@
     },
     "licenseType": {
       "type": "string",
+      "maxLength": 50,
       "postgresql": {
         "columnName": "license_type",
         "dataLength": 50
@@ -81,6 +91,7 @@
     },
     "licenseState": {
       "type": "string",
+      "maxLength": 4,
       "postgresql": {
         "columnName": "license_state",
         "dataLength": 4
@@ -88,6 +99,7 @@
     },
     "licenseNumber": {
       "type": "number",
+      "max": 50,
       "postgresql": {
         "columnName": "license_number",
         "dataLength": 50
@@ -101,6 +113,7 @@
     },
     "avatarId": {
       "type": "number",
+      "min": 1,
       "postgresql": {
         "columnName": "avatar_id",
         "dataType": "integer"
@@ -108,6 +121,7 @@
     },
     "backgroundId": {
       "type": "number",
+      "min": 1,
       "postgresql": {
         "columnName": "background_id",
         "dataType": "integer"
