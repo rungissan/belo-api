@@ -48,6 +48,8 @@
       "type": "object"
     }
   },
+  "protected": ["containerRoot"],
+  "hidden": ["containerRoot"],
   "validations": [],
   "relations": {
     "client": {

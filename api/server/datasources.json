@@ -66,13 +66,15 @@
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "/usr/src/storage/private",
-    "nameConflict": "makeUnique"
+    "nameConflict": "makeUnique",
+    "allowedContentTypes": ["image/png", "image/jpeg"]
   },
   "storagePublic": {
     "name": "storage",
     "connector": "loopback-component-storage",
     "provider": "filesystem",
     "root": "/usr/src/storage/public",
-    "nameConflict": "makeUnique"
+    "nameConflict": "makeUnique",
+    "allowedContentTypes": ["image/png", "image/jpeg"]
   }
 }

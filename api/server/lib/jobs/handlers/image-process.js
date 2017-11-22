@@ -8,8 +8,7 @@ import {
   basename
 } from 'path';
 
-const PUBLIC_DIR        = '/public';
-const CONTAINERS_WITH_THUMBS = ['uploads', 'post', 'listing'];
+const BASE_DIR = '/usr/src/storage';
 const DEFAULT_SIZE_OPTIONS = [{
   sizePrefix: 'thumbnail',
   width: 150,
@@ -26,12 +25,13 @@ export default {
   createImgCopies: {
     handler: createImgCopies,
     options: {
-      delay: 5000,
+      delay: 1500, // ms
       attempts: 3,
       backoff: {
-        delay: 5000,
+        delay: 5000, // ms
         type: 'fixed'
-      }
+      },
+      removeOnComplete: true
     }
   }
 };
@@ -53,7 +53,6 @@ async function createImgCopies(app, job) {
 
   let presentSizes = attachment.sizes;
   let missingSizes = [];
-  let updatedSizes = {};
 
   DEFAULT_SIZE_OPTIONS.forEach(size => {
     if (!presentSizes[size.sizePrefix]) {
@@ -115,7 +114,7 @@ function createImgCopy(attachment, options) {
       } else {
         resolve({
           fileName: fileDestName,
-          publicUrl: attachment.public ? null : `${PUBLIC_DIR}/${attachment.container}/${fileDestName}`
+          publicUrl: attachment.public ? `${containerRoot.replace(BASE_DIR, '')}/${attachment.container}/${fileDestName}` : null
         });
       }
     });

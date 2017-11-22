@@ -1,5 +1,7 @@
 'use strict';
 
+import Promise from 'bluebird';
+
 import { errUnsupportedContainer } from '../lib/errors';
 
 const CONTAINERS_URL    = '/api/containers/';
@@ -42,26 +44,13 @@ module.exports = function(Attachment) {
     let dataSourceSettings = StorageContainer.getDataSource().settings;
 
     let fileObj = await uploadFileWithContainer(StorageContainer, ctx);
-    let fileInfo = fileObj.files.file[0];
 
-    let attachmentData = {
-      userId,
-      name: fileInfo.name,
-      type: fileInfo.type,
-      size: fileInfo.size,
-      container: fileInfo.container,
-      containerRoot: dataSourceSettings.root,
-      public: !hidden,
-      publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.container}/${fileInfo.name}`,
-      sizes: {}
-    };
+    let createdFiles = Object.keys(fileObj.files).map(key => fileObj.files[key][0]);
+    let createdAttachments = await Promise.map(createdFiles, fileInfo => {
+      return createAttachment(userId, fileInfo, dataSourceSettings, hidden);
+    });
 
-    let attachment = await Attachment.create(attachmentData);
-
-    let kueJobs = Attachment.app.kueJobs;
-    kueJobs.createJob('createImgCopies', attachment);
-
-    return attachment;
+    return createdAttachments.length > 1 ? createdAttachments : createdAttachments[0];
   };
 
   Attachment.remoteMethod(
@@ -112,6 +101,27 @@ module.exports = function(Attachment) {
       http: { verb: 'get' }
     }
   );
+
+  async function createAttachment(userId, fileInfo, dataSourceSettings, hidden) {
+    let attachmentData = {
+      userId,
+      name: fileInfo.name,
+      type: fileInfo.type,
+      size: fileInfo.size,
+      container: fileInfo.container,
+      containerRoot: dataSourceSettings.root,
+      public: !hidden,
+      publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.container}/${fileInfo.name}`,
+      sizes: {}
+    };
+
+    let attachment = await Attachment.create(attachmentData);
+
+    let kueJobs = Attachment.app.kueJobs;
+    kueJobs.createJob('createImgCopies', attachment);
+
+    return attachment;
+  }
 
   function uploadFileWithContainer(StorageContainer, ctx) {
     return new Promise((resolve, reject) => {
