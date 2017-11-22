@@ -110,7 +110,7 @@ const attachment = (DataTypes) => ({
   size:       { type: DataTypes.INTEGER },
   name:       { type: DataTypes.STRING },
   container:  { type: DataTypes.STRING },
-  copies:     { type: DataTypes.JSONB }
+  sizes:      { type: DataTypes.JSONB }
 });
 
 module.exports = {

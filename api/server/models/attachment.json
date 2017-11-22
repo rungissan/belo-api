@@ -31,7 +31,7 @@
         "columnName": "public_url"
       }
     },
-    "copies": {
+    "sizes": {
       "type": "object"
     }
   },

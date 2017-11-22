@@ -2,7 +2,11 @@
 
 import Promise  from 'bluebird';
 import gm       from 'gm';
-import { join } from 'path';
+import {
+  join,
+  extname,
+  basename
+} from 'path';
 
 import { errUnsupportedContainer } from '../lib/errors';
 
@@ -10,6 +14,17 @@ const CONTAINERS_URL    = '/api/containers/';
 const PUBLIC_DIR        = '/public';
 const DEFAULT_CONTAINER = 'uploads';
 const CONTAINERS_WITH_THUMBS = ['uploads', 'post', 'listing'];
+const DEFAULT_COPY_OPTIONS = [{
+  sizePrefix: 'thumbnail',
+  width: 150,
+  height: null,
+  quality: 100
+}, {
+  sizePrefix: 'big',
+  width: 1280,
+  height: null,
+  quality: 100
+}];
 
 module.exports = function(Attachment) {
   // TODO: fix settings, check file type before creating thumbnails, possible skip thumbnailt with api param
@@ -37,9 +52,9 @@ module.exports = function(Attachment) {
     let fileObj = await uploadFileWithContainer(StorageContainer, ctx);
     let fileInfo = fileObj.files.file[0];
 
-    let copies;
+    let sizes;
     if (dataSourceSettings.provider == 'filesystem' && CONTAINERS_WITH_THUMBS.includes(containerName)) {
-      copies = await createImgCopies(fileInfo, dataSourceSettings.root);
+      sizes = await createImgCopies(fileInfo, dataSourceSettings.root, hidden);
     }
 
     let attachmentData = {
@@ -49,7 +64,7 @@ module.exports = function(Attachment) {
       size: fileInfo.size,
       container: fileInfo.container,
       publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.container}/${fileInfo.name}`,
-      copies
+      sizes
     };
 
     return await Attachment.create(attachmentData);
@@ -73,8 +88,8 @@ module.exports = function(Attachment) {
     let attachment = this;
     let attachmentName = attachment.name;
 
-    if (sizePrefix && Array.isArray(attachment.copies)) {
-      let customSize = attachment.copies.find(copy => copy.sizePrefix == sizePrefix);
+    if (sizePrefix && Array.isArray(attachment.sizes)) {
+      let customSize = attachment.sizes.find(copy => copy.sizePrefix == sizePrefix);
       if (customSize && customSize.fileName) {
         attachmentName = customSize.fileName;
       }
@@ -116,38 +131,49 @@ module.exports = function(Attachment) {
     });
   }
 
-  const DEFAULT_COPY_OPTIONS = [{
-    sizePrefix: '50_50',
-    width: 50,
-    height: 50
-  }];
-
-  function createImgCopies(fileInfo, rootPath) {
+  function createImgCopies(fileInfo, rootPath, hidden = false) {
     return Promise.map(DEFAULT_COPY_OPTIONS, (copyOptions) => {
       return createImgCopy(fileInfo, rootPath, copyOptions)
         .then(fileName => {
           return {
             ...copyOptions,
-            fileName
+            fileName,
+            publicUrl: hidden ? null : `${PUBLIC_DIR}/${fileInfo.container}/${fileName}`
           };
         });
-    });
+    })
+      .then(copies => {
+        let copiesObj = {};
+        copies.forEach(copy => {
+          copiesObj[copy.sizePrefix] = copy;
+        });
+        return copiesObj;
+      });
   }
 
   function createImgCopy(fileInfo, rootPath, options) {
-    let fileSrc  = join(rootPath, fileInfo.container, fileInfo.name);
-    let fileNameDest = `${options.sizePrefix}_${fileInfo.name}`;
-    let fileDest = join(rootPath, fileInfo.container, fileNameDest);
+    let fileOriginalPath  = join(rootPath, fileInfo.container, fileInfo.name);
+    let fileOriginalExtname  = extname(fileOriginalPath);
+    let fileOriginalBasename = basename(fileOriginalPath, fileOriginalExtname);
+    let fileDestName = `${fileOriginalBasename}_${options.sizePrefix}${fileOriginalExtname}`;
+    let fileDestPath = join(rootPath, fileInfo.container, fileDestName);
 
     return new Promise((resolve, reject) => {
-      gm(fileSrc)
-        .thumb(options.width, options.height, fileDest, 100, function(err) {
-          if (err) {
-            reject(err);
-          };
+      let processImage = gm(fileOriginalPath);
 
-          resolve(fileNameDest);
-        });
+      processImage.resize(options.width, options.height);
+
+      if (options.quality) {
+        processImage.quality(options.quality);
+      }
+
+      processImage.write(fileDestPath, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(fileDestName);
+        }
+      });
     });
   }
 };
