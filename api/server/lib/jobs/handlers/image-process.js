@@ -26,7 +26,7 @@ export default {
   createImgCopies: {
     handler: createImgCopies,
     options: {
-      delay: 3000,
+      delay: 5000,
       attempts: 3,
       backoff: {
         delay: 5000,

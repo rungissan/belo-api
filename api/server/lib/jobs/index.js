@@ -2,20 +2,10 @@
 
 import kue from 'kue';
 
-import config from '../../config';
+import config from '../../config/index';
 const debug = require('debug')('spiti:jobs');
 
-const redisKueConfig = {
-  prefix: 'q',
-  redis: {
-    host: 'redis',
-    port: 6379,
-    auth: '6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB',
-    db: 2,
-    options: {
-    }
-  }
-};
+const redisKueConfig = config.redisKue;
 
 import jobsHandlers from './handlers';
 
@@ -75,5 +65,9 @@ export default class KueJobs {
 
   startUI() {
     kue.app.listen(4200);
+  }
+
+  getKueApp() {
+    return kue.app;
   }
 }

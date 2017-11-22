@@ -29,7 +29,9 @@
     "helmet#noCache": {
       "enabled": false
     },
-    "./middleware/tracker": {}
+    "./middleware/tracker": {
+      "paths": ["/api"]
+    }
   },
   "session": {},
   "auth": {},
