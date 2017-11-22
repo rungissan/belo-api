@@ -14,15 +14,28 @@
       "type": "number"
     },
     "container": {
-      "type": "string"
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "containerRoot": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "container_root",
+        "dataType": "character varying"
+      }
+    },
+    "public": {
+      "type": "boolean"
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying"
+      }
     },
     "type": {
-      "type": "string"
-    },
-    "url": {
       "type": "string"
     },
     "publicUrl": {

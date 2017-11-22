@@ -23,7 +23,7 @@ services:
       domain: localhost
       protocol: http
       LOG_LEVEL: "debug"
-      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,spiti:boot,loopback:mixin:readonly,spiti:validations
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,spiti:boot,loopback:mixin:readonly,spiti:validations,spiti:jobs
     command: npm run development
 
   auth:
