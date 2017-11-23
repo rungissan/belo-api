@@ -11,11 +11,18 @@ const VALIDATION_HANDLERS = {
   'belongsTo': validateBelongsTo
 };
 
+/**
+ * @desc Mixin that check if foreign key is present (loopback not validationg foreign keys).
+ * Additionally could check if foreign relation is owned by user.
+ * @param {Object} Model loopback model.
+ * @param {Object} options mixin options
+ * @property {Object} relationName name of relation to validate
+ */
 export default function(Model, options = {}) {
   let settings = Object.keys(options)
     .map(key => {
       return {
-        modelName: key,
+        relationName: key,
         ...options[key]
       };
     });
@@ -32,25 +39,15 @@ export default function(Model, options = {}) {
 const ALLOWED_RELATION_TYPES = ['belongsTo'];
 
 function getRelationSettings(validationSettings, Model) {
-  const { modelName, type, foreignKey } = validationSettings;
-
-  if (!modelName) {
-    throw new Error('modelName must be specified');
-  }
+  const { relationName } = validationSettings;
 
   let Relation;
   let relations = Model.definition.settings.relations;
 
-  let relation = Object.keys(relations)
-    .map(key => relations[key])
-    .find(rel => {
-      return rel.model == modelName &&
-        (!type || rel.type == type) &&
-        (!foreignKey || rel.foreignKey == foreignKey);
-    });
+  let relation = relations[relationName];
 
   if (!relation) {
-    throw new Error(`Relation ${modelName} not found`);
+    throw new Error(`Relation ${relationName} not found`);
   }
 
   if (!ALLOWED_RELATION_TYPES.includes(relation.type)) {
@@ -63,7 +60,8 @@ function getRelationSettings(validationSettings, Model) {
 
 function validateRelations(settings, Model) {
   return async function(ctx) {
-    if (!ctx.instance || ctx.instance.id) {
+    let instance = ctx.instance || ctx.data;
+    if (!instance) {
       return;
     }
 
@@ -72,13 +70,19 @@ function validateRelations(settings, Model) {
 
     await Promise.map(settings, validationSettings => {
       let RelationModel = Model.app.models[validationSettings.relation.model];
-      return VALIDATION_HANDLERS[validationSettings.relation.type](userId, ctx.instance, validationSettings, RelationModel);
+      return VALIDATION_HANDLERS[validationSettings.relation.type](userId, instance, validationSettings, RelationModel);
     });
   };
 }
 
 async function validateBelongsTo(userId, instance, validationSettings, RelationModel) {
-  let relation = await RelationModel.findById(instance[validationSettings.relation.foreignKey], {
+  let validatedValue = instance[validationSettings.relation.foreignKey];
+
+  if (!validatedValue && validatedValue !== 0) {
+    return true;
+  }
+
+  let relation = await RelationModel.findById(validatedValue, {
     fields: {
       id: true,
       userId: true
@@ -86,11 +90,11 @@ async function validateBelongsTo(userId, instance, validationSettings, RelationM
   });
 
   if (!relation) {
-    throw errValidation(`Relation ${RelationModel.modelName} id: ${instance[validationSettings.relation.foreignKey]} not found`);
+    throw errValidation(`Relation ${RelationModel.modelName} id: ${validatedValue} not found`);
   }
 
   if (validationSettings.checkOwner && !(relation.userId && relation.userId == userId)) {
-    throw errAccessDenied(`Access denied for ${RelationModel.modelName} id: ${instance[validationSettings.relation.foreignKey]}`);
+    throw errAccessDenied(`Access denied for ${RelationModel.modelName} id: ${validatedValue}`);
   }
 
   return true;

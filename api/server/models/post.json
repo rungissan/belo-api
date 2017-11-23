@@ -8,9 +8,7 @@
   "mixins": {
     "Timestamp": {},
     "RelationsValidate": {
-      "Attachment": {
-        "foreignKey": "imageId",
-        "type": "belongsTo",
+      "image": {
         "checkOwner": true
       }
     }

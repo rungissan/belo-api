@@ -10,9 +10,7 @@
   },
   "mixins": {
     "RelationsValidate": {
-      "Attachment": {
-        "foreignKey": "attachment_id",
-        "type": "belongsTo",
+      "attachment": {
         "checkOwner": true
       }
     }
