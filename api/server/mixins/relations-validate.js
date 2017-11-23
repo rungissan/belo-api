@@ -1,6 +1,11 @@
 'use strict';
 
-const Promise = require('bluebird');
+import Promise from 'bluebird';
+
+import {
+  errAccessDenied,
+  errValidation
+} from '../lib/errors';
 
 const VALIDATION_HANDLERS = {
   'belongsTo': validateBelongsTo
@@ -11,8 +16,7 @@ export default function(Model, options = {}) {
     .map(key => {
       return {
         modelName: key,
-        type: options[key].type,
-        foreignKey: options[key].foreignKey
+        ...options[key]
       };
     });
 
@@ -20,15 +24,15 @@ export default function(Model, options = {}) {
     return;
   }
 
-  settings = settings.map(relationSettings => getRelationSettings(relationSettings, Model));
+  settings = settings.map(validationSettings => getRelationSettings(validationSettings, Model));
 
   Model.observe('before save', validateRelations(settings, Model));
 };
 
 const ALLOWED_RELATION_TYPES = ['belongsTo'];
 
-function getRelationSettings(relationSettings, Model) {
-  const { modelName, type, foreignKey } = relationSettings;
+function getRelationSettings(validationSettings, Model) {
+  const { modelName, type, foreignKey } = validationSettings;
 
   if (!modelName) {
     throw new Error('modelName must be specified');
@@ -52,7 +56,9 @@ function getRelationSettings(relationSettings, Model) {
   if (!ALLOWED_RELATION_TYPES.includes(relation.type)) {
     throw new Error(`Relation type ${relation.type} not supported currently`);
   }
-  return relation;
+
+  validationSettings.relation = relation;
+  return validationSettings;
 }
 
 function validateRelations(settings, Model) {
@@ -64,15 +70,15 @@ function validateRelations(settings, Model) {
     const token = ctx.options && ctx.options.accessToken;
     const userId = token && token.userId;
 
-    await Promise.map(settings, relationSettings => {
-      let RelationModel = Model.app.models[relationSettings.model];
-      return VALIDATION_HANDLERS[relationSettings.type](userId, ctx.instance, relationSettings, RelationModel);
+    await Promise.map(settings, validationSettings => {
+      let RelationModel = Model.app.models[validationSettings.relation.model];
+      return VALIDATION_HANDLERS[validationSettings.relation.type](userId, ctx.instance, validationSettings, RelationModel);
     });
   };
 }
 
-async function validateBelongsTo(userId, instance, relationSettings, RelationModel) {
-  let relation = await RelationModel.findById(instance[relationSettings.foreignKey], {
+async function validateBelongsTo(userId, instance, validationSettings, RelationModel) {
+  let relation = await RelationModel.findById(instance[validationSettings.relation.foreignKey], {
     fields: {
       id: true,
       userId: true
@@ -80,11 +86,11 @@ async function validateBelongsTo(userId, instance, relationSettings, RelationMod
   });
 
   if (!relation) {
-    throw new Error('Relation not found');
+    throw errValidation(`Relation ${RelationModel.modelName} id: ${instance[validationSettings.relation.foreignKey]} not found`);
   }
 
-  if (!(relation.userId && relation.userId == userId)) {
-    throw new Error('Access denied');
+  if (validationSettings.checkOwner && !(relation.userId && relation.userId == userId)) {
+    throw errAccessDenied(`Access denied for ${RelationModel.modelName} id: ${instance[validationSettings.relation.foreignKey]}`);
   }
 
   return true;

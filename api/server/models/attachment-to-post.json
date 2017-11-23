@@ -12,7 +12,8 @@
     "RelationsValidate": {
       "Attachment": {
         "foreignKey": "attachment_id",
-        "type": "belongsTo"
+        "type": "belongsTo",
+        "checkOwner": true
       }
     }
   },
