@@ -102,14 +102,17 @@ const rolemapping = (DataTypes) => ({
 });
 
 const attachment = (DataTypes) => ({
-  id:         { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  userid:     { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
-  url:        { type: DataTypes.STRING },
-  public_url: { type: DataTypes.STRING },
-  type:       { type: DataTypes.STRING(20) },
-  size:       { type: DataTypes.INTEGER },
-  name:       { type: DataTypes.STRING },
-  container:  { type: DataTypes.STRING }
+  id:             { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  userid:         { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  url:            { type: DataTypes.STRING },
+  public_url:     { type: DataTypes.STRING },
+  type:           { type: DataTypes.STRING(20) },
+  size:           { type: DataTypes.INTEGER },
+  name:           { type: DataTypes.STRING },
+  container:      { type: DataTypes.STRING },
+  container_root: { type: DataTypes.STRING },
+  public:         { type: DataTypes.BOOLEAN, defaultValue: true },
+  sizes:          { type: DataTypes.JSONB }
 });
 
 module.exports = {

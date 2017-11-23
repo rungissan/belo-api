@@ -1,0 +1,50 @@
+{
+  "name": "AttachmentToPost",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "attachment_to_post"
+    }
+  },
+  "mixins": {
+    "RelationsValidate": {
+      "attachment": {
+        "checkOwner": true
+      }
+    }
+  },
+  "properties": {
+    "post_id": {
+      "type": "number",
+      "required": true
+    },
+    "attachment_id": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "post": {
+      "type": "belongsTo",
+      "model": "Post",
+      "foreignKey": "post_id"
+    },
+    "attachment": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "attachment_id"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}

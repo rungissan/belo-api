@@ -56,6 +56,9 @@ services:
       POSTGRES_USER: admin
       POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB
     depends_on:
       - postgres
       - redis

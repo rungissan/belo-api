@@ -88,5 +88,12 @@
   "GeolocationToUser": {
     "dataSource": "postgres",
     "public": false
+  },
+  "Post": {
+    "dataSource": "postgres"
+  },
+  "AttachmentToPost": {
+    "dataSource": "postgres",
+    "public": false
   }
 }
