@@ -8,6 +8,14 @@
       "table": "attachment_to_post"
     }
   },
+  "mixins": {
+    "RelationsValidate": {
+      "Attachment": {
+        "foreignKey": "attachment_id",
+        "type": "belongsTo"
+      }
+    }
+  },
   "properties": {
     "post_id": {
       "type": "number",
