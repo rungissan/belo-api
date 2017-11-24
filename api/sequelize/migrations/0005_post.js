@@ -12,11 +12,12 @@ const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
 
 // TODO: Add relation to listings
 const post = (DataTypes) => ({
-  id:          { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  user_id:     { type: DataTypes.INTEGER, allowNull: false, references: { model: 'user', key: 'id' }, ...cascadeRules },
-  title:       { type: DataTypes.STRING },
-  description: { type: DataTypes.TEXT },
-  image_id:    { type: DataTypes.INTEGER, references: {model: 'attachment', key: 'id'}, ...cascadeRules },
+  id:             { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  user_id:        { type: DataTypes.INTEGER, allowNull: false, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  title:          { type: DataTypes.STRING },
+  description:    { type: DataTypes.TEXT },
+  image_id:       { type: DataTypes.INTEGER, references: {model: 'attachment',  key: 'id'}, ...cascadeRules },
+  geolocation_id: { type: DataTypes.INTEGER, references: {model: 'geolocation', key: 'id'}, ...cascadeRules, allowNull: false},
   // listing_id:  { type: DataTypes.INTEGER, references: {model: 'listing', key: 'id'}, ...cascadeRules },
   ...defaultFields(DataTypes)
 });
@@ -30,7 +31,14 @@ const attachment_to_post = (DataTypes) => ({
 module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('post', post(DataTypes))
-      .then(() => queryInterface.createTable('attachment_to_post', attachment_to_post(DataTypes)));
+      .then(() => queryInterface.createTable('attachment_to_post', attachment_to_post(DataTypes)))
+      .then(() => queryInterface.addIndex(
+        'attachment_to_post',
+        ['attachment_id', 'post_id'],
+        {
+          indicesType: 'UNIQUE'
+        }
+      ));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('attachment_to_post')

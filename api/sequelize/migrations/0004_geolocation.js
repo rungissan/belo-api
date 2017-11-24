@@ -37,7 +37,14 @@ const geolocation_to_user = (DataTypes) => ({
 module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('geolocation', geolocation(DataTypes))
-      .then(() => queryInterface.createTable('geolocation_to_user', geolocation_to_user(DataTypes)));
+      .then(() => queryInterface.createTable('geolocation_to_user', geolocation_to_user(DataTypes)))
+      .then(() => queryInterface.addIndex(
+        'geolocation_to_user',
+        ['geolocation_id', 'user_id'],
+        {
+          indicesType: 'UNIQUE'
+        }
+      ));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('geolocation_to_user')
