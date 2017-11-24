@@ -10,7 +10,8 @@
     "RelationsValidate": {
       "image": {
         "checkOwner": true
-      }
+      },
+      "geolocation": {}
     },
     "RemoteRouting" : {
       "only": [
@@ -52,6 +53,14 @@
         "columnName": "image_id",
         "dataType": "integer"
       }
+    },
+    "geolocationId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "geolocation_id",
+        "dataType": "integer"
+      }
     }
   },
   "validations": [],
@@ -72,6 +81,11 @@
       "through": "AttachmentToPost",
       "foreignKey": "post_id",
       "keyThrough": "attachment_id"
+    },
+    "geolocation": {
+      "type": "belongsTo",
+      "model": "Geolocation",
+      "foreignKey": "geolocationId"
     }
   },
   "acls": [

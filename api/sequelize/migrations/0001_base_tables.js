@@ -124,7 +124,7 @@ module.exports = {
       .then(() => queryInterface.createTable('role', role(DataTypes)))
       .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
       .then(() => queryInterface.createTable('attachment', attachment(DataTypes)))
-      .then(() => queryInterface.createTable('account', account(DataTypes)))
+      .then(() => queryInterface.createTable('account', account(DataTypes)));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('user')
