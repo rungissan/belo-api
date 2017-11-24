@@ -19,7 +19,7 @@ module.exports = function(Geolocation) {
       description: 'Find or create geolocation',
       accepts: [{
         arg: 'geolocationData',
-        type: 'Geolocatin',
+        type: 'Geolocation',
         http: { source: 'body' },
         description: 'data property can be used to store original gmaps geolocation data'
       }],

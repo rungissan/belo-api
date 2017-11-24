@@ -57,11 +57,35 @@ export const errUserAlreadyHaveRole = () => {
   return error;
 };
 
+export const errValidation = (message = 'Validation error') => {
+  let error = new Error(message);
+  error.statusCode = 422;
+  error.code = 'VALIDATION_ERROR';
+
+  return error;
+};
+
 export const errAjvValidation = (message = 'Validation error') => {
   let error = new Error(message);
   error.statusCode = 422;
   error.code = 'VALIDATION_ERROR';
   error.type = 'json-schema';
+
+  return error;
+};
+
+export const errUnsupportedContainer = (containerName) => {
+  let error = new Error(`Unsupported container ${containerName}`);
+  error.statusCode = 422;
+  error.code = 'VALIDATION_ERROR';
+
+  return error;
+};
+
+export const errAccessDenied = (message = 'Access denied') => {
+  let error = new Error(message);
+  error.statusCode = 401;
+  error.code = 'ACCESS_DENIED';
 
   return error;
 };
