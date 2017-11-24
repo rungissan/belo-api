@@ -1,14 +1,6 @@
 'use strict';
 
-const defaultFields = (DataTypes) => {
-  return {
-    created_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    updated_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    deleted_at: {type: DataTypes.DATE, allowNull: true}
-  }
-};
-
-const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+import { defaultFields, cascadeRules } from '../utils';
 
 const user = (DataTypes) => ({
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },

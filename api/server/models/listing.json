@@ -6,34 +6,181 @@
     "validateUpsert": true
   },
   "mixins": {
-    "Timestamp": {}
+    "Timestamp": {},
+    "SetOwner": {},
+    "RelationsValidate": {
+      "image": {
+        "checkOwner": true
+      },
+      "geolocation": {}
+    },
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "@create",
+        "updateAttributes",
+        "__link__additionalImages",
+        "__unlink__additionalImages"
+      ]
+    }
   },
   "properties": {
-    "ownerId": {
+    "id": {
       "type": "number",
-      "required": true
+      "id": true
+    },
+    "userId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "user_id",
+        "dataType": "integer"
+      }
     },
     "title": {
       "type": "string",
-      "required": true
+      "maxLength": 255,
+      "postgresql": {
+        "dataType": "character varying"
+      }
     },
     "description": {
       "type": "string"
+    },
+    "imageId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "image_id",
+        "dataType": "integer"
+      }
+    },
+    "geolocationId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "geolocation_id",
+        "dataType": "integer"
+      }
+    },
+    "displayAddress": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "display_address"
+      }
+    },
+    "showInBrokerFeed": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "show_in_broker_feed"
+      }
+    },
+    "rent_type": {
+      "type": "boolean",
+      "default": "rent",
+      "postgresql": {
+        "columnName": "rent_type",
+        "dataType": "character varying",
+        "dataLength": 20
+      }
+    },
+    "bedrooms": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "smallint"
+      }
+    },
+    "bathrooms": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "smallint"
+      }
+    },
+    "price": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "integer"
+      },
+      "description": "Price in cents"
+    },
+    "square": {
+      "type": "number"
+    },
+    "propertyFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "property_features",
+        "dataType": "jsonb"
+      }
+    },
+    "buildingFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "building_features",
+        "dataType": "jsonb"
+      }
+    },
+    "utilitiesIncluded": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "utilities_included",
+        "dataType": "jsonb"
+      }
+    },
+    "moveInFees": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "move_in_fees",
+        "dataType": "jsonb"
+      }
+    },
+    "schoolInformation": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "school_information",
+        "dataType": "jsonb"
+      }
+    },
+    "transportation": {
+      "type": "object",
+      "postgresql": {
+        "dataType": "jsonb"
+      }
+    },
+    "additionalFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "additional_features",
+        "dataType": "jsonb"
+      }
     }
   },
   "validations": [],
   "relations": {
-    "zipcodes": {
-      "type": "hasMany",
-      "model": "Zipcode",
-      "through": "ListingToZipcode",
-      "foreignKey": "listing_id",
-      "keyThrough": "zipcode_id"
-    },
-    "owner": {
+    "client": {
       "type": "belongsTo",
       "model": "Client",
-      "foreignKey": "ownerId"
+      "foreignKey": "userId"
+    },
+    "image": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "imageId"
+    },
+    "additionalImages": {
+      "type": "hasMany",
+      "model": "Attachment",
+      "through": "AttachmentToPost",
+      "foreignKey": "post_id",
+      "keyThrough": "attachment_id"
+    },
+    "geolocation": {
+      "type": "belongsTo",
+      "model": "Geolocation",
+      "foreignKey": "geolocationId"
     }
   },
   "acls": [
@@ -50,19 +197,11 @@
       "permission": "ALLOW"
     },
     {
-      "accessType": "WRITE",
       "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "DENY",
-      "property": ["__create__zipcodes", "__delete__zipcodes", "__destroyById__zipcodes","__update__zipcodes", "__updateById__zipcodes"]
+      "principalId": "prof",
+      "permission": "ALLOW",
+      "property": "create"
     }
   ],
-  "methods": {
-    "prototype.findById": {
-      "accessScopes": ["profile_read"]
-    },
-    "findById": {
-      "accessScopes": ["profile_read"]
-    }
-  }
+  "methods": []
 }
