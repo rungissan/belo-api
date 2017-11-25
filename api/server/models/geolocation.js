@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = function(Geolocation) {
-  Geolocation.searchOrCreate = async function(geolocationData, place_id) {
+  Geolocation.searchOrCreate = async function(geolocationData) {
     let existentGeolocation = await Geolocation.findOne({
-      where: { place_id }
+      where: { place_id: geolocationData.place_id }
     });
 
     if (existentGeolocation) {

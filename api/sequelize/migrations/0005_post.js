@@ -1,14 +1,6 @@
 'use strict';
 
-// oauth tables
-const defaultFields = (DataTypes) => {
-  return {
-    created_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    updated_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    deleted_at: {type: DataTypes.DATE, allowNull: true}
-  };
-};
-const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+import { defaultFields, cascadeRules } from '../utils';
 
 // TODO: Add relation to listings
 const post = (DataTypes) => ({

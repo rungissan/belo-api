@@ -1,8 +1,6 @@
 'use strict';
 
-// oauth tables
-
-const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+import { cascadeRules } from '../utils';
 
 const useridentity = (DataTypes) => ({
   id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
