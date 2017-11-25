@@ -4,7 +4,7 @@
   "options": {
     "postgresql": {
       "table": "oauth_authorization_code",
-      "schema": "spiti"
+      "schema": "auth"
     }
   },
   "properties": {

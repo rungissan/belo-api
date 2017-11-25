@@ -21,7 +21,8 @@ module.exports = function(app, options) {
     dataSource = app.dataSources[dataSource];
   }
 
-  var oauth2 = require('./oauth2-models')(dataSource);
+  // NOTE: moved model creation to json definition
+  // var oauth2 = require('./oauth2-models')(dataSource);
 
   var userModel = loopback.findModel(options.userModel) ||
     loopback.getModelByType(loopback.User);
@@ -29,9 +30,9 @@ module.exports = function(app, options) {
   var applicationModel = loopback.findModel(options.applicationModel) || loopback.getModelByType(loopback.Application);
   debug('Application model: %s', applicationModel.modelName);
 
-  var oAuthTokenModel = oauth2.OAuthToken;
-  var oAuthAuthorizationCodeModel = oauth2.OAuthAuthorizationCode;
-  var oAuthPermissionModel = oauth2.OAuthPermission;
+  var oAuthTokenModel = loopback.findModel(options.oAuthTokenModel || 'OAuthAccessToken');
+  var oAuthAuthorizationCodeModel = loopback.findModel(options.oAuthAuthorizationCodeModel || 'OAuthAuthorizationCode');
+  var oAuthPermissionModel = loopback.findModel(options.oAuthPermissionModel || 'OAuthPermission');
 
   oAuthTokenModel.belongsTo(userModel,
     {as: 'user', foreignKey: 'userId'});
@@ -103,6 +104,8 @@ module.exports = function(app, options) {
       password: password,
     }, done);
   };
+
+  users.settings = {...userModel.settings};
 
   var clients = {};
   clients.find = clients.findByClientId = function(clientId, done) {
