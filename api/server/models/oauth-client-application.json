@@ -1,6 +1,12 @@
 {
   "name": "OAuthClientApplication",
   "base": "Application",
+  "options": {
+    "postgresql": {
+      "table": "oauth_client_application",
+      "schema": "auth"
+    }
+  },
   "properties": {
     "id": {
       "type": "string",

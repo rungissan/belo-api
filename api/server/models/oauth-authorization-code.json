@@ -1,6 +1,12 @@
 {
   "name": "OAuthAuthorizationCode",
   "base": "PersistedModel",
+  "options": {
+    "postgresql": {
+      "table": "oauth_authorization_code",
+      "schema": "spiti"
+    }
+  },
   "properties": {
     "id": {
       "type": "string",

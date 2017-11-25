@@ -12,7 +12,9 @@
     "name": "postgres",
     "user": "admin",
     "connector": "postgresql",
-    "debug": true
+    "debug": true,
+    "min": 5,
+    "max": 10
   },
   "redis": {
     "host": "redis",

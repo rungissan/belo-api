@@ -1,10 +1,13 @@
 'use strict';
 
-import { cascadeRules } from '../utils';
+import {
+  CASCADE_RULES,
+  BASE_SCHEMA
+} from '../utils';
 
-const useridentity = (DataTypes) => ({
+const user_identity = (DataTypes) => ({
   id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  userid:      { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  userid:      { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   clientid:    { type: DataTypes.INTEGER },
   provider:    { type: DataTypes.TEXT },
   authscheme:  { type: DataTypes.TEXT },
@@ -15,9 +18,9 @@ const useridentity = (DataTypes) => ({
   modified:    { type: DataTypes.DATE }
 });
 
-const usercredential = (DataTypes) => ({
+const user_credential = (DataTypes) => ({
   id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  userid:      { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  userid:      { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   clientid:    { type: DataTypes.INTEGER },
   provider:    { type: DataTypes.TEXT },
   authscheme:  { type: DataTypes.TEXT },
@@ -30,11 +33,11 @@ const usercredential = (DataTypes) => ({
 
 module.exports = {
   up: (queryInterface, DataTypes) => {
-    return queryInterface.createTable('usercredential', usercredential(DataTypes))
-      .then(() => queryInterface.createTable('useridentity', useridentity(DataTypes)));
+    return queryInterface.createTable('user_credential', user_credential(DataTypes), BASE_SCHEMA)
+      .then(() => queryInterface.createTable('user_identity', user_identity(DataTypes), BASE_SCHEMA));
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('usercredential')
-      .then(() => queryInterface.dropTable('useridentity'));
+    return queryInterface.dropTable('user_credential')
+      .then(() => queryInterface.dropTable('user_identity'));
   }
 };

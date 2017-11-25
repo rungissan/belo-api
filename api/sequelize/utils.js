@@ -7,4 +7,7 @@ export const defaultFields = (DataTypes) => {
   };
 };
 
-export const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+export const CASCADE_RULES = { onUpdate: 'cascade', onDelete: 'cascade'};
+
+export const BASE_SCHEMA  = { schema: 'spiti' };
+export const AUTH_SCHEMA = { schema: 'auth' };

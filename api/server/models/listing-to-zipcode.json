@@ -5,7 +5,8 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "listing_to_zipcode"
+      "table": "listing_to_zipcode",
+      "schema": "spiti"
     }
   },
   "properties": {
