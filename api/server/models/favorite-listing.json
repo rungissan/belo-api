@@ -1,35 +1,42 @@
 {
-  "name": "ListingToZipcode",
+  "name": "FavoriteListing",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "listing_to_zipcode",
+      "table": "favorite_listing",
       "schema": "spiti"
     }
   },
+  "mixins": {
+    "RelationsValidate": {
+      "listing": {
+        "checkNotOwner": true
+      }
+    }
+  },
   "properties": {
-    "listing_id": {
+    "user_id": {
       "type": "number",
       "required": true
     },
-    "zipcode_id": {
+    "listing_id": {
       "type": "number",
       "required": true
     }
   },
   "validations": [],
   "relations": {
-    "listings": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "user_id"
+    },
+    "listing": {
       "type": "belongsTo",
       "model": "Listing",
       "foreignKey": "listing_id"
-    },
-    "zipcodes": {
-      "type": "belongsTo",
-      "model": "Zipcode",
-      "foreignKey": "zipcode_id"
     }
   },
   "acls": [
@@ -38,12 +45,6 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
-    },
-    {
-      "accessType": "WRITE",
-      "principalType": "ROLE",
-      "principalId": "admin",
-      "permission": "ALLOW"
     }
   ],
   "methods": {}

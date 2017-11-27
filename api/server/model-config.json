@@ -122,5 +122,11 @@
   "AttachmentToPost": {
     "dataSource": "postgres",
     "public": false
+  },
+  "FavoritePost": {
+    "dataSource": "postgres"
+  },
+  "FavoriteListing": {
+    "dataSource": "postgres"
   }
 }

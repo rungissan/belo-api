@@ -1,0 +1,51 @@
+{
+  "name": "FavoritePost",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "favorite_post",
+      "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "RelationsValidate": {
+      "post": {
+        "checkNotOwner": true
+      }
+    }
+  },
+  "properties": {
+    "user_id": {
+      "type": "number",
+      "required": true
+    },
+    "post_id": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "client": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "user_id"
+    },
+    "post": {
+      "type": "belongsTo",
+      "model": "Post",
+      "foreignKey": "post_id"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}

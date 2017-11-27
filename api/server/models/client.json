@@ -21,7 +21,12 @@
         "@create",
         "updateAttributes",
         "__link__geolocations",
-        "__unlink__geolocations"
+        "__unlink__geolocations",
+        "__link__favoritePosts",
+        "__unlink__favoritePosts",
+        "__link__favoriteListings",
+        "__unlink__favoriteListings",
+        "__get__favoriteListings"
       ]
     }
   },
@@ -55,6 +60,20 @@
       "through": "GeolocationToUser",
       "foreignKey": "user_id",
       "keyThrough": "geolocation_id"
+    },
+    "favoritePosts": {
+      "type": "hasMany",
+      "model": "Post",
+      "through": "FavoritePost",
+      "foreignKey": "user_id",
+      "keyThrough": "post_id"
+    },
+    "favoriteListings": {
+      "type": "hasMany",
+      "model": "Listing",
+      "through": "FavoriteListing",
+      "foreignKey": "user_id",
+      "keyThrough": "listing_id"
     }
   },
   "acls": [
@@ -87,6 +106,42 @@
       "principalId": "prof",
       "permission": "ALLOW",
       "property": "__link__geolocations"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__link__favoritePosts"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__favoritefavoritePosts"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__link__favoriteListings"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__favoriteListings"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__unlink__favoriteListings"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__unlink__favoritePosts"
     }
   ],
   "methods": {},

@@ -54,6 +54,10 @@ function getRelationSettings(validationSettings, Model) {
     throw new Error(`Relation type ${relation.type} not supported currently`);
   }
 
+  if (validationSettings.checkOwner && validationSettings.checkNotOwner) {
+    throw new Error('Can not validate checkOwner and checkNotOwner simultaneously');
+  }
+
   validationSettings.relation = relation;
   return validationSettings;
 }
@@ -95,6 +99,10 @@ async function validateBelongsTo(userId, instance, validationSettings, RelationM
 
   if (validationSettings.checkOwner && !(relation.userId && relation.userId == userId)) {
     throw errAccessDenied(`Access denied for ${RelationModel.modelName} id: ${validatedValue}`);
+  }
+
+  if (validationSettings.checkNotOwner && relation.userId && relation.userId == userId) {
+    throw errValidation(`Setting own relations is not allowed - ${RelationModel.modelName} id: ${validatedValue}`);
   }
 
   return true;
