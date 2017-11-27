@@ -7,6 +7,11 @@ import ajv, { getSchema, formatErrors } from './jsonValidator';
 
 export default function validate(data, modelName, schemaName) {
   let schema = getSchema(`${modelName}/${schemaName}`);
+
+  return validateBySchema(data, schema, modelName);
+};
+
+export function validateBySchema(data, schema, modelName = '') {
   let validate = ajv.compile(schema);
 
   if (!validate(data)) {

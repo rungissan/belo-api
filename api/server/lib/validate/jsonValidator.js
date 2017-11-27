@@ -35,7 +35,7 @@ export function getSchema(schemaName) {
   }
 };
 
-export function formatErrors(errors = [], modelName) {
+export function formatErrors(errors = [], modelName = '') {
   let err = errAjvValidation();
 
   if (Array.isArray(errors)) {
