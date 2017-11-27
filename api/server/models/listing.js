@@ -136,7 +136,7 @@ module.exports = function(Listing) {
 
     Promise.map(Object.keys(FEATURES_VALIDATIONS), key => {
       if (instance[key]) {
-        return validateBySchema(instance[key], FEATURES_VALIDATIONS[key]);
+        return validateBySchema(instance[key], FEATURES_VALIDATIONS[key], 'Listing');
       }
       return true;
     })
