@@ -2,7 +2,8 @@
   "name": "VerificationToken",
   "options": {
     "postgresql": {
-      "table": "verification_token"
+      "table": "verification_token",
+      "schema": "spiti"
     }
   },
   "properties": {

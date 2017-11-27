@@ -1,6 +1,12 @@
 {
   "name": "OAuthPermission",
   "base": "PersistedModel",
+  "options": {
+    "postgresql": {
+      "table": "oauth_permission",
+      "schema": "auth"
+    }
+  },
   "properties": {
     "appId": {
       "type": "string",
@@ -35,4 +41,3 @@
     }
   }
 }
-

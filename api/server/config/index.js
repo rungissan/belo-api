@@ -8,5 +8,9 @@ export default {
       db: 2,
       options: {}
     }
+  },
+  postgresql: {
+    baseSchema: 'spiti',
+    authSchems: 'auth'
   }
 };

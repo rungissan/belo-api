@@ -3,7 +3,10 @@
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti"
+    }
   },
   "mixins": {
     "Timestamp": {},
@@ -12,7 +15,10 @@
       "image": {
         "checkOwner": true
       },
-      "geolocation": {}
+      "geolocation": {},
+      "listing": {
+        "checkOwner": true
+      }
     },
     "RemoteRouting" : {
       "only": [
@@ -62,6 +68,14 @@
         "columnName": "geolocation_id",
         "dataType": "integer"
       }
+    },
+    "listingId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "listing_id",
+        "dataType": "integer"
+      }
     }
   },
   "validations": [],
@@ -87,6 +101,11 @@
       "type": "belongsTo",
       "model": "Geolocation",
       "foreignKey": "geolocationId"
+    },
+    "listing": {
+      "type": "belongsTo",
+      "model": "Listing",
+      "foreignKey": "listingId"
     }
   },
   "acls": [

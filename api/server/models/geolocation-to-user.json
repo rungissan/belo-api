@@ -5,7 +5,8 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "geolocation_to_user"
+      "table": "geolocation_to_user",
+      "schema": "spiti"
     }
   },
   "properties": {

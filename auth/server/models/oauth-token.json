@@ -1,6 +1,12 @@
 {
   "name": "OAuthAccessToken",
   "base": "PersistedModel",
+  "options": {
+    "postgresql": {
+      "table": "oauth_access_token",
+      "schema": "auth"
+    }
+  },
   "properties": {
     "id": {
       "type": "string",
@@ -62,4 +68,3 @@
     }
   }
 }
-
