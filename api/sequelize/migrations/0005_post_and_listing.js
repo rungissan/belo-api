@@ -46,6 +46,35 @@ const listing = (DataTypes) => ({
   ...defaultFields(DataTypes)
 });
 
+const post = (DataTypes) => ({
+  id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  image_id: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'attachment', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  geolocation_id: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'geolocation', ...BASE_SCHEMA}},
+    ...CASCADE_RULES,
+    allowNull: false
+  },
+  listing_id: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'listing', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  title:          { type: DataTypes.STRING },
+  description:    { type: DataTypes.TEXT },
+  ...defaultFields(DataTypes)
+});
+
 const attachment_to_listing = (DataTypes) => ({
   id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   attachment_id: {
@@ -62,10 +91,35 @@ const attachment_to_listing = (DataTypes) => ({
   }
 });
 
+const attachment_to_post = (DataTypes) => ({
+  id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  attachment_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: {tableName: 'attachment', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  post_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {model: {tableName: 'post', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  }
+});
+
 module.exports = {
   up: (queryInterface, DataTypes) => {
     return queryInterface.createTable('listing', listing(DataTypes), BASE_SCHEMA)
+      .then(() => queryInterface.createTable('post', post(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('attachment_to_post', attachment_to_post(DataTypes), BASE_SCHEMA))
       .then(() => queryInterface.createTable('attachment_to_listing', attachment_to_listing(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.addIndex(
+        `${BASE_SCHEMA.schema}.attachment_to_post`,
+        ['attachment_id', 'post_id'],
+        {
+          indicesType: 'UNIQUE'
+        }
+      ))
       .then(() => queryInterface.addIndex(
         `${BASE_SCHEMA.schema}.attachment_to_listing`,
         ['attachment_id', 'listing_id'],
@@ -76,6 +130,8 @@ module.exports = {
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('attachment_to_listing')
+      .then(() => queryInterface.dropTable('attachment_to_post'))
+      .then(() => queryInterface.dropTable('post'))
       .then(() => queryInterface.dropTable('listing'));
   }
 };
