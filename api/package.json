@@ -11,7 +11,10 @@
     "start": "npm run build && node dist/server.js",
     "build": "babel server -d dist -D",
     "clean": "rm -rf build && mkdir build",
-    "posttest": "npm run lint && nsp check"
+    "posttest": "npm run lint && nsp check",
+    "test": "npm run migrate && npm run seed && mocha test/*.test.js",
+    "migrate": "sequelize --env db db:migrate --debug",
+    "seed": "sequelize --env db db:seed:all --debug"
   },
   "dependencies": {
     "ajv": "^5.3.0",
@@ -47,10 +50,12 @@
     "strong-error-handler": "^2.0.0"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0",
-    "sequelize": "^4.22.6"
+    "sequelize": "^4.22.6",
+    "supertest": "^3.0.0"
   },
   "repository": {
     "type": "",

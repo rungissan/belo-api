@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+
+  api:
+    tty: true
+    environment:
+      POSTGRES_DB: spiti_test
+      NODE_ENV: test
+
+  auth:
+    tty: true
+    environment:
+      POSTGRES_DB: spiti_test
+      NODE_ENV: test
