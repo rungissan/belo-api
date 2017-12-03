@@ -116,6 +116,10 @@
     "dataSource": "postgres",
     "public": false
   },
+  "GeolocationToPost": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "Post": {
     "dataSource": "postgres"
   },
