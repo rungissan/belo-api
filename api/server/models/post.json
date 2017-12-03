@@ -19,6 +19,12 @@
         "checkOwner": true
       }
     },
+    "CreateWithRelationsLink": {
+      "geolocations": {},
+      "additionalImages": {
+        "checkOwner": true
+      }
+    },
     "RemoteRouting" : {
       "only": [
         "@find",
