@@ -14,19 +14,49 @@
       "./mixins"
     ]
   },
-  "Client": {
+  "User": {
     "dataSource": "postgres",
-    "public": true
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
   },
   "AccessToken": {
     "dataSource": "postgres",
-    "public": false
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
+  },
+  "Client": {
+    "dataSource": "postgres",
+    "public": true
   },
   "userCredential": {
     "dataSource": "postgres",
     "public": false
   },
   "userIdentity": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthClientApplication": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthAccessToken": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthAuthorizationCode": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthPermission": {
     "dataSource": "postgres",
     "public": false
   }

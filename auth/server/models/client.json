@@ -9,7 +9,8 @@
     "rejectPasswordChangesViaPatchOrReplace": false,
     "resetPasswordTokenTTL": 900,
     "postgresql": {
-      "table": "user"
+      "table": "user",
+      "schema": "spiti"
     }
   },
   "properties": {},

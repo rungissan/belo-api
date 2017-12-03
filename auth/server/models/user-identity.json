@@ -2,6 +2,12 @@
   "name": "userIdentity",
   "plural": "userIdentities",
   "base": "UserIdentity",
+  "options": {
+    "postgresql": {
+      "table": "user_identity",
+      "schema": "spiti"
+    }
+  },
   "properties": {},
   "validations": [],
   "relations": {

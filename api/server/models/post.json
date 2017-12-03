@@ -3,15 +3,21 @@
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
-    "validateUpsert": true
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti"
+    }
   },
   "mixins": {
     "Timestamp": {},
+    "SetOwner": {},
     "RelationsValidate": {
       "image": {
         "checkOwner": true
       },
-      "geolocation": {}
+      "listing": {
+        "checkOwner": true
+      }
     },
     "RemoteRouting" : {
       "only": [
@@ -20,7 +26,9 @@
         "@create",
         "updateAttributes",
         "__link__additionalImages",
-        "__unlink__additionalImages"
+        "__unlink__additionalImages",
+        "__link__geolocations",
+        "__unlink__geolocations"
       ]
     }
   },
@@ -54,11 +62,11 @@
         "dataType": "integer"
       }
     },
-    "geolocationId": {
+    "listingId": {
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "geolocation_id",
+        "columnName": "listing_id",
         "dataType": "integer"
       }
     }
@@ -82,10 +90,17 @@
       "foreignKey": "post_id",
       "keyThrough": "attachment_id"
     },
-    "geolocation": {
-      "type": "belongsTo",
+    "geolocations": {
+      "type": "hasMany",
       "model": "Geolocation",
-      "foreignKey": "geolocationId"
+      "through": "GeolocationToPost",
+      "foreignKey": "user_id",
+      "keyThrough": "geolocation_id"
+    },
+    "listing": {
+      "type": "belongsTo",
+      "model": "Listing",
+      "foreignKey": "listingId"
     }
   },
   "acls": [

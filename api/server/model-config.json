@@ -17,11 +17,21 @@
   },
   "User": {
     "dataSource": "postgres",
-    "public": false
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
   },
   "AccessToken": {
     "dataSource": "postgres",
-    "public": false
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
   },
   "VerificationToken": {
     "dataSource": "postgres",
@@ -29,20 +39,45 @@
   },
   "ACL": {
     "dataSource": "postgres",
-    "public": false
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
   },
   "RoleMapping": {
     "dataSource": "postgres",
     "public": false,
     "options": {
-      "strictObjectIDCoercion": true
+      "strictObjectIDCoercion": true,
+      "postgresql": {
+        "schema": "spiti"
+      }
     }
   },
   "Role": {
     "dataSource": "postgres",
-    "public": false
+    "public": false,
+    "options": {
+      "postgresql": {
+        "schema": "spiti"
+      }
+    }
   },
   "OAuthClientApplication": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthAccessToken": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthAuthorizationCode": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "OAuthPermission": {
     "dataSource": "postgres",
     "public": false
   },
@@ -57,17 +92,9 @@
   "Email": {
     "dataSource": "gmail"
   },
-  "Zipcode": {
-    "dataSource": "postgres",
-    "public": true
-  },
   "Listing": {
     "dataSource": "postgres",
     "public": true
-  },
-  "ListingToZipcode": {
-    "dataSource": "postgres",
-    "public": false
   },
   "ContainerPrivate": {
     "dataSource": "storagePrivate",
@@ -89,11 +116,21 @@
     "dataSource": "postgres",
     "public": false
   },
+  "GeolocationToPost": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "Post": {
     "dataSource": "postgres"
   },
   "AttachmentToPost": {
     "dataSource": "postgres",
     "public": false
+  },
+  "FavoritePost": {
+    "dataSource": "postgres"
+  },
+  "FavoriteListing": {
+    "dataSource": "postgres"
   }
 }

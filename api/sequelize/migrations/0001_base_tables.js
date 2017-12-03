@@ -1,14 +1,10 @@
 'use strict';
 
-const defaultFields = (DataTypes) => {
-  return {
-    created_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    updated_at: {type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.fn('NOW')},
-    deleted_at: {type: DataTypes.DATE, allowNull: true}
-  }
-};
-
-const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
+import {
+  defaultFields,
+  CASCADE_RULES,
+  BASE_SCHEMA
+} from '../utils';
 
 const user = (DataTypes) => ({
   id:                { type: DataTypes.INTEGER,     allowNull: false, primaryKey: true, autoIncrement: true },
@@ -28,8 +24,8 @@ const account = (DataTypes) => ({
   userid: { type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
-    references: {model: 'user', key: 'id'},
-    ...cascadeRules
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
   },
   type:               { type: DataTypes.STRING(20) },
   first_name:         { type: DataTypes.STRING(30) },
@@ -43,8 +39,8 @@ const account = (DataTypes) => ({
   license_state:      { type: DataTypes.STRING(4) },
   license_number:     { type: DataTypes.INTEGER },
   license_expiration: { type: DataTypes.DATE },
-  avatar_id:     { type: DataTypes.INTEGER, references: {model: 'attachment', key: 'id'}, ...cascadeRules },
-  background_id: { type: DataTypes.INTEGER, references: {model: 'attachment', key: 'id'}, ...cascadeRules },
+  avatar_id:     { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
+  background_id: { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   ...defaultFields(DataTypes)
 });
 
@@ -56,7 +52,7 @@ const accesstoken = (DataTypes) => ({
   userid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {model: 'user', key: 'id'},
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
     onUpdate: 'cascade',
     onDelete: 'cascade'
   }
@@ -70,7 +66,7 @@ const verifytoken = (DataTypes) => ({
   userid: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {model: 'user', key: 'id'},
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
     onUpdate: 'cascade',
     onDelete: 'cascade'
   }
@@ -103,7 +99,7 @@ const rolemapping = (DataTypes) => ({
 
 const attachment = (DataTypes) => ({
   id:             { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  userid:         { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+  userid:         { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   url:            { type: DataTypes.STRING },
   public_url:     { type: DataTypes.STRING },
   type:           { type: DataTypes.STRING(20) },
@@ -117,14 +113,15 @@ const attachment = (DataTypes) => ({
 
 module.exports = {
   up: (queryInterface, DataTypes) => {
-    return queryInterface.createTable('user', user(DataTypes))
-      .then(() => queryInterface.createTable('accesstoken', accesstoken(DataTypes)))
-      .then(() => queryInterface.createTable('verification_token', verifytoken(DataTypes)))
-      .then(() => queryInterface.createTable('acl', acl(DataTypes)))
-      .then(() => queryInterface.createTable('role', role(DataTypes)))
-      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes)))
-      .then(() => queryInterface.createTable('attachment', attachment(DataTypes)))
-      .then(() => queryInterface.createTable('account', account(DataTypes)));
+    return queryInterface.sequelize.query(`CREATE SCHEMA IF NOT EXISTS ${BASE_SCHEMA.schema}`)
+      .then(() =>  queryInterface.createTable('user', user(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('accesstoken', accesstoken(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('verification_token', verifytoken(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('acl', acl(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('role', role(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('rolemapping', rolemapping(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('attachment', attachment(DataTypes), BASE_SCHEMA))
+      .then(() => queryInterface.createTable('account', account(DataTypes), BASE_SCHEMA));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable('user')

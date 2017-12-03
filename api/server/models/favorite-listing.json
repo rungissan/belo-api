@@ -1,12 +1,19 @@
 {
-  "name": "GeolocationToUser",
+  "name": "FavoriteListing",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "geolocation_to_user",
+      "table": "favorite_listing",
       "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "RelationsValidate": {
+      "listing": {
+        "checkNotOwner": true
+      }
     }
   },
   "properties": {
@@ -14,22 +21,22 @@
       "type": "number",
       "required": true
     },
-    "geolocation_id": {
+    "listing_id": {
       "type": "number",
       "required": true
     }
   },
   "validations": [],
   "relations": {
-    "clients": {
+    "client": {
       "type": "belongsTo",
       "model": "Client",
       "foreignKey": "user_id"
     },
-    "geolocation": {
+    "listing": {
       "type": "belongsTo",
-      "model": "Geolocation",
-      "foreignKey": "geolocation_id"
+      "model": "Listing",
+      "foreignKey": "listing_id"
     }
   },
   "acls": [
@@ -38,12 +45,6 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
-    },
-    {
-      "accessType": "WRITE",
-      "principalType": "ROLE",
-      "principalId": "prof",
-      "permission": "ALLOW"
     }
   ],
   "methods": {}

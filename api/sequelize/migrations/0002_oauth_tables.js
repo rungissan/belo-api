@@ -1,13 +1,23 @@
 'use strict';
 
-// oauth tables
+import {
+  CASCADE_RULES,
+  BASE_SCHEMA,
+  AUTH_SCHEMA
+} from '../utils';
 
-const cascadeRules = { onUpdate: 'cascade', onDelete: 'cascade'};
-
-const oauthaccesstoken = (DataTypes) => ({
-  id:                { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  appid:             { type: DataTypes.TEXT, references: { model: 'oauthclientapplication', key: 'id' }, ...cascadeRules },
-  userid:            { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+const oauth_access_token = (DataTypes) => ({
+  id: { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
+  appid: {
+    type: DataTypes.TEXT,
+    references: {model: {tableName: 'oauth_client_application', ...AUTH_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  userid: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
   issuedat:          { type: DataTypes.DATE },
   expiresin:         { type: DataTypes.INTEGER },
   expiredat:         { type: DataTypes.DATE },
@@ -19,10 +29,18 @@ const oauthaccesstoken = (DataTypes) => ({
   hash:              { type: DataTypes.TEXT }
 });
 
-const oauthauthorizationcode = (DataTypes) => ({
-  id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  appid:       { type: DataTypes.TEXT, references: { model: 'oauthclientapplication', key: 'id' }, ...cascadeRules },
-  userid:      { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+const oauth_authorization_code = (DataTypes) => ({
+  id: { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
+  appid: {
+    type: DataTypes.TEXT,
+    references: {model: {tableName: 'oauth_client_application', ...AUTH_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  userid: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
   issuedat:    { type: DataTypes.DATE },
   expiresin:   { type: DataTypes.INTEGER },
   expiredat:   { type: DataTypes.DATE },
@@ -33,7 +51,7 @@ const oauthauthorizationcode = (DataTypes) => ({
   hash:        { type: DataTypes.TEXT }
 });
 
-const oauthclientapplication = (DataTypes) => ({
+const oauth_client_application = (DataTypes) => ({
   id:              { type: DataTypes.STRING(50), allowNull: false, primaryKey: true },
   clienttype:      { type: DataTypes.TEXT },
   redirecturis:    { type: DataTypes.TEXT },
@@ -71,24 +89,32 @@ const oauthclientapplication = (DataTypes) => ({
   modified:        { type: DataTypes.DATE }
 });
 
-const oauthpermission = (DataTypes) => ({
-  id:        { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  appid:     { type: DataTypes.TEXT,    references: { model: 'oauthclientapplication', key: 'id' }, ...cascadeRules },
-  userid:    { type: DataTypes.INTEGER, references: { model: 'user', key: 'id' }, ...cascadeRules },
+const oauth_permission = (DataTypes) => ({
+  id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  appid: {
+    type: DataTypes.TEXT,
+    references: {model: {tableName: 'oauth_client_application', ...AUTH_SCHEMA}},
+    ...CASCADE_RULES
+  },
+  userid: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES
+  },
   issuedat:  { type: DataTypes.DATE },
   expiresin: { type: DataTypes.INTEGER },
   expiredat: { type: DataTypes.DATE },
   scopes:    { type: DataTypes.TEXT }
 });
 
-const oauthscope = (DataTypes) => ({
+const oauth_scope = (DataTypes) => ({
   scope:       { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
   description: { type: DataTypes.STRING(100) },
   iconurl:     { type: DataTypes.STRING },
   ttl:         { type: DataTypes.INTEGER }
 });
 
-const oauthscopemapping = (DataTypes) => ({
+const oauth_scopemapping = (DataTypes) => ({
   id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   scope: { type: DataTypes.TEXT },
   route: { type: DataTypes.TEXT }
@@ -96,19 +122,20 @@ const oauthscopemapping = (DataTypes) => ({
 
 module.exports = {
   up: (queryInterface, DataTypes) => {
-    return queryInterface.createTable('oauthclientapplication', oauthclientapplication(DataTypes))
-      .then(() => queryInterface.createTable('oauthauthorizationcode', oauthauthorizationcode(DataTypes)))
-      .then(() => queryInterface.createTable('oauthaccesstoken', oauthaccesstoken(DataTypes)))
-      .then(() => queryInterface.createTable('oauthpermission', oauthpermission(DataTypes)))
-      .then(() => queryInterface.createTable('oauthscope', oauthscope(DataTypes)))
-      .then(() => queryInterface.createTable('oauthscopemapping', oauthscopemapping(DataTypes)));
+    return queryInterface.sequelize.query(`CREATE SCHEMA IF NOT EXISTS ${AUTH_SCHEMA.schema}`)
+      .then(() =>  queryInterface.createTable('oauth_client_application', oauth_client_application(DataTypes), AUTH_SCHEMA))
+      .then(() => queryInterface.createTable('oauth_authorization_code', oauth_authorization_code(DataTypes), AUTH_SCHEMA))
+      .then(() => queryInterface.createTable('oauth_access_token', oauth_access_token(DataTypes), AUTH_SCHEMA))
+      .then(() => queryInterface.createTable('oauth_permission', oauth_permission(DataTypes), AUTH_SCHEMA))
+      .then(() => queryInterface.createTable('oauth_scope', oauth_scope(DataTypes), AUTH_SCHEMA))
+      .then(() => queryInterface.createTable('oauth_scopemapping', oauth_scopemapping(DataTypes), AUTH_SCHEMA));
   },
   down: (queryInterface) => {
-    return queryInterface.dropTable('oauthscopemapping')
-      .then(() => queryInterface.dropTable('oauthscope'))
-      .then(() => queryInterface.dropTable('oauthpermission'))
-      .then(() => queryInterface.dropTable('oauthaccesstoken'))
-      .then(() => queryInterface.dropTable('oauthauthorizationcode'))
-      .then(() => queryInterface.dropTable('oauthclientapplication'));
+    return queryInterface.dropTable('oauth_scopemapping')
+      .then(() => queryInterface.dropTable('oauth_scope'))
+      .then(() => queryInterface.dropTable('oauth_permission'))
+      .then(() => queryInterface.dropTable('oauth_access_token'))
+      .then(() => queryInterface.dropTable('oauth_authorization_code'))
+      .then(() => queryInterface.dropTable('oauth_client_application'));
   }
 };

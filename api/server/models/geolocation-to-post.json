@@ -1,34 +1,40 @@
 {
-  "name": "ListingToZipcode",
+  "name": "GeolocationToPost",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "listing_to_zipcode"
+      "table": "geolocation_to_post",
+      "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "RelationsValidate": {
+      "geolocation": {}
     }
   },
   "properties": {
-    "listing_id": {
+    "post_id": {
       "type": "number",
       "required": true
     },
-    "zipcode_id": {
+    "geolocation_id": {
       "type": "number",
       "required": true
     }
   },
   "validations": [],
   "relations": {
-    "listings": {
+    "post": {
       "type": "belongsTo",
-      "model": "Listing",
-      "foreignKey": "listing_id"
+      "model": "Post",
+      "foreignKey": "post_id"
     },
-    "zipcodes": {
+    "geolocation": {
       "type": "belongsTo",
-      "model": "Zipcode",
-      "foreignKey": "zipcode_id"
+      "model": "Geolocation",
+      "foreignKey": "geolocation_id"
     }
   },
   "acls": [
@@ -41,7 +47,7 @@
     {
       "accessType": "WRITE",
       "principalType": "ROLE",
-      "principalId": "admin",
+      "principalId": "prof",
       "permission": "ALLOW"
     }
   ],

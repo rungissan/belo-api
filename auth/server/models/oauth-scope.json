@@ -1,5 +1,11 @@
 {
   "name": "OAuthScope",
+  "options": {
+    "postgresql": {
+      "table": "oauth_scope",
+      "schema": "auth"
+    }
+  },
   "properties": {
     "scope": {
       "type": "string",

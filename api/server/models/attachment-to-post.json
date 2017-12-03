@@ -5,7 +5,8 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "attachment_to_post"
+      "table": "attachment_to_post",
+      "schema": "spiti"
     }
   },
   "mixins": {
