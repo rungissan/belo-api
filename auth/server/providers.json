@@ -1,5 +1,5 @@
 {
-  "facebook-login": {
+  "spiti_web": {
     "provider": "facebook",
     "module": "passport-facebook",
     "profileFields": ["gender", "link", "locale", "name", "timezone",
@@ -9,7 +9,7 @@
     "callbackURL": "http://localhost/auth/auth/facebook/callback",
     "authPath": "/auth/facebook",
     "callbackPath": "/auth/facebook/callback",
-    "successRedirect": "/auth/account",
+    "successRedirect": "http://localhost/",
     "failureRedirect": "/login",
     "scope": ["email"],
     "failureFlash": true,

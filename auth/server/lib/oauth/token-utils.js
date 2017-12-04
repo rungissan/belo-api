@@ -31,3 +31,98 @@ export function createAccessToken(options) {
     };
   }
 };
+
+export async function genereateTokensForClient(app, options) {
+  let { user, clientId, scope } = options;
+  let OAuthClientApplication  = app.models.OAuthClientApplication;
+  let OAuthAccessToken        = app.models.OAuthAccessToken;
+
+  let clientApp = await OAuthClientApplication.findById(clientId);
+
+  if (!clientApp) {
+    throw new Error('Client application not found');
+  }
+
+  let token = createAccessToken({
+    grant: 'Resource Owner Password Credentials',
+    client: clientApp,
+    user: user,
+    scope: scope || ['DEFAULT']
+  });
+
+  let refreshToken = createAccessToken({
+    grant: 'Resource Owner Password Credentials',
+    client: user,
+    user: clientApp,
+    scope: scope || ['DEFAULT'],
+    refreshToken: true
+  }).id;
+
+  let ttl = 3600;
+  let tokenObj = {
+    id: token.id,
+    appId: clientApp.id,
+    userId: user.id,
+    scopes:  scope || ['DEFAULT'],
+    issuedAt: new Date(),
+    expiresIn: ttl,
+    refreshToken: refreshToken
+  };
+
+  tokenObj.expiresIn = ttl;
+  tokenObj.issuedAt = new Date();
+  tokenObj.expiredAt = new Date(tokenObj.issuedAt.getTime() + ttl * 1000);
+
+  let accessToken = await OAuthAccessToken.create(tokenObj);
+
+  return accessToken;
+}
+
+//
+// export function saveAccessTokenForUser(models, clientId, scope) {
+//   return function genereateTokensForClient(options) {
+//     let { user, scope } = options;
+//     let OAuthClientApplication  = models.clients;
+//     let OAuthAccessToken        = models.accessTokens;
+//
+//     let clientApp = await OAuthClientApplication.findById(clientId);
+//
+//     if (!clientApp) {
+//       throw new Error('Client application not found');
+//     }
+//
+//     let token = createAccessToken({
+//       grant: 'Resource Owner Password Credentials',
+//       client: clientApp,
+//       user: user,
+//       scope: scope || ['DEFAULT']
+//     });
+//
+//     let refreshToken = createAccessToken({
+//       grant: 'Resource Owner Password Credentials',
+//       client: user,
+//       user: clientApp,
+//       scope: scope || ['DEFAULT'],
+//       refreshToken: true
+//     }).id;
+//
+//     let ttl = 3600;
+//     let tokenObj = {
+//       id: token.id,
+//       appId: clientApp.id,
+//       userId: user.id,
+//       scopes:  scope || ['DEFAULT'],
+//       issuedAt: new Date(),
+//       expiresIn: ttl,
+//       refreshToken: refreshToken
+//     };
+//
+//     tokenObj.expiresIn = ttl;
+//     tokenObj.issuedAt = new Date();
+//     tokenObj.expiredAt = new Date(tokenObj.issuedAt.getTime() + ttl * 1000);
+//
+//     let accessToken = await OAuthAccessToken.create(tokenObj);
+//
+//     return accessToken;
+//   }
+// }

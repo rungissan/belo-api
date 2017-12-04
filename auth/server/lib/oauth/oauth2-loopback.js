@@ -20,7 +20,10 @@ import utils                 from './utils';
 import helpers               from './oauth2-helper';
 import MacTokenGenerator     from './mac-token';
 import modelBuilder          from './models/index';
-import { createAccessToken } from './token-utils';
+import {
+  createAccessToken,
+  genereateTokensForClient
+} from './token-utils';
 
 import { errEmailNotVerified } from '../errors';
 
@@ -74,6 +77,20 @@ module.exports = function(app, options) {
   let macTokenGenerator = new MacTokenGenerator('sha256');
 
   let generateToken = options.generateToken || createAccessToken;
+
+  const createAccessTokenHandlerDefault = function(clientId, options) {
+    return function(user, cb) {
+      return genereateTokensForClient(app, {user, clientId, ...options})
+        .then(accessToken => {
+          cb(null, accessToken);
+        })
+        .catch(err => {
+          cb(err);
+        });
+    };
+  };
+
+  let createAccessTokenHandler = options.createAccessTokenHandler || createAccessTokenHandlerDefault;
 
   // let generateToken = options.generateToken || function(options) {
   //   options = options || {};
@@ -785,6 +802,36 @@ module.exports = function(app, options) {
   //   }
   // ));
 
+  function formatToken(token) {
+    if (!token) {
+      return {};
+    }
+
+    return {
+      accessToken: token.id,
+      refreshToken: token.refreshToken,
+      expiresIn: token.expiresIn
+    };
+  }
+
+  function getDefaultCallback(strategy, providerOptions) {
+    return function(req, res, next) {
+      passport.authenticate(strategy, providerOptions, function(err, user, info) {
+        const tokenFormatter = options.formatToken || formatToken;
+        let accessToken = tokenFormatter(info.accessToken);
+        if (err) {
+          return next(err);
+        }
+        if (!user) {
+          return res.redirect(providerOptions.failureRedirect);
+        }
+
+        let redirectUrl = `${providerOptions.successRedirect}?token=${JSON.stringify(accessToken)}&userId=${user.id}`;
+        return res.redirect(redirectUrl);
+      })(req, res, next);
+    };
+  };
+
   let flashFailure = (options.flashFailure === true);
   let providerPaths = [];
 
@@ -803,27 +850,29 @@ module.exports = function(app, options) {
           passReqToCallback: true
         },
         function(req, token, refreshToken, profile, done) {
-          // process.nextTick(function() {
-          models.userIdentities.login(name, provider.authScheme || 'oAuth 2.0', profile,
-            {
+          models.userIdentities.login(
+            name,
+            provider.authScheme || 'oAuth 2.0',
+            profile, {
               token: token,
               refreshToken: refreshToken
+            }, {
+              createAccessToken: createAccessTokenHandler(name, {scope: provider.scope})
             }, done);
-          // });
         }));
-        /** Setup routes */
+
         let authPath = (provider.authPath || '/auth/' + name);
 
-        app.get(authPath,
-          passport.authenticate(name, { scope : (provider.scope || ['profile', 'email']) }));
+        app.get(authPath, passport.authenticate(name, { scope : (provider.scope || ['profile', 'email']) }));
 
         let callBackPath = (provider.callbackPath || '/auth/' + name + '/callback');
-        app.get(callBackPath,
-          passport.authenticate(name, {
-            flashFailure: flashFailure,
-            successReturnToOrRedirect : options.loginRedirect || '/', // uses returnTo in session
-            failureRedirect: options.loginPage || '/login'
-          }));
+        app.get(callBackPath, getDefaultCallback(name, provider)
+          // passport.authenticate(name, {
+          //   flashFailure: flashFailure,
+          //   // successReturnToOrRedirect : options.loginRedirect || '/',
+          //   failureRedirect: options.loginPage || '/login'
+          // }),
+        );
         providerPaths.push(authPath);
         providerPaths.push(callBackPath);
       }
