@@ -34,7 +34,6 @@ module.exports = function(UserIdentity) {
   }
 
   function profileToUser(provider, profile, options) {
-  // Let's create a user for that
     let profileEmail = profile.emails && profile.emails[0] &&
               profile.emails[0].value;
     // let generatedEmail = (profile.username || profile.id) + '@loopback.' +

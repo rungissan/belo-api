@@ -1,7 +1,12 @@
 {
   "name": "UserIdentity",
-  "plural": "UserIdentities",
   "base": "PersistedModel",
+  "options": {
+    "postgresql": {
+      "table": "user_identity",
+      "schema": "spiti"
+    }
+  },
   "properties": {
     "provider": {
       "type": "String",

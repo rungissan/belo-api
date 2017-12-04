@@ -49,13 +49,13 @@ import revokeMiddleware from './middleware/revoke';
  */
 module.exports = function(app, options) {
   options = options || {};
-  var models = modelBuilder(app, options);
+  const models = modelBuilder(app, options);
 
-  var handlers = {};
+  let handlers = {};
   app._oauth2Handlers = handlers;
 
   // Default to true
-  var session = (options.session !== false);
+  let session = (options.session !== false);
 
   app.middleware('auth:before', passport.initialize());
   if (session) {
@@ -71,23 +71,23 @@ module.exports = function(app, options) {
     return handlers;
   }
 
-  var macTokenGenerator = new MacTokenGenerator('sha256');
+  let macTokenGenerator = new MacTokenGenerator('sha256');
 
-  var generateToken = options.generateToken || createAccessToken;
+  let generateToken = options.generateToken || createAccessToken;
 
-  // var generateToken = options.generateToken || function(options) {
+  // let generateToken = options.generateToken || function(options) {
   //   options = options || {};
-  //   var id = utils.uid(32);
+  //   let id = utils.uid(32);
   //   if (options.client && options.client.tokenType === 'jwt') {
-  //     var secret = options.client.clientSecret || options.client.restApiKey;
-  //     var payload = {
+  //     let secret = options.client.clientSecret || options.client.restApiKey;
+  //     let payload = {
   //       id: id,
   //       clientId: options.client.id,
   //       userId: options.user && options.user.id,
   //       scope: options.scope,
   //       createdAt: new Date(),
   //     };
-  //     var token = helpers.generateJWT(payload, secret, 'HS256');
+  //     let token = helpers.generateJWT(payload, secret, 'HS256');
   //     return {
   //       id: token,
   //     };
@@ -102,7 +102,7 @@ module.exports = function(app, options) {
   // };
 
   // create OAuth 2.0 server
-  var server = oauth2Provider.createServer();
+  let server = oauth2Provider.createServer();
   server.revoke = revokeMiddleware;
 
   /*
@@ -131,7 +131,7 @@ module.exports = function(app, options) {
     });
   }
 
-  var supportedGrantTypes = options.supportedGrantTypes ||
+  let supportedGrantTypes = options.supportedGrantTypes ||
     ['authorizationCode', 'implicit', 'clientCredentials',
       'resourceOwnerPasswordCredentials', 'refreshToken', 'jwt'];
 
@@ -150,7 +150,7 @@ module.exports = function(app, options) {
    the application.  The application issues a code, which is bound to these
    values, and will be exchanged for an access token.
    */
-  var codeGrant;
+  let codeGrant;
   if (supportedGrantTypes.indexOf('authorizationCode') !== -1) {
     codeGrant = server.grant(oauth2Provider.grant.code(
       {allowsPost: options.allowsPostForAuthorization},
@@ -164,7 +164,7 @@ module.exports = function(app, options) {
         }
 
         function generateAuthCode() {
-          var code = generateToken({
+          let code = generateToken({
             grant: 'Authorization Code',
             client: client,
             user: user,
@@ -214,8 +214,8 @@ module.exports = function(app, options) {
 
           debug('Authorization code found: %j', authCode);
 
-          var clientId = authCode.appId || authCode.clientId;
-          var resourceOwner = authCode.userId || authCode.resourceOwner;
+          let clientId = authCode.appId || authCode.clientId;
+          let resourceOwner = authCode.userId || authCode.resourceOwner;
 
           // The client id can be a number instead of string
           if (client.id != clientId) {
@@ -232,7 +232,7 @@ module.exports = function(app, options) {
               'invalid_grant'));
           }
 
-          var token = generateToken({
+          let token = generateToken({
             grant: 'Authorization Code',
             client: client,
             scope: authCode.scopes,
@@ -240,7 +240,7 @@ module.exports = function(app, options) {
             redirectURI: redirectURI
           });
 
-          var refreshToken = generateToken({
+          let refreshToken = generateToken({
             grant: 'Authorization Code',
             client: client,
             code: authCode,
@@ -315,14 +315,14 @@ module.exports = function(app, options) {
           if (err || !user) {
             return done(err, null);
           }
-          var token = generateToken({
+          let token = generateToken({
             grant: 'Resource Owner Password Credentials',
             client: client,
             user: user,
             scope: scope
           });
 
-          var refreshToken = generateToken({
+          let refreshToken = generateToken({
             grant: 'Resource Owner Password Credentials',
             client: client,
             user: user,
@@ -353,7 +353,7 @@ module.exports = function(app, options) {
         }
 
         function generateAccessToken(user) {
-          var token = generateToken({
+          let token = generateToken({
             grant: 'Client Credentials',
             client: client,
             user: user,
@@ -362,7 +362,7 @@ module.exports = function(app, options) {
           debug('Generating access token: %j %s %s',
             token, clientInfo(client), scope);
 
-          var refreshToken = generateToken({
+          let refreshToken = generateToken({
             grant: 'Client Credentials',
             client: client,
             user: user,
@@ -427,7 +427,7 @@ module.exports = function(app, options) {
 
             // Test if scope is a subset of accessToken.scopes
             if (scope) {
-              for (var i = 0, n = scope.length; i < n; i++) {
+              for (let i = 0, n = scope.length; i < n; i++) {
                 if (accessToken.scopes.indexOf(scope[i]) === -1) {
                   return done(null, false);
                 }
@@ -436,13 +436,13 @@ module.exports = function(app, options) {
               scope = accessToken.scopes;
             }
 
-            var token = generateToken({
+            let token = generateToken({
               grant: 'Refresh Token',
               client: client,
               scope: scope
             });
 
-            var refreshToken = generateToken({
+            let refreshToken = generateToken({
               grant: 'Refresh Token',
               client: client,
               scope: scope,
@@ -458,7 +458,7 @@ module.exports = function(app, options) {
       }));
   }
 
-  var tokenGrant;
+  let tokenGrant;
   if (supportedGrantTypes.indexOf('implicit') !== -1) {
     tokenGrant = server.grant(oauth2Provider.grant.token(
       {allowsPost: options.allowsPostForAuthorization},
@@ -471,7 +471,7 @@ module.exports = function(app, options) {
         }
 
         function generateAccessToken() {
-          var token = generateToken({
+          let token = generateToken({
             grant: 'Implicit',
             client: client,
             user: user,
@@ -498,15 +498,15 @@ module.exports = function(app, options) {
       }));
   }
 
-  // var jwtAlgorithm = options.jwtAlgorithm || 'RS256';
+  // let jwtAlgorithm = options.jwtAlgorithm || 'RS256';
   // if (supportedGrantTypes.indexOf('jwt') !== -1) {
-  //   var jwt = require('jws');
+  //   let jwt = require('jws');
   //
   //   server.exchange('urn:ietf:params:oauth:grant-type:jwt-bearer',
   //     oauth2Provider.exchange.jwt(function(client, jwtToken, done) {
   //       debug('Verifying JWT: %s %s', clientInfo(client), jwtToken);
-  //       var pub = client.jwks || client.publicKey;
-  //       var decodedJWT;
+  //       let pub = client.jwks || client.publicKey;
+  //       let decodedJWT;
   //       try {
   //         if (jwt.verify(jwtToken, jwtAlgorithm, pub)) {
   //           decodedJWT = jwt.decode(jwtToken);
@@ -518,7 +518,7 @@ module.exports = function(app, options) {
   //         return done(err);
   //       }
   //       // TODO - verify client_id, scope and expiration are valid
-  //       var payload = JSON.parse(decodedJWT.payload);
+  //       let payload = JSON.parse(decodedJWT.payload);
   //
   //       if (validateClient(client, {
   //         scope: payload.scope,
@@ -528,7 +528,7 @@ module.exports = function(app, options) {
   //       }
   //
   //       function generateAccessToken(user) {
-  //         var token = generateToken({
+  //         let token = generateToken({
   //           grant: 'JWT',
   //           client: client,
   //           user: user,
@@ -614,9 +614,9 @@ module.exports = function(app, options) {
       if (options.forceAuthorize) {
         return next();
       }
-      var userId = req.oauth2.user.id;
-      var clientId = req.oauth2.client.id;
-      var scope = req.oauth2.req.scope;
+      let userId = req.oauth2.user.id;
+      let clientId = req.oauth2.client.id;
+      let scope = req.oauth2.req.scope;
       models.permissions.isAuthorized(clientId, userId, scope,
         function(err, authorized) {
           if (err) {
@@ -639,7 +639,7 @@ module.exports = function(app, options) {
     // Now try to render the dialog to approve client app's request for permissions
     function(req, res, next) {
       if (options.decisionPage) {
-        var urlObj = {
+        let urlObj = {
           pathname: options.decisionPage,
           query: {
             transactionId: req.oauth2.transactionID,
@@ -726,7 +726,7 @@ module.exports = function(app, options) {
       if (!client) {
         return done(null, false);
       }
-      var secret = client.clientSecret || client.restApiKey;
+      let secret = client.clientSecret || client.restApiKey;
       if (secret !== clientSecret) {
         return done(null, false);
       }
@@ -785,19 +785,21 @@ module.exports = function(app, options) {
   //   }
   // ));
 
-  var flashFailure = (options.flashFailure === true);
-  var providerPaths = [];
+  let flashFailure = (options.flashFailure === true);
+  let providerPaths = [];
 
   if (options.providers) {
-    for (var key in options.providers) {
-      var provider = options.providers[key];
-      var name = key;
+    Object.keys(options.providers).forEach(key => {
+      let provider = options.providers[key];
+      let name = key;
+
       if (provider.hasOwnProperty('module')) {
         const providerStratagy = require(provider.module)[(provider.strategy || 'Strategy')];
         passport.use(name, new providerStratagy({
-          clientID        : provider.clientID,
-          clientSecret    : provider.clientSecret,
-          callbackURL     : provider.callbackURL,
+          clientID: provider.clientID,
+          clientSecret: provider.clientSecret,
+          callbackURL: provider.callbackURL,
+          profileFields: provider.profileFields || ['id', 'email'],
           passReqToCallback: true
         },
         function(req, token, refreshToken, profile, done) {
@@ -810,12 +812,12 @@ module.exports = function(app, options) {
           // });
         }));
         /** Setup routes */
-        var authPath = (provider.authPath || '/auth/' + name);
+        let authPath = (provider.authPath || '/auth/' + name);
 
         app.get(authPath,
           passport.authenticate(name, { scope : (provider.scope || ['profile', 'email']) }));
 
-        var callBackPath = (provider.callbackPath || '/auth/' + name + '/callback');
+        let callBackPath = (provider.callbackPath || '/auth/' + name + '/callback');
         app.get(callBackPath,
           passport.authenticate(name, {
             flashFailure: flashFailure,
@@ -825,17 +827,19 @@ module.exports = function(app, options) {
         providerPaths.push(authPath);
         providerPaths.push(callBackPath);
       }
-    }
+    });
   }
 
   // The urlencoded middleware is required for oAuth 2.0 protocol endpoints
-  var oauth2Paths = [
+  let oauth2Paths = [
     options.authorizePath || '/oauth/authorize',
     options.tokenPath || '/oauth/token',
     options.revokePath || '/oauth/revoke',
     options.decisionPath || '/oauth/authorize/decision',
-    options.loginPath || '/login'
+    options.loginPath || '/login',
+    ...providerPaths
   ];
+
   app.middleware('parse', oauth2Paths,
     bodyParser.urlencoded({extended: false}));
   app.middleware('parse', oauth2Paths, bodyParser.json({strict: false}));

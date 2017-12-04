@@ -4,8 +4,8 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var debug = require('debug')('loopback:oauth2:models');
-var helpers = require('../oauth2-helper');
+let debug = require('debug')('loopback:oauth2:models');
+let helpers = require('../oauth2-helper');
 
 /**
  * Create oAuth 2.0 metadata models
@@ -13,27 +13,27 @@ var helpers = require('../oauth2-helper');
  * @param options
  */
 module.exports = function(app, options) {
-  var loopback = app.loopback;
+  let loopback = app.loopback;
   options = options || {};
 
-  var dataSource = options.dataSource;
+  let dataSource = options.dataSource;
   if (typeof dataSource === 'string') {
     dataSource = app.dataSources[dataSource];
   }
 
   // NOTE: moved model creation to json definition
-  // var oauth2 = require('./oauth2-models')(dataSource);
+  // let oauth2 = require('./oauth2-models')(dataSource);
 
-  var userModel = loopback.findModel(options.userModel) ||
+  let userModel = loopback.findModel(options.userModel) ||
     loopback.getModelByType(loopback.User);
   debug('User model: %s', userModel.modelName);
-  var applicationModel = loopback.findModel(options.applicationModel) || loopback.getModelByType(loopback.Application);
+  let applicationModel = loopback.findModel(options.applicationModel) || loopback.getModelByType(loopback.Application);
   debug('Application model: %s', applicationModel.modelName);
 
-  var oAuthTokenModel = loopback.findModel(options.oAuthTokenModel || 'OAuthAccessToken');
-  var oAuthAuthorizationCodeModel = loopback.findModel(options.oAuthAuthorizationCodeModel || 'OAuthAuthorizationCode');
-  var oAuthPermissionModel = loopback.findModel(options.oAuthPermissionModel || 'OAuthPermission');
-  var OAuthuserIdentityModel = loopback.findModel(options.OAuthUserIdentity || 'OAuthUserIdentity');
+  let oAuthTokenModel = loopback.findModel(options.oAuthTokenModel || 'OAuthAccessToken');
+  let oAuthAuthorizationCodeModel = loopback.findModel(options.oAuthAuthorizationCodeModel || 'OAuthAuthorizationCode');
+  let oAuthPermissionModel = loopback.findModel(options.oAuthPermissionModel || 'OAuthPermission');
+  let UserIdentity = loopback.findModel(options.UserIdentity || 'UserIdentity');
 
   oAuthTokenModel.belongsTo(userModel,
     {as: 'user', foreignKey: 'userId'});
@@ -53,7 +53,7 @@ module.exports = function(app, options) {
   oAuthPermissionModel.belongsTo(applicationModel,
     {as: 'application', foreignKey: 'appId'});
 
-  var getTTL = typeof options.getTTL === 'function' ? options.getTTL :
+  let getTTL = typeof options.getTTL === 'function' ? options.getTTL :
     function(responseType, clientId, resourceOwner, scopes) {
       if (typeof options.ttl === 'function') {
         return options.ttl(responseType, clientId, resourceOwner, scopes);
@@ -72,7 +72,7 @@ module.exports = function(app, options) {
       }
     };
 
-  var users = {};
+  let users = {};
   users.find = function(id, done) {
     debug('users.find(' + id + ')');
     userModel.findOne({where: {
@@ -108,12 +108,12 @@ module.exports = function(app, options) {
 
   users.settings = {...userModel.settings};
 
-  var clients = {};
+  let clients = {};
   clients.find = clients.findByClientId = function(clientId, done) {
     applicationModel.findById(clientId, done);
   };
 
-  var token = {};
+  let token = {};
   token.find = function(accessToken, done) {
     oAuthTokenModel.findOne({where: {
       id: accessToken
@@ -127,7 +127,7 @@ module.exports = function(app, options) {
   };
 
   token.delete = function(clientId, token, tokenType, done) {
-    var where = {
+    let where = {
       appId: clientId
     };
     if (tokenType === 'access_token') {
@@ -139,13 +139,13 @@ module.exports = function(app, options) {
   };
 
   token.save = function(token, clientId, resourceOwner, scopes, refreshToken, done) {
-    var tokenObj;
+    let tokenObj;
     if (arguments.length === 2 && typeof token === 'object') {
       // save(token, cb)
       tokenObj = token;
       done = clientId;
     }
-    var ttl = getTTL('token', clientId, resourceOwner, scopes);
+    let ttl = getTTL('token', clientId, resourceOwner, scopes);
     if (!tokenObj) {
       tokenObj = {
         id: token,
@@ -163,7 +163,7 @@ module.exports = function(app, options) {
     oAuthTokenModel.create(tokenObj, done);
   };
 
-  var code = {};
+  let code = {};
   code.findByCode = code.find = function(key, done) {
     oAuthAuthorizationCodeModel.findOne({where: {
       id: key
@@ -175,13 +175,13 @@ module.exports = function(app, options) {
   };
 
   code.save = function(code, clientId, redirectURI, resourceOwner, scopes, done) {
-    var codeObj;
+    let codeObj;
     if (arguments.length === 2 && typeof token === 'object') {
       // save(code, cb)
       codeObj = code;
       done = clientId;
     }
-    var ttl = getTTL('code', clientId, resourceOwner, scopes);
+    let ttl = getTTL('code', clientId, resourceOwner, scopes);
     if (!codeObj) {
       codeObj = {
         id: code,
@@ -197,7 +197,7 @@ module.exports = function(app, options) {
     oAuthAuthorizationCodeModel.create(codeObj, done);
   };
 
-  var permission = {};
+  let permission = {};
   permission.find = function(appId, userId, done) {
     oAuthPermissionModel.findOne({where: {
       appId: appId,
@@ -216,8 +216,8 @@ module.exports = function(app, options) {
       if (!perm) {
         return done(null, false);
       }
-      var ok = helpers.isScopeAuthorized(scopes, perm.scopes);
-      var info = ok ? {authorized: true} : {};
+      let ok = helpers.isScopeAuthorized(scopes, perm.scopes);
+      let info = ok ? {authorized: true} : {};
       return done(null, ok, info);
     });
   };
@@ -248,14 +248,14 @@ module.exports = function(app, options) {
   };
 
   // Adapter for the oAuth2 provider
-  var customModels = options.models || {};
-  var models = {
+  let customModels = options.models || {};
+  let models = {
     users: customModels.users || users,
     clients: customModels.clients || clients,
     accessTokens: customModels.accessTokens || token,
     authorizationCodes: customModels.authorizationCodes || code,
     permissions: customModels.permission || permission,
-    userIdentities: customModels.userIdentities || OAuthuserIdentityModel
+    userIdentities: customModels.userIdentities || UserIdentity
   };
 
   return models;

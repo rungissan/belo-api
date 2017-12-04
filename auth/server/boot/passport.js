@@ -1,7 +1,7 @@
 'use strict';
 
-import loopbackPassport from 'loopback-component-passport';
-const PassportConfigurator = loopbackPassport.PassportConfigurator;
+// import loopbackPassport from 'loopback-component-passport';
+// const PassportConfigurator = loopbackPassport.PassportConfigurator;
 
 // let providersConfig = {};
 // try {

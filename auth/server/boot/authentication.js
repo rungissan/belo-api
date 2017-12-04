@@ -33,7 +33,7 @@ module.exports = function enableAuthentication(app) {
     loginPage: '/login',
     loginPath: '/login',
     resourceServer: true,
-    session: false,
+    session: true,
     allowsPostForAuthorization: true,
     ttl: 3600,
     providers: providersConfig
