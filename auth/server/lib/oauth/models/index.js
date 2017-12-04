@@ -33,6 +33,7 @@ module.exports = function(app, options) {
   var oAuthTokenModel = loopback.findModel(options.oAuthTokenModel || 'OAuthAccessToken');
   var oAuthAuthorizationCodeModel = loopback.findModel(options.oAuthAuthorizationCodeModel || 'OAuthAuthorizationCode');
   var oAuthPermissionModel = loopback.findModel(options.oAuthPermissionModel || 'OAuthPermission');
+  var OAuthuserIdentityModel = loopback.findModel(options.OAuthUserIdentity || 'OAuthUserIdentity');
 
   oAuthTokenModel.belongsTo(userModel,
     {as: 'user', foreignKey: 'userId'});
@@ -75,14 +76,14 @@ module.exports = function(app, options) {
   users.find = function(id, done) {
     debug('users.find(' + id + ')');
     userModel.findOne({where: {
-      id: id,
+      id: id
     }}, done);
   };
 
   users.findByUsername = function(username, done) {
     debug('users.findByUsername(' + username + ')');
     userModel.findOne({where: {
-      username: username,
+      username: username
     }}, done);
   };
 
@@ -91,8 +92,8 @@ module.exports = function(app, options) {
     userModel.findOne({where: {
       or: [
         {username: usernameOrEmail},
-        {email: usernameOrEmail},
-      ],
+        {email: usernameOrEmail}
+      ]
     }}, done);
   };
 
@@ -101,7 +102,7 @@ module.exports = function(app, options) {
     userModel.create({
       id: id,
       username: username,
-      password: password,
+      password: password
     }, done);
   };
 
@@ -115,19 +116,19 @@ module.exports = function(app, options) {
   var token = {};
   token.find = function(accessToken, done) {
     oAuthTokenModel.findOne({where: {
-      id: accessToken,
+      id: accessToken
     }}, done);
   };
 
   token.findByRefreshToken = function(refreshToken, done) {
     oAuthTokenModel.findOne({where: {
-      refreshToken: refreshToken,
+      refreshToken: refreshToken
     }}, done);
   };
 
   token.delete = function(clientId, token, tokenType, done) {
     var where = {
-      appId: clientId,
+      appId: clientId
     };
     if (tokenType === 'access_token') {
       where.id = token;
@@ -153,7 +154,7 @@ module.exports = function(app, options) {
         scopes: scopes,
         issuedAt: new Date(),
         expiresIn: ttl,
-        refreshToken: refreshToken,
+        refreshToken: refreshToken
       };
     }
     tokenObj.expiresIn = ttl;
@@ -165,7 +166,7 @@ module.exports = function(app, options) {
   var code = {};
   code.findByCode = code.find = function(key, done) {
     oAuthAuthorizationCodeModel.findOne({where: {
-      id: key,
+      id: key
     }}, done);
   };
 
@@ -187,7 +188,7 @@ module.exports = function(app, options) {
         appId: clientId,
         userId: resourceOwner,
         scopes: scopes,
-        redirectURI: redirectURI,
+        redirectURI: redirectURI
       };
     }
     codeObj.expiresIn = ttl;
@@ -200,7 +201,7 @@ module.exports = function(app, options) {
   permission.find = function(appId, userId, done) {
     oAuthPermissionModel.findOne({where: {
       appId: appId,
-      userId: userId,
+      userId: userId
     }}, done);
   };
 
@@ -227,12 +228,12 @@ module.exports = function(app, options) {
   permission.addPermission = function(appId, userId, scopes, done) {
     oAuthPermissionModel.findOrCreate({where: {
       appId: appId,
-      userId: userId,
+      userId: userId
     }}, {
       appId: appId,
       userId: userId,
       scopes: scopes,
-      issuedAt: new Date(),
+      issuedAt: new Date()
     }, function(err, perm, created) {
       if (created) {
         return done(err, perm, created);
@@ -254,6 +255,7 @@ module.exports = function(app, options) {
     accessTokens: customModels.accessTokens || token,
     authorizationCodes: customModels.authorizationCodes || code,
     permissions: customModels.permission || permission,
+    userIdentities: customModels.userIdentities || OAuthuserIdentityModel
   };
 
   return models;

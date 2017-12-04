@@ -36,11 +36,11 @@
     "dataSource": "postgres",
     "public": true
   },
-  "userCredential": {
+  "UserCredential": {
     "dataSource": "postgres",
     "public": false
   },
-  "userIdentity": {
+  "UserIdentity": {
     "dataSource": "postgres",
     "public": false
   },

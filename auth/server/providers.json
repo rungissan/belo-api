@@ -13,6 +13,7 @@
     "failureRedirect": "/login",
     "scope": ["email"],
     "failureFlash": true,
-    "json": true
+    "json": true,
+    "authScheme": "oAuth 2.0"
   }
 }

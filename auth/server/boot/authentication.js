@@ -14,8 +14,9 @@ const sessionStore = new redisStore(dataSources.redisSession);
 const bodyParser      = require('body-parser');
 const cookieParser    = require('cookie-parser');
 
+import providersConfig from '../providers';
+
 module.exports = function enableAuthentication(app) {
-  
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: false}));
   app.use(cookieParser());
@@ -34,7 +35,8 @@ module.exports = function enableAuthentication(app) {
     resourceServer: true,
     session: false,
     allowsPostForAuthorization: true,
-    ttl: 3600
+    ttl: 3600,
+    providers: providersConfig
   };
 
   oauth2.oAuth2Provider(

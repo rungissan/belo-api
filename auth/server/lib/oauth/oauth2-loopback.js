@@ -158,7 +158,7 @@ module.exports = function(app, options) {
         if (validateClient(client, {
           scope: scope,
           redirectURI: redirectURI,
-          grantType: 'authorization_code',
+          grantType: 'authorization_code'
         }, done)) {
           return;
         }
@@ -169,7 +169,7 @@ module.exports = function(app, options) {
             client: client,
             user: user,
             scope: scope,
-            redirectURI: redirectURI,
+            redirectURI: redirectURI
           }).id;
 
           debug('Generating authorization code: %s %s %s %s %s',
@@ -237,7 +237,7 @@ module.exports = function(app, options) {
             client: client,
             scope: authCode.scopes,
             code: authCode,
-            redirectURI: redirectURI,
+            redirectURI: redirectURI
           });
 
           var refreshToken = generateToken({
@@ -246,7 +246,7 @@ module.exports = function(app, options) {
             code: authCode,
             scope: authCode.scopes,
             redirectURI: redirectURI,
-            refreshToken: true,
+            refreshToken: true
           }).id;
 
           debug('Generating access token: %j %s %s',
@@ -306,7 +306,7 @@ module.exports = function(app, options) {
 
         if (validateClient(client, {
           scope: scope,
-          grantType: 'password',
+          grantType: 'password'
         }, done)) {
           return;
         }
@@ -319,7 +319,7 @@ module.exports = function(app, options) {
             grant: 'Resource Owner Password Credentials',
             client: client,
             user: user,
-            scope: scope,
+            scope: scope
           });
 
           var refreshToken = generateToken({
@@ -327,7 +327,7 @@ module.exports = function(app, options) {
             client: client,
             user: user,
             scope: scope,
-            refreshToken: true,
+            refreshToken: true
           }).id;
 
           debug('Generating access token: %j %s %s %s',
@@ -347,7 +347,7 @@ module.exports = function(app, options) {
       function(client, subject, scope, done) {
         if (validateClient(client, {
           scope: scope,
-          grantType: 'client_credentials',
+          grantType: 'client_credentials'
         }, done)) {
           return;
         }
@@ -357,7 +357,7 @@ module.exports = function(app, options) {
             grant: 'Client Credentials',
             client: client,
             user: user,
-            scope: scope,
+            scope: scope
           });
           debug('Generating access token: %j %s %s',
             token, clientInfo(client), scope);
@@ -367,7 +367,7 @@ module.exports = function(app, options) {
             client: client,
             user: user,
             scope: scope,
-            refreshToken: true,
+            refreshToken: true
           }).id;
 
           models.accessTokens.save(
@@ -409,7 +409,7 @@ module.exports = function(app, options) {
       function(client, refreshToken, scope, done) {
         if (validateClient(client, {
           scope: scope,
-          grantType: 'refresh_token',
+          grantType: 'refresh_token'
         }, done)) {
           return;
         }
@@ -439,14 +439,14 @@ module.exports = function(app, options) {
             var token = generateToken({
               grant: 'Refresh Token',
               client: client,
-              scope: scope,
+              scope: scope
             });
 
             var refreshToken = generateToken({
               grant: 'Refresh Token',
               client: client,
               scope: scope,
-              refreshToken: true,
+              refreshToken: true
             }).id;
 
             debug('Generating access token: %j %s %s %j',
@@ -465,7 +465,7 @@ module.exports = function(app, options) {
       function(client, user, scope, ares, done) {
         if (validateClient(client, {
           scope: scope,
-          grantType: 'implicit',
+          grantType: 'implicit'
         }, done)) {
           return;
         }
@@ -475,7 +475,7 @@ module.exports = function(app, options) {
             grant: 'Implicit',
             client: client,
             user: user,
-            scope: scope,
+            scope: scope
           });
           debug('Generating access token: %j %s %s %s',
             token, clientInfo(client), userInfo(user), scope);
@@ -600,7 +600,7 @@ module.exports = function(app, options) {
           if (validateClient(client, {
             scope: scope,
             redirectURI: redirectURI,
-            responseType: responseType,
+            responseType: responseType
           }, done)) {
             return;
           }
@@ -646,8 +646,8 @@ module.exports = function(app, options) {
             userId: req.oauth2.user.id,
             clientId: req.oauth2.client.id,
             scope: req.oauth2.req.scope,
-            redirectURI: req.oauth2.redirectURI,
-          },
+            redirectURI: req.oauth2.redirectURI
+          }
         };
         return res.redirect(url.format(urlObj));
       }
@@ -657,7 +657,7 @@ module.exports = function(app, options) {
           scopes: req.oauth2.req.scope,
           redirectURI: req.oauth2.redirectURI});
     },
-    server.errorHandler({mode: 'indirect'}),
+    server.errorHandler({mode: 'indirect'})
   ];
 
   /*
@@ -670,7 +670,7 @@ module.exports = function(app, options) {
    */
   handlers.decision = [
     login.ensureLoggedIn({redirectTo: options.loginPage || '/login'}),
-    server.decision(),
+    server.decision()
   ];
 
   /*
@@ -684,25 +684,25 @@ module.exports = function(app, options) {
   handlers.token = [
     passport.authenticate(
       ['loopback-oauth2-client-password',
-        'loopback-oauth2-client-basic',
+        'loopback-oauth2-client-basic'
         // 'loopback-oauth2-jwt-bearer'
       ],
       {session: false}),
     server.token(),
-    server.errorHandler(),
+    server.errorHandler()
   ];
 
   handlers.revoke = [
     passport.authenticate(
       ['loopback-oauth2-client-password',
-        'loopback-oauth2-client-basic',
+        'loopback-oauth2-client-basic'
         // 'loopback-oauth2-jwt-bearer'
       ],
       {session: false}),
     server.revoke(function(client, token, tokenType, cb) {
       models.accessTokens.delete(client.id, token, tokenType, cb);
     }),
-    server.errorHandler(),
+    server.errorHandler()
   ];
 
   /**
@@ -785,13 +785,56 @@ module.exports = function(app, options) {
   //   }
   // ));
 
+  var flashFailure = (options.flashFailure === true);
+  var providerPaths = [];
+
+  if (options.providers) {
+    for (var key in options.providers) {
+      var provider = options.providers[key];
+      var name = key;
+      if (provider.hasOwnProperty('module')) {
+        const providerStratagy = require(provider.module)[(provider.strategy || 'Strategy')];
+        passport.use(name, new providerStratagy({
+          clientID        : provider.clientID,
+          clientSecret    : provider.clientSecret,
+          callbackURL     : provider.callbackURL,
+          passReqToCallback: true
+        },
+        function(req, token, refreshToken, profile, done) {
+          // process.nextTick(function() {
+          models.userIdentities.login(name, provider.authScheme || 'oAuth 2.0', profile,
+            {
+              token: token,
+              refreshToken: refreshToken
+            }, done);
+          // });
+        }));
+        /** Setup routes */
+        var authPath = (provider.authPath || '/auth/' + name);
+
+        app.get(authPath,
+          passport.authenticate(name, { scope : (provider.scope || ['profile', 'email']) }));
+
+        var callBackPath = (provider.callbackPath || '/auth/' + name + '/callback');
+        app.get(callBackPath,
+          passport.authenticate(name, {
+            flashFailure: flashFailure,
+            successReturnToOrRedirect : options.loginRedirect || '/', // uses returnTo in session
+            failureRedirect: options.loginPage || '/login'
+          }));
+        providerPaths.push(authPath);
+        providerPaths.push(callBackPath);
+      }
+    }
+  }
+
   // The urlencoded middleware is required for oAuth 2.0 protocol endpoints
   var oauth2Paths = [
     options.authorizePath || '/oauth/authorize',
     options.tokenPath || '/oauth/token',
     options.revokePath || '/oauth/revoke',
     options.decisionPath || '/oauth/authorize/decision',
-    options.loginPath || '/login',
+    options.loginPath || '/login'
   ];
   app.middleware('parse', oauth2Paths,
     bodyParser.urlencoded({extended: false}));
@@ -822,25 +865,32 @@ module.exports = function(app, options) {
      */
     passport.use('loopback-oauth2-local', new LocalStrategy(userLogin));
 
-    if (session) {
-      passport.serializeUser(function(user, done) {
-        debug('serializeUser %s', userInfo(user));
-        done(null, user.id);
-      });
-
-      passport.deserializeUser(function(id, done) {
-        debug('deserializeUser %s', id);
-        models.users.find(id, function(err, user) {
-          done(err, user);
+    if (providerPaths.length > 0 || options.loginPath !== false) {
+      if (session) {
+        passport.serializeUser(function(user, done) {
+          debug('serializeUser %s', userInfo(user));
+          done(null, user.id);
         });
-      });
+        passport.deserializeUser(function(id, done) {
+          debug('deserializeUser %s', id);
+          models.users.find(id, function(err, user) {
+            if (err) { return done(err); };
+            if (!user) { return done('Invalid user'); };
+            delete user.password;
+            user.identities(function(err, identities) {
+              user.profiles = identities;
+              done(err, user);
+            });
+          });
+        });
+      }
     }
 
     // Set up the login handler
     app.post(options.loginPath || '/login',
       passport.authenticate('loopback-oauth2-local',
-      {successReturnToOrRedirect: '/',
-        failureRedirect: options.loginPage || '/login'}));
+        {successReturnToOrRedirect: '/',
+          failureRedirect: options.loginPage || '/login'}));
   }
 
   return handlers;
