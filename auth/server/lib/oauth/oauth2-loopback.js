@@ -808,9 +808,11 @@ module.exports = function(app, options) {
     }
 
     return {
-      accessToken: token.id,
-      refreshToken: token.refreshToken,
-      expiresIn: token.expiresIn
+      access_token: token.id,
+      refresh_token: token.refreshToken,
+      token_type: token.tokenType,
+      expiresIn: token.expiresIn,
+      scope: token.scope || ['DEFAULT']
     };
   }
 
@@ -825,8 +827,11 @@ module.exports = function(app, options) {
         if (!user) {
           return res.redirect(providerOptions.failureRedirect);
         }
-
-        let redirectUrl = `${providerOptions.successRedirect}?token=${JSON.stringify(accessToken)}&userId=${user.id}`;
+        let tokenData = JSON.stringify({
+          ...accessToken,
+          userId: user.id
+        });
+        let redirectUrl = `${providerOptions.successRedirect}?token=${tokenData}`;
         return res.redirect(redirectUrl);
       })(req, res, next);
     };
@@ -842,6 +847,7 @@ module.exports = function(app, options) {
 
       if (provider.hasOwnProperty('module')) {
         const providerStratagy = require(provider.module)[(provider.strategy || 'Strategy')];
+
         passport.use(name, new providerStratagy({
           clientID: provider.clientID,
           clientSecret: provider.clientSecret,
@@ -866,13 +872,8 @@ module.exports = function(app, options) {
         app.get(authPath, passport.authenticate(name, { scope : (provider.scope || ['profile', 'email']) }));
 
         let callBackPath = (provider.callbackPath || '/auth/' + name + '/callback');
-        app.get(callBackPath, getDefaultCallback(name, provider)
-          // passport.authenticate(name, {
-          //   flashFailure: flashFailure,
-          //   // successReturnToOrRedirect : options.loginRedirect || '/',
-          //   failureRedirect: options.loginPage || '/login'
-          // }),
-        );
+        app.get(callBackPath, getDefaultCallback(name, provider));
+
         providerPaths.push(authPath);
         providerPaths.push(callBackPath);
       }

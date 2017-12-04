@@ -75,7 +75,7 @@ module.exports = function(UserIdentity) {
       options = {};
     }
     let autoLogin = options.autoLogin || options.autoLogin === undefined;
-    console.log('cb...f......', cb)
+
     profile.id = profile.id || profile.openid;
     UserIdentity.findOne({where: {
       provider: provider,
@@ -93,6 +93,7 @@ module.exports = function(UserIdentity) {
             // Create access token if the autoLogin flag is set to true
             if (!err && user && autoLogin) {
               return (options.createAccessToken || createAccessToken)(user, function(err, token) {
+                identity.accessToken = token;
                 cb(err, user, identity, token);
               });
             }
@@ -141,13 +142,10 @@ module.exports = function(UserIdentity) {
         }, function(err, identity) {
           if (!err && user && autoLogin) {
             return (options.createAccessToken || createAccessToken)(user, function(err, token) {
-              console.log('cbbbbbbbbbbbbb.....', token)
-              console.log('err, user, identity, token....')
               identity.accessToken = token;
               cb(err, user, identity, token);
             });
           }
-          console.log('cbbbbbbbbbbbbb. no....')
 
           cb(err, user, identity);
         });
