@@ -66,6 +66,7 @@ export async function genereateTokensForClient(app, options) {
     scopes:  scope || ['DEFAULT'],
     issuedAt: new Date(),
     expiresIn: ttl,
+    tokenType: 'Bearer',
     refreshToken: refreshToken
   };
 
@@ -74,6 +75,5 @@ export async function genereateTokensForClient(app, options) {
   tokenObj.expiredAt = new Date(tokenObj.issuedAt.getTime() + ttl * 1000);
 
   let accessToken = await OAuthAccessToken.create(tokenObj);
-
   return accessToken;
 }
