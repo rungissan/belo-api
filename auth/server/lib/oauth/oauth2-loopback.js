@@ -819,11 +819,17 @@ module.exports = function(app, options) {
   function getDefaultCallback(strategy, providerOptions) {
     return function(req, res, next) {
       passport.authenticate(strategy, providerOptions, function(err, user, info) {
-        const tokenFormatter = options.formatToken || formatToken;
-        let accessToken = tokenFormatter(info.accessToken);
         if (err) {
           return next(err);
         }
+
+        const tokenFormatter = options.formatToken || formatToken;
+        let accessToken = info && info.accessToken;
+        if (!accessToken) {
+          return res.redirect(providerOptions.failureRedirect);
+        }
+
+        accessToken = tokenFormatter(info.accessToken);
         if (!user) {
           return res.redirect(providerOptions.failureRedirect);
         }

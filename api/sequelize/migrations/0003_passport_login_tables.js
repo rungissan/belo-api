@@ -6,8 +6,13 @@ import {
 } from '../utils';
 
 const user_identity = (DataTypes) => ({
-  id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  userid:      { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
+  id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  userid: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES,
+    unique: true
+  },
   clientid:    { type: DataTypes.INTEGER },
   provider:    { type: DataTypes.TEXT },
   authscheme:  { type: DataTypes.TEXT },
@@ -19,8 +24,13 @@ const user_identity = (DataTypes) => ({
 });
 
 const user_credential = (DataTypes) => ({
-  id:          { type: DataTypes.TEXT, allowNull: false, primaryKey: true },
-  userid:      { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
+  id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
+  userid: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    ...CASCADE_RULES,
+    unique: true
+  },
   clientid:    { type: DataTypes.INTEGER },
   provider:    { type: DataTypes.TEXT },
   authscheme:  { type: DataTypes.TEXT },
