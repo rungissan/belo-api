@@ -88,7 +88,8 @@ async function linkHasMany(userId, instance, relationIds, RelationModel, relatio
   }
 
   return await Promise.map(relationIds, async relationId => {
-    if (typeof relationId != 'number') {
+    relationId = Number(relationId);
+    if (!relationId) {
       return false;
     }
 

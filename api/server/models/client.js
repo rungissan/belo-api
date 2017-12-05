@@ -269,7 +269,7 @@ export default function(Client) {
         principalType: RoleMapping.USER,
         principalId: client.id
       });
-      await Account.updateAll({userid: client.id}, {type: roleName});
+      await Account.updateAll({userId: client.id}, {type: roleName});
     });
 
     return client;
