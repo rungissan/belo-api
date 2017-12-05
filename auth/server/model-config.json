@@ -35,6 +35,10 @@
     "dataSource": "postgres",
     "public": true
   },
+  "Account": {
+    "dataSource": "postgres",
+    "public": true
+  },
   "UserCredential": {
     "dataSource": "postgres",
     "public": false

@@ -75,6 +75,7 @@ module.exports = function(UserIdentity) {
       options = {};
     }
     let autoLogin = options.autoLogin || options.autoLogin === undefined;
+    let createAccount = options.createAccount || options.createAccount === undefined;
 
     profile.id = profile.id || profile.openid;
     UserIdentity.findOne({where: {
@@ -105,6 +106,9 @@ module.exports = function(UserIdentity) {
       let userModel = (UserIdentity.relations.user &&
                        UserIdentity.relations.user.modelTo) ||
                        UserIdentity.app.loopback.getModelByType(UserIdentity.app.loopback.User);
+
+      let accountModel = userModel.relations.account && userModel.relations.account.modelTo;
+
       let userObj = (options.profileToUser || profileToUser)(provider, profile, options);
       if (!userObj.email && !options.emailOptional) {
         process.nextTick(function() {
@@ -125,31 +129,52 @@ module.exports = function(UserIdentity) {
         query = {username: userObj.username};
       }
 
-      userModel.findOrCreate({where: query}, userObj, function(err, user) {
-        if (err) {
-          return cb(err);
-        }
-        let date = new Date();
-        UserIdentity.findOrCreate({where: {externalId: profile.id}}, {
-          provider: provider,
-          externalId: profile.id,
-          authScheme: authScheme,
-          profile: profile,
-          credentials: credentials,
-          userId: user.id,
-          created: date,
-          modified: date
-        }, function(err, identity) {
-          if (!err && user && autoLogin) {
-            return (options.createAccessToken || createAccessToken)(user, function(err, token) {
-              identity.accessToken = token;
-              cb(err, user, identity, token);
-            });
+      userModel.findOrCreate({where: query}, userObj)
+        .then((user, created) => {
+          user = user[0];
+
+          if (!accountModel && createAccount) {
+            return user;
           }
 
-          cb(err, user, identity);
+          return accountModel.findOne({where: {userId: user.id}})
+            .then(account => {
+              if (!account) {
+                return user.account.create({});
+              }
+              return account;
+            })
+            .then(() => user);
+
+          return user;
+        })
+        .then(user => {
+          let userIdentityData = {
+            provider: provider,
+            externalId: profile.id,
+            authScheme: authScheme,
+            profile: profile,
+            credentials: credentials,
+            userId: user.id,
+            created: new Date(),
+            modified: new Date()
+          };
+
+          return UserIdentity.findOrCreate({where: {externalId: profile.id}}, userIdentityData)
+            .then(identity => {
+              if (user && autoLogin) {
+                return (options.createAccessToken || createAccessToken)(user, function(err, token) {
+                  identity.accessToken = token;
+                  cb(err, user, identity, token);
+                });
+              }
+
+              cb(err, user, identity);
+            });
+        })
+        .catch(err => {
+          cb(err);
         });
-      });
     });
   };
   return UserIdentity;
