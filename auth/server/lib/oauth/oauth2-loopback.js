@@ -869,7 +869,7 @@ module.exports = function(app, options) {
               token: token,
               refreshToken: refreshToken
             }, {
-              createAccessToken: createAccessTokenHandler(name, {scope: provider.scope})
+              createAccessToken: createAccessTokenHandler(name, {scope: provider.tokenScope})
             }, done);
         }));
 
