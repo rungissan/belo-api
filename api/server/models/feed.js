@@ -3,56 +3,56 @@
 import Promise from 'bluebird';
 
 import { validateBySchema } from '../lib/validate';
+import { errValidation } from '../lib/errors';
 
 const FEATURES_OPTIONS = {
-  propertyFeatures: {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      rent_type: {
-        type: 'string',
-        enum: ['rent', 'sale']
-      },
-      bedrooms: {
-        type: 'integer',
-        minimum: 0,
-        maximum: 100
-      },
-      bathrooms: {
-        type: 'integer',
-        minimum: 0,
-        maximum: 100
-      },
-      price: {
-        type: 'integer',
-        minimum: 0
-      },
-      square: {
-        type: 'number'
-      },
-      property_features: {
-        type: 'object'
-      },
-      building_features: {
-        type: 'object'
-      },
-      utilities_included: {
-        type: 'object'
-      },
-      move_in_fees: {
-        type: 'object'
-      },
-      school_information: {
-        type: 'object'
-      },
-      transportation: {
-        type: 'object'
-      },
-      additional_features: {
-        type: 'object'
-      }
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    rent_type: {
+      type: 'string',
+      enum: ['rent', 'sale']
+    },
+    bedrooms: {
+      type: 'integer',
+      minimum: 0,
+      maximum: 100
+    },
+    bathrooms: {
+      type: 'integer',
+      minimum: 0,
+      maximum: 100
+    },
+    price: {
+      type: 'integer',
+      minimum: 0
+    },
+    square: {
+      type: 'number'
+    },
+    propertyFeatures: {
+      type: 'object'
+    },
+    buildingFeatures: {
+      type: 'object'
+    },
+    utilitiesIncluded: {
+      type: 'object'
+    },
+    moveInFees: {
+      type: 'object'
+    },
+    schoolInformation: {
+      type: 'object'
+    },
+    transportation: {
+      type: 'object'
+    },
+    additionalFeatures: {
+      type: 'object'
     }
-  }
+  },
+  required: ['rent_type', 'bedrooms', 'bathrooms', 'price', 'square']
 };
 
 const FEATURES_VALIDATIONS = {
@@ -180,6 +180,8 @@ const FEATURES_VALIDATIONS = {
 };
 
 module.exports = function(Feed) {
+  Feed.validatesInclusionOf('type', {in: ['post', 'listing', 'openHouse']});
+
   Feed.beforeRemote('create', beforeSaveHook);
   Feed.beforeRemote('prototype.patchAttributes', beforeSaveHook);
 
@@ -187,31 +189,32 @@ module.exports = function(Feed) {
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
 
   async function beforeSaveHook(ctx, modelInstance) {
-    let instance = ctx.args.instance || ctx.args.data;
-    if (!instance) {
+    let feed = ctx.args.instance || ctx.args.data;
+    if (!feed) {
       return;
     }
 
-    if (instance.options) {
-      await validateBySchema(instance.options, FEATURES_OPTIONS, 'Feed');
-      await validateFeedOptions(instance.options);
+    if (feed.options) {
+      if (feed.type === 'post') {
+        throw errValidation('"options" allowed only for Listings');
+      }
+
+      await validateBySchema(feed.options, FEATURES_OPTIONS, 'Feed');
+      await validateFeedOptions(feed.options);
     }
 
-    return instance;
+    return feed;
   }
 
   async function afterSaveHook(ctx) {
-    let instance = ctx.instance || ctx.data;
-    if (!instance) {
+    let feed = ctx.instance || ctx.data;
+    let body = ctx.req.body;
+
+    if (!body.options) {
       return;
     }
 
-    if (instance.options) {
-      await validateBySchema(instance.options, FEATURES_OPTIONS, 'Feed');
-      await validateFeedOptions(instance.options);
-    }
-
-    return instance;
+    return await upsertFeedOptions(feed, body.options);
   }
 
   async function validateFeedOptions(feedOptions = {}) {
@@ -220,6 +223,21 @@ module.exports = function(Feed) {
         return validateBySchema(feedOptions[key], FEATURES_VALIDATIONS[key], 'FeedOptions');
       }
       return true;
+    });
+  }
+
+  function upsertFeedOptions(feed, optionsData) {
+    return new Promise((resolve, reject) => {
+      feed.feedOptions((err, feedOptions) => {
+        if (err) {
+          return reject(err);
+        }
+        if (feedOptions) {
+          feed.feedOptions.update(optionsData).then(resolve);
+        } else {
+          feed.feedOptions.create(optionsData).then(resolve);
+        }
+      });
     });
   }
 };

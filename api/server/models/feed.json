@@ -43,7 +43,7 @@
     "userId": {
       "type": "number",
       "postgresql": {
-        "columnName": "user_id",
+        "columnName": "userId",
         "dataType": "integer"
       }
     },
@@ -62,7 +62,7 @@
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "image_id",
+        "columnName": "imageId",
         "dataType": "integer"
       }
     },
@@ -70,20 +70,20 @@
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "parent_id",
+        "columnName": "parentId",
         "dataType": "integer"
       }
     },
     "displayAddress": {
       "type": "boolean",
       "postgresql": {
-        "columnName": "display_address"
+        "columnName": "displayAddress"
       }
     },
     "showInBrokerFeed": {
       "type": "boolean",
       "postgresql": {
-        "columnName": "show_in_broker_feed"
+        "columnName": "showInBrokerFeed"
       }
     }
   },
@@ -108,15 +108,15 @@
       "type": "hasMany",
       "model": "Attachment",
       "through": "AttachmentToPost",
-      "foreignKey": "post_id",
-      "keyThrough": "attachment_id"
+      "foreignKey": "feedId",
+      "keyThrough": "attachmentId"
     },
     "geolocations": {
       "type": "hasMany",
       "model": "Geolocation",
       "through": "GeolocationToPost",
-      "foreignKey": "user_id",
-      "keyThrough": "geolocation_id"
+      "foreignKey": "feedId",
+      "keyThrough": "geolocationId"
     }
   },
   "acls": [

@@ -1,20 +1,21 @@
 {
   "name": "FeedOptions",
   "base": "PersistedModel",
-  "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "schema": "spiti"
+      "schema": "spiti",
+      "table": "feed_options"
     }
   },
   "mixins": {},
   "properties": {
     "feedId": {
       "type": "number",
+      "id": true,
       "min": 1,
       "postgresql": {
-        "columnName": "feed_id",
+        "columnName": "feedId",
         "dataType": "integer"
       }
     },
@@ -22,7 +23,7 @@
       "type": "boolean",
       "default": "rent",
       "postgresql": {
-        "columnName": "rent_type",
+        "columnName": "rentType",
         "dataType": "character varying",
         "dataLength": 20
       }
@@ -55,35 +56,35 @@
     "propertyFeatures": {
       "type": "object",
       "postgresql": {
-        "columnName": "property_features",
+        "columnName": "propertyFeatures",
         "dataType": "jsonb"
       }
     },
     "buildingFeatures": {
       "type": "object",
       "postgresql": {
-        "columnName": "building_features",
+        "columnName": "buildingFeatures",
         "dataType": "jsonb"
       }
     },
     "utilitiesIncluded": {
       "type": "object",
       "postgresql": {
-        "columnName": "utilities_included",
+        "columnName": "utilitiesIncluded",
         "dataType": "jsonb"
       }
     },
     "moveInFees": {
       "type": "object",
       "postgresql": {
-        "columnName": "move_in_fees",
+        "columnName": "moveInFees",
         "dataType": "jsonb"
       }
     },
     "schoolInformation": {
       "type": "object",
       "postgresql": {
-        "columnName": "school_information",
+        "columnName": "schoolInformation",
         "dataType": "jsonb"
       }
     },
@@ -96,7 +97,7 @@
     "additionalFeatures": {
       "type": "object",
       "postgresql": {
-        "columnName": "additional_features",
+        "columnName": "additionalFeatures",
         "dataType": "jsonb"
       }
     }
