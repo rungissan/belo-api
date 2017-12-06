@@ -8,13 +8,13 @@ import {
 
 const favorite_feed = (DataTypes) => ({
   id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
-  user_id: {
+  userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {model: {tableName: 'user', ...BASE_SCHEMA}},
     ...CASCADE_RULES
   },
-  feed_id: {
+  feedId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {model: {tableName: 'feed', ...BASE_SCHEMA}},
@@ -27,7 +27,7 @@ module.exports = {
     return queryInterface.createTable('favorite_feed', favorite_feed(DataTypes), BASE_SCHEMA)
       .then(() => queryInterface.addIndex(
         `${BASE_SCHEMA.schema}.favorite_feed`,
-        ['user_id', 'feed_id'],
+        ['userId', 'feedId'],
         {
           indicesType: 'UNIQUE'
         }

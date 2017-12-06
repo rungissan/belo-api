@@ -107,14 +107,14 @@
     "additionalImages": {
       "type": "hasMany",
       "model": "Attachment",
-      "through": "AttachmentToPost",
+      "through": "AttachmentToFeed",
       "foreignKey": "feedId",
       "keyThrough": "attachmentId"
     },
     "geolocations": {
       "type": "hasMany",
       "model": "Geolocation",
-      "through": "GeolocationToPost",
+      "through": "GeolocationToFeed",
       "foreignKey": "feedId",
       "keyThrough": "geolocationId"
     }

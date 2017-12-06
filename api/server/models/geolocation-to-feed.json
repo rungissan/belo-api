@@ -1,11 +1,11 @@
 {
-  "name": "GeolocationToPost",
+  "name": "GeolocationToFeed",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "geolocation_to_post",
+      "table": "geolocation_to_feed",
       "schema": "spiti"
     }
   },
@@ -15,26 +15,32 @@
     }
   },
   "properties": {
-    "post_id": {
+    "feedId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "feedId"
+      }
     },
-    "geolocation_id": {
+    "geolocationId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "geolocationId"
+      }
     }
   },
   "validations": [],
   "relations": {
-    "post": {
+    "feed": {
       "type": "belongsTo",
-      "model": "Post",
-      "foreignKey": "post_id"
+      "model": "Feed",
+      "foreignKey": "feedId"
     },
     "geolocation": {
       "type": "belongsTo",
       "model": "Geolocation",
-      "foreignKey": "geolocation_id"
+      "foreignKey": "geolocationId"
     }
   },
   "acls": [
