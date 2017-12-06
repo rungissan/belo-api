@@ -132,5 +132,12 @@
   },
   "FavoriteListing": {
     "dataSource": "postgres"
+  },
+  "Feed": {
+    "dataSource": "postgres"
+  },
+  "FeedOptions": {
+    "dataSource": "postgres",
+    "public": false
   }
 }

@@ -1,0 +1,114 @@
+{
+  "name": "FeedOptions",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti"
+    }
+  },
+  "mixins": {},
+  "properties": {
+    "feedId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "feed_id",
+        "dataType": "integer"
+      }
+    },
+    "rent_type": {
+      "type": "boolean",
+      "default": "rent",
+      "postgresql": {
+        "columnName": "rent_type",
+        "dataType": "character varying",
+        "dataLength": 20
+      }
+    },
+    "bedrooms": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "smallint"
+      }
+    },
+    "bathrooms": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "smallint"
+      }
+    },
+    "price": {
+      "type": "number",
+      "min": 0,
+      "postgresql": {
+        "dataType": "integer"
+      },
+      "description": "Price in cents"
+    },
+    "square": {
+      "type": "number"
+    },
+    "propertyFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "property_features",
+        "dataType": "jsonb"
+      }
+    },
+    "buildingFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "building_features",
+        "dataType": "jsonb"
+      }
+    },
+    "utilitiesIncluded": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "utilities_included",
+        "dataType": "jsonb"
+      }
+    },
+    "moveInFees": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "move_in_fees",
+        "dataType": "jsonb"
+      }
+    },
+    "schoolInformation": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "school_information",
+        "dataType": "jsonb"
+      }
+    },
+    "transportation": {
+      "type": "object",
+      "postgresql": {
+        "dataType": "jsonb"
+      }
+    },
+    "additionalFeatures": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "additional_features",
+        "dataType": "jsonb"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "feed": {
+      "type": "belongsTo",
+      "model": "Feed",
+      "foreignKey": "feedId"
+    }
+  },
+  "acls": [],
+  "methods": []
+}
