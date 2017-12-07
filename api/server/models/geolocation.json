@@ -5,7 +5,8 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "schema": "spiti"
+      "schema": "spiti",
+      "table": "geolocation"
     }
   },
   "mixins": {

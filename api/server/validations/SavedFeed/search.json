@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties" : {
+    "feed_type": {
+      "type": "string",
+      "enum": ["listing", "post"]
+    },
+    "rent_type": {
+      "type": "string",
+      "enum": ["sell", "rent"]
+    },
+    "bedrooms": {
+      "type": "object"
+    },
+    "bathrooms": {
+      "type": "object"
+    },
+    "price": {
+      "type": "object"
+    },
+    "property_features": {
+      "type": "object"
+    },
+    "building_features": {
+      "type": "object"
+    },
+    "utilities_included": {
+      "type": "object"
+    },
+    "move_in_fees": {
+      "type": "object"
+    },
+    "school_information": {
+      "type": "object"
+    },
+    "transportation": {
+      "type": "object"
+    },
+    "additional_features": {
+      "type": "object"
+    }
+  }
+}
