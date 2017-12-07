@@ -19,7 +19,7 @@
         "dataType": "integer"
       }
     },
-    "rent_type": {
+    "rentType": {
       "type": "boolean",
       "default": "rent",
       "postgresql": {

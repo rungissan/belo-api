@@ -47,13 +47,17 @@
         "dataType": "integer"
       }
     },
+    "type": {
+      "type": "string",
+      "maxLength": 20,
+      "description": "post, listing, openHouse"
+    },
     "title": {
       "type": "string",
       "maxLength": 255,
       "postgresql": {
         "dataType": "character varying"
-      },
-      "description": "post, listing, open_house"
+      }
     },
     "description": {
       "type": "string"

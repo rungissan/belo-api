@@ -24,9 +24,10 @@ const feed = (DataTypes) => ({
     references: {model: {tableName: 'feed', ...BASE_SCHEMA}},
     ...CASCADE_RULES
   },
-  title:               { type: DataTypes.STRING },
-  description:         { type: DataTypes.TEXT },
-  displayAddress:     { type: DataTypes.BOOLEAN, defaultValue: true },
+  type:             { type: DataTypes.STRING(20) },
+  title:            { type: DataTypes.STRING },
+  description:      { type: DataTypes.TEXT },
+  displayAddress:   { type: DataTypes.BOOLEAN, defaultValue: true },
   showInBrokerFeed: { type: DataTypes.BOOLEAN, defaultValue: true },
   ...defaultFields(DataTypes)
 });

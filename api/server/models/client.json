@@ -22,11 +22,9 @@
         "updateAttributes",
         "__link__geolocations",
         "__unlink__geolocations",
-        "__link__favoritePosts",
-        "__unlink__favoritePosts",
-        "__link__favoriteListings",
-        "__unlink__favoriteListings",
-        "__get__favoriteListings"
+        "__link__favoriteFeeds",
+        "__unlink__favoriteFeeds",
+        "__get__favoriteFeeds"
       ]
     }
   },
@@ -61,19 +59,12 @@
       "foreignKey": "user_id",
       "keyThrough": "geolocation_id"
     },
-    "favoritePosts": {
+    "favoriteFeeds": {
       "type": "hasMany",
-      "model": "Post",
-      "through": "FavoritePost",
-      "foreignKey": "user_id",
-      "keyThrough": "post_id"
-    },
-    "favoriteListings": {
-      "type": "hasMany",
-      "model": "Listing",
-      "through": "FavoriteListing",
-      "foreignKey": "user_id",
-      "keyThrough": "listing_id"
+      "model": "Feed",
+      "through": "FavoriteFeed",
+      "foreignKey": "userId",
+      "keyThrough": "feedId"
     }
   },
   "acls": [
@@ -111,37 +102,19 @@
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW",
-      "property": "__link__favoritePosts"
+      "property": "__link__favoriteFeeds"
     },
     {
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW",
-      "property": "__get__favoritefavoritePosts"
+      "property": "__get__favoriteFeeds"
     },
     {
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW",
-      "property": "__link__favoriteListings"
-    },
-    {
-      "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW",
-      "property": "__get__favoriteListings"
-    },
-    {
-      "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW",
-      "property": "__unlink__favoriteListings"
-    },
-    {
-      "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW",
-      "property": "__unlink__favoritePosts"
+      "property": "__unlink__favoriteFeeds"
     }
   ],
   "methods": {},

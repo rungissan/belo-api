@@ -9,7 +9,7 @@ const FEATURES_OPTIONS = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    rent_type: {
+    rentType: {
       type: 'string',
       enum: ['rent', 'sale']
     },
@@ -52,7 +52,7 @@ const FEATURES_OPTIONS = {
       type: 'object'
     }
   },
-  required: ['rent_type', 'bedrooms', 'bathrooms', 'price', 'square']
+  required: ['rentType', 'bedrooms', 'bathrooms', 'price', 'square']
 };
 
 const FEATURES_VALIDATIONS = {
@@ -206,12 +206,11 @@ module.exports = function(Feed) {
     return feed;
   }
 
-  async function afterSaveHook(ctx) {
-    let feed = ctx.instance || ctx.data;
+  async function afterSaveHook(ctx, feed) {
     let body = ctx.req.body;
 
-    if (!body.options) {
-      return;
+    if (!feed || !body.options) {
+      return
     }
 
     return await upsertFeedOptions(feed, body.options);
