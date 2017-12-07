@@ -115,6 +115,13 @@
       "through": "GeolocationToUser",
       "foreignKey": "geolocation_id",
       "keyThrough": "user_id"
+    },
+    "feeds": {
+      "type": "hasMany",
+      "model": "Feed",
+      "through": "GeolocationToFeed",
+      "foreignKey": "geolocationId",
+      "keyThrough": "feedId"
     }
   },
   "acls": [],

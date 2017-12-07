@@ -20,8 +20,9 @@
       }
     },
     "rentType": {
-      "type": "boolean",
+      "type": "text",
       "default": "rent",
+      "max": 20,
       "postgresql": {
         "columnName": "rentType",
         "dataType": "character varying",

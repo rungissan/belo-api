@@ -150,23 +150,23 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      first_month_rent: {
+      firstMonthRent: {
         name: 'First Month Rent',
         type: 'boolean'
       },
-      last_month_rent: {
+      lastMonthRent: {
         name: 'Last Month Rent',
         type: 'boolean'
       },
-      security_deposit: {
+      securityDeposit: {
         name: 'Sequrity Deposit',
         type: 'number'
       },
-      application_fee: {
+      applicationFee: {
         name: 'Application Fee',
         type: 'number'
       },
-      broker_fee: {
+      brokerFee: {
         name: 'Broker Fee',
         type: 'number'
       }
@@ -210,7 +210,7 @@ module.exports = function(Feed) {
     let body = ctx.req.body;
 
     if (!feed || !body.options) {
-      return
+      return;
     }
 
     return await upsertFeedOptions(feed, body.options);

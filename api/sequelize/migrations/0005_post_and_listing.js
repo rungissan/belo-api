@@ -39,6 +39,7 @@ const feed_options = (DataTypes) => ({
     type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
+    primaryKey: true,
     references: {model: {tableName: 'feed', ...BASE_SCHEMA}},
     ...CASCADE_RULES
   },

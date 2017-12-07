@@ -7,6 +7,7 @@ import Promise from 'bluebird';
 import { errValidation } from '../errors';
 import { formatSQLReplacements } from '../util';
 
+const DEFAULT_SCHEMA = 'public';
 const OPERATORS = {
   gt: '>',
   gte: '>=',
@@ -14,13 +15,12 @@ const OPERATORS = {
   lte: '<=',
   is: '='
 };
-
-const MODELS = {
-  feed: 'Feed',
-  feedOptions: 'FeedOptions',
-  geolocaions: 'Geolocation',
-  geolocaion_to_feed: 'GeolocationToFeed'
-};
+const MODELS = [
+  { name: 'feed', model: 'Feed', isBase: true },
+  { name: 'feedOptions', model: 'FeedOptions' },
+  { name: 'geolocations', model: 'Geolocation' },
+  { name: 'geolocaion_to_feed', model: 'GeolocationToFeed', hide:true }
+];
 
 /** Searcher for feeds. */
 export default class FeedSearch {
@@ -36,22 +36,21 @@ export default class FeedSearch {
 
     this.connector = connector;
     this.options = options;
-
-    this.feedDefinition = app.models.Feed.definition;
-    this.feedOptionsDefinition = app.models.FeedOptions.definition;
-
-    this.feedTableKey = 'feed';
-    this.feedOptionsTableKey = 'feedOptions';
+    this.models = {};
 
     this.whereValues = [];
     this.replacements = [];
 
+    this.sqlSelect = '';
+    this.sqlWhere = '';
+    this.sqlJoin = '';
+
     this._prepareModelsData(app);
   }
 
-  query(filters) {
+  query(filter) {
     try {
-      let { query, replacements } = this.buildQuery(filters);
+      let { query, replacements } = this.buildQuery(filter);
 
       return this._query(query, replacements);
     } catch (e) {
@@ -59,21 +58,33 @@ export default class FeedSearch {
     }
   }
 
-  buildQuery(filters = {}) {
-    this.filters = filters;
+  buildQuery(filter = {}) {
+    this.filter = {...filter};
+
+    let filters = filter.where || {};
 
     debug('Start build query', filters);
-    let { feedDefinition, feedOptionsDefinition } = this;
+    let baseModelOptions;
 
-    if (filters.feedOptions) {
-      this.buildQueryForModel(feedOptionsDefinition, this.feedOptionsTableKey, filters.feedOptions);
-    }
+    Object.keys(this.models).forEach(key => {
+      let modelOptions = this.models[key];
+      if (modelOptions.isBase) {
+        baseModelOptions = modelOptions;
+        return;
+      }
 
-    this.buildQueryForModel(feedDefinition, this.feedTableKey, filters);
+      if (!modelOptions.hide && filters[key]) {
+        this._buildQueryForModel(modelOptions, filters[key]);
+      }
+    });
 
-    let query = this._addSelectQuery();
-    query += this._addFeedOptionsJoinQuery();
+    this._buildQueryForModel(baseModelOptions, filters);
+
+    let query = this.sqlSelect;
+    query += this.sqlJoin;
     query += this._buildWhereQuery();
+    query += this._buildOrderQuery(baseModelOptions, filter.order);
+    query += this._buildLimitOffsetQuery(baseModelOptions, filter);
 
     debug('Finish build query');
     return {
@@ -83,21 +94,23 @@ export default class FeedSearch {
   }
 
   /**
-   * @param {Object} modelDefinition
+   * @param {Object} modelOptions
+   * @param {Object} modelOptions.properties - loopback model definition. used to filter properties.
+   * @param {String} modelOptions.tableName - postgresql table name.
+   * @param {String} modelOptions.schema - postgresql table schema.
+   * @param {String} modelOptions.tableKey - table alias.
    * @param {Object} filters
-   * @returns {ParameterizedSQL}
    */
-  buildQueryForModel(modelDefinition, tableName, filters = {}) {
-    let modelProps = modelDefinition.properties;
+  _buildQueryForModel(modelOptions, filters = {}) {
+    debug('Build query for model');
+    let { properties, tableKey, isBase } = modelOptions;
 
     Object.keys(filters).forEach(key => {
-      let property = modelProps[key];
+      let property = properties[key];
 
       if (!property && this._isNestedProperty(key)) {
         let nestedProp = key.split('.')[0];
-        debug('nestedProp: ', nestedProp);
-
-        if (nestedProp && this._isNestedPropertyAllowed(modelProps, nestedProp)) {
+        if (nestedProp && this._isNestedPropertyAllowed(properties, nestedProp)) {
           property = nestedProp;
         }
       }
@@ -106,17 +119,21 @@ export default class FeedSearch {
         if (this.options.throwError) {
           throw errValidation(`Unsupported search property ${property}.`);
         } else {
-          debug('Skip property: ', key);
           return;
         }
       }
-      debug('Process property: ', key);
 
       let columnName = this._getColumnName(key);
       let expression = filters[key];
 
-      return this._buildWhereQueryForProp(tableName, columnName, expression);
+      return this._buildWhereQueryForProp(tableKey, columnName, expression);
     });
+
+    if (isBase) {
+      this.sqlSelect = this._buildSelectQuery(modelOptions);
+    } else {
+      this.sqlJoin += this._buildJoinQuery(modelOptions);
+    }
   }
 
   _isNestedProperty(key) {
@@ -182,7 +199,6 @@ export default class FeedSearch {
 
     whereValues.forEach((where, i) => {
       query += (i === 0) ? 'WHERE ' : ' AND ';
-      // query += `${where.column} ${where.operator || ''} ${where.value || ''}`;
       query += `${where.column} ${where.operator || ''} $${i + 1}`;
 
       if (where.value) {
@@ -193,33 +209,109 @@ export default class FeedSearch {
     return query;
   }
 
-  _addSelectQuery() {
-    let { feedTableKey } = this;
+  _buildSelectQuery(modelOptions) {
+    let { tableName, tableKey } = modelOptions;
+    debug('Build select query');
 
     return `
-      SELECT "${feedTableKey}".*
-      FROM "spiti"."feed" as "${feedTableKey}"
+      SELECT "${tableName}".*
+      FROM "spiti"."feed" as "${tableKey}"
     `;
   }
 
-  _addGeolocationJoinQuery() {
+  _buildJoinQuery(modelOptions) {
+    let { tableName, tableKey, relation } = modelOptions;
+    debug('Build join query', relation);
+
+    if (!relation) {
+      return '';
+    }
+
+    if (relation.type == 'hasOne') {
+      return this._buildJoinQueryHasOne(modelOptions);
+    } else if (relation.type == 'hasMany' && relation.through) {
+      return this._buildJoinQueryHasManyThrough(modelOptions);
+    }
+
+    return '';
+  }
+
+  _buildJoinQueryHasOne(modelOptions) {
+    debug('Build join HasOne query');
+    let { tableName, tableKey, schema, relation } = modelOptions;
+
     return `
-      INNER JOIN "spiti"."geolocation_to_feed" AS "geolocation_feed"
-          ON "geolocation_feed"."feedId" = "feed"."id"
-        INNER JOIN "spiti"."geolocation" AS "geolocation"
-          ON "geolocation_feed"."geolocationId" = "geolocation"."id"
-          AND "geolocation"."deleted_at" IS NULL
+      LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+        ON "${tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
+        AND "${tableKey}"."deleted_at" IS NULL
     `;
   }
 
-  _addFeedOptionsJoinQuery() {
-    let { feedTableKey, feedOptionsTableKey } = this;
+  _buildJoinQueryHasManyThrough(modelOptions) {
+    debug('Build join HasManyThrough query');
+    let { tableName, tableKey, schema, relation } = modelOptions;
+    let throughModel = Object.values(this.models).find(model => model.modelName == relation.through);
 
     return `
-      LEFT OUTER JOIN "spiti"."feed_options" AS "${feedOptionsTableKey}"
-        ON "${feedOptionsTableKey}"."feedId" = "${feedTableKey}"."id"
-        AND "${feedOptionsTableKey}"."deleted_at" IS NULL
+      INNER JOIN "${throughModel.schema}"."${throughModel.tableName}" AS "${throughModel.tableKey}"
+          ON "${throughModel.tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
+        INNER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+          ON "${throughModel.tableKey}"."${relation.keyThrough}" = "${tableKey}"."id"
+          AND "${tableKey}"."deleted_at" IS NULL
     `;
+  }
+
+  _buildLimitOffsetQuery(modelOptions, filter) {
+    debug('Build limit, offset query');
+    let {limit, offset, skip} = filter;
+
+    return `
+      LIMIT ${parseInt(limit) || 10}
+      OFFSET ${parseInt(offset) || skip || 0}
+    `;
+  }
+
+  _buildOrderQuery(modelOptions, order) {
+    debug('Build order query');
+    let orderStatments = [];
+
+    if (Array.isArray(order)) {
+      order.forEach(o => {
+        let orderString = this._buildOrderQueryString(modelOptions, o);
+        if (orderString) {
+          orderStatments.push(orderString);
+        }
+      });
+    } else {
+      let orderString = this._buildOrderQueryString(modelOptions, order);
+      if (orderString) {
+        orderStatments.push(orderString);
+      }
+    }
+
+    if (!orderStatments.length) {
+      orderStatments.push('id DESC');
+    }
+
+    return ` ORDER BY ${orderStatments.join(', ')} `;
+  }
+
+  _buildOrderQueryString(modelOptions, order) {
+    if (!order || typeof order != 'string') {
+      return null;
+    }
+
+    let [columnName, direction] = order.split(' ');
+    if (!columnName && !direction && ['ASC', 'DESC'].includes(direction)) {
+      return null;
+    }
+
+    let { properties, tableKey } = modelOptions;
+    if (!properties[columnName]) {
+      return null;
+    }
+
+    return `"${tableKey}"."${columnName}" ${direction}`;
   }
 
   /**
@@ -249,8 +341,16 @@ export default class FeedSearch {
    * @return {Promise<Array>} query results.
    */
   _query(sql, replacements) {
-    debug('execute          sql: ', sql);
-    debug('execute replacements: ', replacements);
+    if (this.options.debugSql || true) {
+      let rawSql = sql;
+      replacements.forEach((value, i) => {
+        rawSql = rawSql.replace(`$${i + 1}`, value);
+      });
+      debug('execute sql: ', rawSql);
+    } else {
+      debug('execute          sql: ', sql);
+      debug('execute replacements: ', replacements);
+    }
 
     return new Promise((resolve, reject) => {
       return this.connector.execute(sql, replacements, (err, data) => {
@@ -263,22 +363,55 @@ export default class FeedSearch {
   }
 
   _prepareModelsData(app) {
-    this.models = {};
+    let modelKeys = Object.keys(MODELS).map;
 
-    Object.keys(MODELS).forEach(tableKey => {
-      let modelName = MODELS[tableKey];
-      let modelDefinition = app.models[modelName].definition;
-      let tableName = modelDefinition.settings &&
-                      modelDefinition.settings.postgresql &&
-                      modelDefinition.settings.postgresql.table ||
-                      modelDefinition.tableName();
+    let baseModelOptions = MODELS.find(m => m.isBase);
 
-      this.models[tableKey] = {
-        tableKey,
-        modelName,
-        tableName,
-        properties: modelDefinition.properties
-      };
+    if (!baseModelOptions) {
+      throw new Error('Base model not specified');
+    }
+
+    this.baseModel = this._getPrepareModelOptions(app, baseModelOptions);
+
+    MODELS.forEach(modelOptions => {
+      if (modelOptions.isBase) {
+        this.models[modelOptions.name] = this.baseModel;
+      } else {
+        this.models[modelOptions.name] = this._getPrepareModelOptions(app, modelOptions, this.baseModel);
+      }
     });
+  }
+
+  _getPrepareModelOptions(app, modelOptions, baseModel) {
+    debug('Prepare model options');
+
+    let modelName = modelOptions.model;
+    let modelDefinition = app.models[modelName].definition;
+    let dbOptions = modelDefinition.settings && modelDefinition.settings.postgresql || {};
+
+    let tableName = dbOptions.table || modelDefinition.tableName();
+    let schema = dbOptions.schema || DEFAULT_SCHEMA;
+
+    let collectedOptions = {
+      tableKey: modelOptions.name,
+      modelDefinition,
+      modelName,
+      tableName,
+      schema,
+      properties: modelDefinition.properties,
+      isBase: modelOptions.isBase
+    };
+
+    if (!modelOptions.isBase && baseModel) {
+      collectedOptions.relation = this._getRelationSettings(collectedOptions, baseModel);
+    }
+
+    return collectedOptions;
+  }
+
+  _getRelationSettings(related, base) {
+    let { tableKey } = related;
+    let relation = base.modelDefinition.settings.relations[tableKey];
+    return relation;
   }
 }
