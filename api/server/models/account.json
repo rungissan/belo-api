@@ -13,6 +13,15 @@
     "ReadOnly" : {
       "type" : true
     },
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "updateAttributes",
+        "__get__background",
+        "__get__avatar"
+      ]
+    },
     "AjvValidation": {
       "remoteHooks": {
         "prototype.patchAttributes": "patch-attributes"
@@ -109,10 +118,11 @@
       }
     },
     "licenseNumber": {
-      "type": "number",
-      "max": 50,
+      "type": "text",
+      "maxLength": 50,
       "postgresql": {
         "columnName": "license_number",
+        "dataType": "character varying",
         "dataLength": 50
       }
     },

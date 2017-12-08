@@ -1,11 +1,11 @@
 {
-  "name": "AttachmentToPost",
+  "name": "AttachmentToFeed",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "attachment_to_post",
+      "table": "attachment_to_feed",
       "schema": "spiti"
     }
   },
@@ -17,26 +17,32 @@
     }
   },
   "properties": {
-    "post_id": {
+    "feedId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "feedId"
+      }
     },
-    "attachment_id": {
+    "attachmentId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "attachmentId"
+      }
     }
   },
   "validations": [],
   "relations": {
-    "post": {
+    "feed": {
       "type": "belongsTo",
-      "model": "Post",
-      "foreignKey": "post_id"
+      "model": "Feed",
+      "foreignKey": "feedId"
     },
     "attachment": {
       "type": "belongsTo",
       "model": "Attachment",
-      "foreignKey": "attachment_id"
+      "foreignKey": "attachmentId"
     }
   },
   "acls": [

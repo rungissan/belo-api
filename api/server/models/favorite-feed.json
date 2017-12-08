@@ -1,29 +1,35 @@
 {
-  "name": "FavoriteListing",
+  "name": "FavoriteFeed",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "favorite_listing",
+      "table": "favorite_feed",
       "schema": "spiti"
     }
   },
   "mixins": {
     "RelationsValidate": {
-      "listing": {
+      "feed": {
         "checkNotOwner": true
       }
     }
   },
   "properties": {
-    "user_id": {
+    "userId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
     },
-    "listing_id": {
+    "feedId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "feedId"
+      }
     }
   },
   "validations": [],
@@ -31,12 +37,12 @@
     "client": {
       "type": "belongsTo",
       "model": "Client",
-      "foreignKey": "user_id"
+      "foreignKey": "userId"
     },
-    "listing": {
+    "feed": {
       "type": "belongsTo",
-      "model": "Listing",
-      "foreignKey": "listing_id"
+      "model": "Feed",
+      "foreignKey": "feedId"
     }
   },
   "acls": [

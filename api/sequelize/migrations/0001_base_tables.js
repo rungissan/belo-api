@@ -37,7 +37,7 @@ const account = (DataTypes) => ({
   brokerage:          { type: DataTypes.STRING(100) },
   license_type:       { type: DataTypes.STRING(50) },
   license_state:      { type: DataTypes.STRING(4) },
-  license_number:     { type: DataTypes.INTEGER },
+  license_number:     { type: DataTypes.STRING(50) },
   license_expiration: { type: DataTypes.DATE },
   avatar_id:     { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   background_id: { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },

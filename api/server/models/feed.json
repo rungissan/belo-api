@@ -1,11 +1,12 @@
 {
-  "name": "Post",
+  "name": "Feed",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "schema": "spiti"
+      "schema": "spiti",
+      "table": "feed"
     }
   },
   "mixins": {
@@ -13,9 +14,6 @@
     "SetOwner": {},
     "RelationsValidate": {
       "image": {
-        "checkOwner": true
-      },
-      "listing": {
         "checkOwner": true
       }
     },
@@ -46,9 +44,14 @@
     "userId": {
       "type": "number",
       "postgresql": {
-        "columnName": "user_id",
+        "columnName": "userId",
         "dataType": "integer"
       }
+    },
+    "type": {
+      "type": "string",
+      "maxLength": 20,
+      "description": "post, listing, openHouse"
     },
     "title": {
       "type": "string",
@@ -64,25 +67,42 @@
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "image_id",
+        "columnName": "imageId",
         "dataType": "integer"
       }
     },
-    "listingId": {
+    "parentId": {
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "listing_id",
+        "columnName": "parentId",
         "dataType": "integer"
+      }
+    },
+    "displayAddress": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "displayAddress"
+      }
+    },
+    "showInBrokerFeed": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "showInBrokerFeed"
       }
     }
   },
   "validations": [],
   "relations": {
-    "client": {
+    "user": {
       "type": "belongsTo",
       "model": "Client",
       "foreignKey": "userId"
+    },
+    "feedOptions": {
+      "type": "hasOne",
+      "model": "FeedOptions",
+      "foreignKey": "feedId"
     },
     "image": {
       "type": "belongsTo",
@@ -92,21 +112,16 @@
     "additionalImages": {
       "type": "hasMany",
       "model": "Attachment",
-      "through": "AttachmentToPost",
-      "foreignKey": "post_id",
-      "keyThrough": "attachment_id"
+      "through": "AttachmentToFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "attachmentId"
     },
     "geolocations": {
       "type": "hasMany",
       "model": "Geolocation",
-      "through": "GeolocationToPost",
-      "foreignKey": "user_id",
-      "keyThrough": "geolocation_id"
-    },
-    "listing": {
-      "type": "belongsTo",
-      "model": "Listing",
-      "foreignKey": "listingId"
+      "through": "GeolocationToFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "geolocationId"
     }
   },
   "acls": [
