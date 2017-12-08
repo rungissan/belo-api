@@ -124,8 +124,7 @@
     "dataSource": "postgres"
   },
   "FeedOptions": {
-    "dataSource": "postgres",
-    "public": false
+    "dataSource": "postgres"
   },
   "FavoriteFeed": {
     "dataSource": "postgres",

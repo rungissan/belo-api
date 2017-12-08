@@ -8,7 +8,14 @@
       "table": "feed_options"
     }
   },
-  "mixins": {},
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById"
+      ]
+    }
+  },
   "properties": {
     "feedId": {
       "type": "number",

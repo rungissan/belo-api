@@ -80,7 +80,7 @@ const FEATURES_VALIDATIONS = {
         name: 'Fireplace',
         type: 'boolean'
       },
-      outdoor_space: {
+      outdoorSpace: {
         name: 'Outdoor Space',
         type: 'boolean'
       }
@@ -102,7 +102,7 @@ const FEATURES_VALIDATIONS = {
         name: 'Elevator',
         type: 'boolean'
       },
-      bike_room: {
+      bikeRoom: {
         name: 'Bike Room',
         type: 'boolean'
       },

@@ -42,10 +42,12 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('image') ? ', "image"' : ''}
              ${include.includes('additionalImages') ? ', "additionalImages"' : ''}
              ${include.includes('geolocations') ? ', geolocations' : ''}
+             ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
       FROM (${query}) AS "${feed.tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
       ${include.includes('geolocations') ? this._includeGeolocations() : ''}
+      ${include.includes('feedOptions') ? this._includeFeedOptions() : ''}
     `;
   }
 
@@ -81,6 +83,13 @@ export default class FeedSearch extends BaseSearchController {
       FROM "spiti"."attachment" AS "attachment"
         WHERE "attachment"."id" = "feed"."imageId"
     ) "image" ON true
+    `;
+  }
+
+  _includeFeedOptions() {
+    return `
+      LEFT JOIN "spiti"."feed_options" AS "feedOptions"
+        ON "feedOptions"."feedId" = "feed"."id"
     `;
   }
 };
