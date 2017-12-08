@@ -39,6 +39,10 @@
       "type": "string",
       "maxLength": 4
     },
+    "licenseNumber": {
+      "type": "string",
+      "maxLength": 50
+    },
     "licenseExpiration": {
       "type": "string"
     },

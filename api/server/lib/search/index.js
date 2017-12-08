@@ -173,7 +173,8 @@ export default class FeedSearch {
     if (expression === null || expression === 'null') {
       this.whereValues[tableKey].push({
         column: `"${tableKey}".${columnName}`,
-        value: 'IS NULL'
+        operator: OPERATORS['is'],
+        value: null
       });
     } else if (typeof expression == 'object') {
       Object.keys(expression).map(key => {
@@ -217,8 +218,8 @@ export default class FeedSearch {
       } else {
         query += ` AND ${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
       }
-
-      if (where.value) {
+      console.log('value...............................', where.value)
+      if (typeof where.value != 'undefined') {
         replacements.push(where.value);
       }
     });

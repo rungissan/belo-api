@@ -24,7 +24,8 @@
         "__unlink__geolocations",
         "__link__favoriteFeeds",
         "__unlink__favoriteFeeds",
-        "__get__favoriteFeeds"
+        "__get__favoriteFeeds",
+        "__get__savedFeed"
       ]
     }
   },
@@ -50,6 +51,11 @@
     "account": {
       "type": "hasOne",
       "model": "Account",
+      "foreignKey": "userId"
+    },
+    "savedFeed": {
+      "type": "hasMany",
+      "model": "SavedFeed",
       "foreignKey": "userId"
     },
     "geolocations": {
@@ -115,6 +121,12 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "__unlink__favoriteFeeds"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__savedFeed"
     }
   ],
   "methods": {},
