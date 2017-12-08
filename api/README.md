@@ -13,3 +13,293 @@ Body   {
 }
 ```
 Role can be set only once.
+
+
+## Feed
+
+#### Feed Get all
+
+URL: GET `/company`
+
+Response :  Array of relevant records of company entity
+
+Query params
+```
+where=:json,
+order=:array,
+limit=:integer,   - (default = 10)
+offset=:integer,  - (default = 0)
+include=:string[]|:string,  any of ["feedOptions","image","additionalImages","geolocations"]
+```
+
+###### Example:
+
+GET
+```
+http://localhost/api/feeds?filter={"where":{"type":"listing"},"include":["feedOptions"]}
+```
+Response: Array of relevant records of company entity
+```
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "type": "listing",
+    "title": "title",
+    "description": null,
+    "imageId": null,
+    "parentId": null,
+    "displayAddress": true,
+    "showInBrokerFeed": true,
+    "created_at": "2017-12-08T10:52:52.106Z",
+    "updated_at": "2017-12-08T10:52:52.106Z",
+    "deleted_at": null,
+    "feedOptions": {
+      "feedId": 1,
+      "rentType": "sale",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "price": 123,
+      "square": 12341234.5,
+      "propertyFeatures": {
+          "laundry": true
+      },
+      "buildingFeatures": {},
+      "utilitiesIncluded": {},
+      "moveInFees": {},
+      "schoolInformation": {},
+      "transportation": {},
+      "additionalFeatures": {}
+    }
+  }
+]
+```
+#### Feed Create
+
+URL: POST `/feeds`
+
+###### Example:
+
+POST
+```
+http://localhost/api/feeds
+```
+
+Body:
+``` js
+{
+  "title": "test listing",
+  "showInBrokerFeed": true,
+  "displayAddress": true,
+  "type": "listing",
+  "options": {
+    "rentType": "sale", // enum ["sale", "rent"]
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "price": 12300,
+    "square": 322,
+	  "propertyFeatures": {
+	  	"laundry": true, //boolean
+	  	"dogs": true, //boolean
+	  	"cats": true, //boolean
+	  	"parking": true, //boolean
+	  	"fireplace": true, //boolean
+	  	"outdoorSpace": true //boolean
+	  },
+	  "buildingFeatures": {
+	  	"fitness": true, //boolean
+	  	"pool": true, //boolean
+	  	"elevator": true, //boolean
+	  	"elevator": true, //boolean
+	  	"storage": true, //boolean
+	  	"doorman": true //boolean
+	  },
+	  "buildingFeatures": {
+	  	"electric": true, //boolean
+	  	"heat": true, //boolean
+	  	"gas": true, //boolean
+	  	"sewer": true, //boolean
+	  	"water": true, //boolean
+	  	"garbage": true //boolean
+	  },
+	  "buildingFeatures": {
+	  	"firstMonthRent": true, //boolean
+	  	"lastMonthRent": true, //boolean
+	  	"securityDeposit": 123, //number
+	  	"applicationFee": 123, //number
+	  	"brokerFee": 123 //number
+	  },
+    "schoolInformation": {}, //object
+    "transportation": {}, //object
+    "additionalFeatures": {} //object
+  }
+}
+```
+
+Response:
+```
+{
+    "id": 4,
+    "userId": 2,
+    "type": "listing",
+    "title": "asdfasdfasdf",
+    "created_at": "2017-12-08T10:52:53.497Z",
+    "updated_at": "2017-12-08T10:52:53.497Z",
+    "options": {
+        "rentType": "sale",
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "price": 123,
+        "square": 12341234.5,
+        "propertyFeatures": {
+          "laundry": true
+        },
+        "buildingFeatures": {
+    	  	"electric": true,
+        },
+        "feedId": 4
+    }
+}
+```
+
+#### Feed Update
+
+URL: PATCH `/feeds/:id`
+
+Response : Updated record of feed entity
+
+###### Example:
+
+PATCH
+```
+http://localhost/api/feeds/4
+```
+
+Params
+```
+paranoid:false - Обновление записи со статусом удалена
+```
+
+Body:
+```
+{
+  "title": "new title",
+  "options": {
+	  "propertyFeatures": {
+	  	"dogs": false
+	  }
+  }
+}
+```
+
+Response:
+``` json
+{
+  "id": 4,
+  "userId": 2,
+  "type": "listing",
+  "title": "new title",
+  "created_at": "2017-12-08T10:52:53.497Z",
+  "updated_at": "2017-12-08T10:52:53.497Z",
+  "options": {
+    "rentType": "sale",
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "price": 123,
+    "square": 12341234.5,
+    "propertyFeatures": {
+      "dogs": false,
+      "laundry": true
+    },
+    "buildingFeatures": {
+	  	"electric": true,
+    },
+    "feedId": 4
+  }
+}
+```
+
+
+## Saved Feed
+
+#### Saved Feed search
+
+URL: GET `/savedfeeds/search`
+
+Response :  Array of relevant records of feeds
+
+Query params
+```
+where=:json,
+order=:array,
+limit=:integer,   - (default = 10)
+offset=:integer,  - (default = 0)
+include=:string[]|:string,  any of ["feedOptions","image","additionalImages","geolocations"]
+```
+
+Orerators for where filters:
+```
+gt: '>',
+gte: '>=',
+lt: '<',
+lte: '<=',
+is: '='
+```
+
+###### Example:
+
+GET
+```
+http://localhost/api/savedfeeds/search?filter={
+  "where":{
+    "type":"listing",
+    "feedOptions": {
+      "price": {
+        "gt": 10
+      },
+      "bedrooms": 2,
+      "buildingFeatures.dogs": true
+    }
+  },
+  "include":["feedOptions"]
+}
+```
+Response: Array of relevant records of company entity
+``` json
+[
+  {
+    "id": 3,
+    "userId": 2,
+    "imageId": null,
+    "parentId": null,
+    "type": "listing",
+    "title": "asdfasdfasdf",
+    "description": null,
+    "displayAddress": true,
+    "showInBrokerFeed": true,
+    "created_at": "2017-12-08T10:52:53.074Z",
+    "updated_at": "2017-12-08T10:52:53.074Z",
+    "deleted_at": null,
+    "feedOptions": {
+      "feedId": 3,
+      "rentType": "sale",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "price": 123,
+      "square": 12341234.5,
+      "propertyFeatures": {
+        "dogs": true
+      },
+      "buildingFeatures": {},
+      "utilitiesIncluded": {},
+      "moveInFees": {},
+      "schoolInformation": {},
+      "transportation": {},
+      "additionalFeatures": {},
+      "created_at": "2017-12-08T10:52:53.081488+00:00",
+      "updated_at": "2017-12-08T10:52:53.081488+00:00",
+      "deleted_at": null
+    }
+  }
+]
+```

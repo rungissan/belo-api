@@ -15,7 +15,13 @@
   },
   "properties": {},
   "validations": [],
-  "relations": {},
+  "relations": {
+    "account": {
+      "type": "hasOne",
+      "model": "Account",
+      "foreignKey": "userId"
+    }
+  },
   "acls": [],
   "methods": {}
 }

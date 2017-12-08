@@ -12,6 +12,8 @@ export default function validate(data, modelName, schemaName) {
 };
 
 export function validateBySchema(data, schema, modelName = '') {
+  debug('Validate started', data);
+  debug('Validate schema', schema);
   let validate = ajv.compile(schema);
 
   if (!validate(data)) {
@@ -19,6 +21,6 @@ export function validateBySchema(data, schema, modelName = '') {
     return Promise.reject(formatErrors(validate.errors, modelName));
   }
 
-  debug('Validated successfully');
+  debug('Validated successfully', data);
   return Promise.resolve(data);
 };

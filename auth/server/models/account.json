@@ -9,32 +9,7 @@
     }
   },
   "mixins": {
-    "Timestamp": {},
-    "ReadOnly" : {
-      "type" : true
-    },
-    "RemoteRouting" : {
-      "only": [
-        "@find",
-        "@findById",
-        "updateAttributes",
-        "__get__background",
-        "__get__avatar"
-      ]
-    },
-    "AjvValidation": {
-      "remoteHooks": {
-        "prototype.patchAttributes": "patch-attributes"
-      }
-    },
-    "RelationsValidate": {
-      "avatar": {
-        "checkOwner": true
-      },
-      "background": {
-        "checkOwner": true
-      }
-    }
+    "Timestamp": {}
   },
   "properties": {
     "userId": {
@@ -118,11 +93,10 @@
       }
     },
     "licenseNumber": {
-      "type": "text",
-      "maxLength": 50,
+      "type": "number",
+      "max": 50,
       "postgresql": {
         "columnName": "license_number",
-        "dataType": "character varying",
         "dataLength": 50
       }
     },

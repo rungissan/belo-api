@@ -1,18 +1,53 @@
 {
-  "facebook-login": {
+  "spiti_web": {
     "provider": "facebook",
     "module": "passport-facebook",
     "profileFields": ["gender", "link", "locale", "name", "timezone",
       "verified", "email", "updated_time"],
-    "clientID": "130903464237729",
-    "clientSecret": "3da326c85530ce6e073adb28de1eae35",
-    "callbackURL": "http://localhost:3000/auth/facebook/callback",
+    "clientID": "356921321438092",
+    "clientSecret": "b17cab17e45cc76e0e73590fb637bf0f",
+    "callbackURL": "http://localhost/auth/auth/facebook/callback",
     "authPath": "/auth/facebook",
     "callbackPath": "/auth/facebook/callback",
-    "successRedirect": "/auth/account",
+    "successRedirect": "http://localhost/",
     "failureRedirect": "/login",
     "scope": ["email"],
     "failureFlash": true,
-    "json": true
+    "json": true,
+    "authScheme": "oAuth 2.0"
+  },
+  "fb_android": {
+    "provider": "facebook",
+    "module": "passport-facebook",
+    "profileFields": ["gender", "link", "locale", "name", "timezone",
+      "verified", "email", "updated_time"],
+    "clientID": "356921321438092",
+    "clientSecret": "b17cab17e45cc76e0e73590fb637bf0f",
+    "callbackURL": "http://spiti.clever-hosting.com/auth/auth/fb_android/callback",
+    "authPath": "/auth/fb_android",
+    "callbackPath": "/auth/fb_android/callback",
+    "successRedirect": "SpitiApp://login",
+    "failureRedirect": "/login",
+    "scope": ["email"],
+    "failureFlash": true,
+    "json": true,
+    "authScheme": "oAuth 2.0"
+  },
+  "fb_ios": {
+    "provider": "facebook",
+    "module": "passport-facebook",
+    "profileFields": ["gender", "link", "locale", "name", "timezone",
+      "verified", "email", "updated_time"],
+    "clientID": "356921321438092",
+    "clientSecret": "b17cab17e45cc76e0e73590fb637bf0f",
+    "callbackURL": "http://spiti.clever-hosting.com/auth/auth/fb_ios/callback",
+    "authPath": "/auth/fb_ios",
+    "callbackPath": "/auth/fb_ios/callback",
+    "successRedirect": "SpitiApp://login",
+    "failureRedirect": "/login",
+    "scope": ["email"],
+    "failureFlash": true,
+    "json": true,
+    "authScheme": "oAuth 2.0"
   }
 }
