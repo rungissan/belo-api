@@ -85,6 +85,7 @@ export default class FeedSearch {
     query += this._buildWhereQuery();
     query += this._buildOrderQuery(baseModelOptions, filter.order);
     query += this._buildLimitOffsetQuery(baseModelOptions, filter);
+    query = this._buildIncludesQuery(query);
 
     debug('Finish build query');
     return {
@@ -346,15 +347,9 @@ export default class FeedSearch {
     return true;
   }
 
-  // /**
-  //  * Wrap main query to include addtional tables.
-  //  * @param {String} query.
-  //  * @param {String} includeOptions.
-  //  * @return {String}.
-  //  */
-  // _addIncludesQueryQuery(query, includeOptions) {
-  //   return `${query}`;
-  // }
+  _buildIncludesQuery(query) {
+    return query;
+  }
 
   /**
    * Execute search query.
