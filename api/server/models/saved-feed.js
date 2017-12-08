@@ -2,7 +2,7 @@
 
 import Promise from 'bluebird';
 
-import FeedSearch from '../lib/search';
+import FeedSearch from '../lib/search/feed';
 
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(filter) {

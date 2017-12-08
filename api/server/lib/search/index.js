@@ -126,6 +126,7 @@ export default class FeedSearch {
       let columnName = this._getColumnName(key);
       let expression = filters[key];
 
+      this.whereValues[tableKey] = this.whereValues[tableKey] || [];
       return this._buildWhereQueryForProp(tableKey, columnName, expression);
     });
 
@@ -165,27 +166,27 @@ export default class FeedSearch {
     }
   }
 
-  _buildWhereQueryForProp(tableName, columnName, expression) {
-    debug('Build tableName: ', tableName, columnName, expression);
+  _buildWhereQueryForProp(tableKey, columnName, expression) {
+    debug('Build tableName: ', tableKey, columnName, expression);
 
     if (expression === null || expression === 'null') {
-      this.whereValues.push({
-        column: `"${tableName}".${columnName}`,
+      this.whereValues[tableKey].push({
+        column: `"${tableKey}".${columnName}`,
         value: 'IS NULL'
       });
     } else if (typeof expression == 'object') {
       Object.keys(expression).map(key => {
         if (OPERATORS[key]) {
-          this.whereValues.push({
-            column: `"${tableName}".${columnName}`,
+          this.whereValues[tableKey].push({
+            column: `"${tableKey}".${columnName}`,
             operator: OPERATORS[key],
             value: expression[key]
           });
         }
       });
     } else if (expression) {
-      this.whereValues.push({
-        column: `"${tableName}".${columnName}`,
+      this.whereValues[tableKey].push({
+        column: `"${tableKey}".${columnName}`,
         operator: OPERATORS['is'],
         value: expression
       });
@@ -193,18 +194,37 @@ export default class FeedSearch {
   }
 
   _buildWhereQuery() {
-    let { whereValues, replacements } = this;
+    let { whereValues, baseModel } = this;
 
+    let query = `WHERE "${baseModel.tableKey}"."deleted_at" IS NULL `;
+
+    Object.keys(whereValues).forEach(tableKey => {
+      query += this._buildWhereStrings(whereValues[tableKey], tableKey);
+    });
+
+    return query;
+  }
+
+  _buildWhereStrings(whereValues, tableKey, orQuery = '') {
     let query = '';
+    let { replacements } = this;
+    let totalLength = replacements.length;
 
     whereValues.forEach((where, i) => {
-      query += (i === 0) ? 'WHERE ' : ' AND ';
-      query += `${where.column} ${where.operator || ''} $${i + 1}`;
+      if (orQuery && i === 0) {
+        query += ` AND (${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
+      } else {
+        query += ` AND ${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
+      }
 
       if (where.value) {
         replacements.push(where.value);
       }
     });
+
+    if (orQuery) {
+      query += ` OR ${orQuery})`;
+    }
 
     return query;
   }
