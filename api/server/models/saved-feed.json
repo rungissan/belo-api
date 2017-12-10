@@ -1,0 +1,125 @@
+{
+  "name": "SavedFeed",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti",
+      "table": "saved_feed"
+    }
+  },
+  "mixins": {
+    "Timestamp": {},
+    "SetOwner": {},
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById",
+        "@create",
+        "updateAttributes"
+      ]
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "userId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "userId",
+        "dataType": "integer"
+      }
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 255,
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "type": {
+      "type": "string",
+      "maxLength": 20,
+      "postgresql": {
+        "columnName": "type",
+        "dataType": "character varying"
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 20,
+      "postgresql": {
+        "columnName": "description",
+        "dataType": "character varying"
+      }
+    },
+    "displayAddress": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "displayAddress"
+      }
+    },
+    "showInBrokerFeed": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "showInBrokerFeed"
+      }
+    },
+    "geolocations": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "geolocations",
+        "dataType": "jsonb"
+      }
+    },
+    "feedOptions": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "feedOptions",
+        "dataType": "jsonb"
+      }
+    },
+    "openHouse": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "openHouse",
+        "dataType": "jsonb"
+      }
+    },
+    "additionalFilters": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "additionalFilters",
+        "dataType": "jsonb"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "Client",
+      "foreignKey": "userId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY",
+      "property": "patchAttributes"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
+    }
+  ],
+  "methods": []
+}

@@ -12,6 +12,11 @@
       "minLength": 2,
       "maxLength": 30
     },
+    "userName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 30
+    },
     "phone": {
       "type": "string",
       "maxLength": 30
@@ -33,6 +38,10 @@
     "licenseState": {
       "type": "string",
       "maxLength": 4
+    },
+    "licenseNumber": {
+      "type": "string",
+      "maxLength": 50
     },
     "licenseExpiration": {
       "type": "string"

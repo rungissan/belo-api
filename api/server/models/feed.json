@@ -1,11 +1,12 @@
 {
-  "name": "Post",
+  "name": "Feed",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "schema": "spiti"
+      "schema": "spiti",
+      "table": "feed"
     }
   },
   "mixins": {
@@ -14,9 +15,11 @@
     "RelationsValidate": {
       "image": {
         "checkOwner": true
-      },
-      "geolocation": {},
-      "listing": {
+      }
+    },
+    "CreateWithRelationsLink": {
+      "geolocations": {},
+      "additionalImages": {
         "checkOwner": true
       }
     },
@@ -27,7 +30,9 @@
         "@create",
         "updateAttributes",
         "__link__additionalImages",
-        "__unlink__additionalImages"
+        "__unlink__additionalImages",
+        "__link__geolocations",
+        "__unlink__geolocations"
       ]
     }
   },
@@ -39,9 +44,14 @@
     "userId": {
       "type": "number",
       "postgresql": {
-        "columnName": "user_id",
+        "columnName": "userId",
         "dataType": "integer"
       }
+    },
+    "type": {
+      "type": "string",
+      "maxLength": 20,
+      "description": "post, listing, openHouse"
     },
     "title": {
       "type": "string",
@@ -57,33 +67,42 @@
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "image_id",
+        "columnName": "imageId",
         "dataType": "integer"
       }
     },
-    "geolocationId": {
+    "parentId": {
       "type": "number",
       "min": 1,
       "postgresql": {
-        "columnName": "geolocation_id",
+        "columnName": "parentId",
         "dataType": "integer"
       }
     },
-    "listingId": {
-      "type": "number",
-      "min": 1,
+    "displayAddress": {
+      "type": "boolean",
       "postgresql": {
-        "columnName": "listing_id",
-        "dataType": "integer"
+        "columnName": "displayAddress"
+      }
+    },
+    "showInBrokerFeed": {
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "showInBrokerFeed"
       }
     }
   },
   "validations": [],
   "relations": {
-    "client": {
+    "user": {
       "type": "belongsTo",
       "model": "Client",
       "foreignKey": "userId"
+    },
+    "feedOptions": {
+      "type": "hasOne",
+      "model": "FeedOptions",
+      "foreignKey": "feedId"
     },
     "image": {
       "type": "belongsTo",
@@ -93,19 +112,16 @@
     "additionalImages": {
       "type": "hasMany",
       "model": "Attachment",
-      "through": "AttachmentToPost",
-      "foreignKey": "post_id",
-      "keyThrough": "attachment_id"
+      "through": "AttachmentToFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "attachmentId"
     },
-    "geolocation": {
-      "type": "belongsTo",
+    "geolocations": {
+      "type": "hasMany",
       "model": "Geolocation",
-      "foreignKey": "geolocationId"
-    },
-    "listing": {
-      "type": "belongsTo",
-      "model": "Listing",
-      "foreignKey": "listingId"
+      "through": "GeolocationToFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "geolocationId"
     }
   },
   "acls": [

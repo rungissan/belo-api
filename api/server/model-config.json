@@ -92,10 +92,6 @@
   "Email": {
     "dataSource": "gmail"
   },
-  "Listing": {
-    "dataSource": "postgres",
-    "public": true
-  },
   "ContainerPrivate": {
     "dataSource": "storagePrivate",
     "public": false
@@ -116,17 +112,25 @@
     "dataSource": "postgres",
     "public": false
   },
-  "Post": {
-    "dataSource": "postgres"
-  },
-  "AttachmentToPost": {
+  "GeolocationToFeed": {
     "dataSource": "postgres",
     "public": false
   },
-  "FavoritePost": {
+  "AttachmentToFeed": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "Feed": {
     "dataSource": "postgres"
   },
-  "FavoriteListing": {
+  "FeedOptions": {
+    "dataSource": "postgres"
+  },
+  "FavoriteFeed": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "SavedFeed": {
     "dataSource": "postgres"
   }
 }
