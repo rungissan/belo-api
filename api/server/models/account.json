@@ -118,7 +118,7 @@
       }
     },
     "licenseNumber": {
-      "type": "text",
+      "type": "string",
       "maxLength": 50,
       "postgresql": {
         "columnName": "license_number",
