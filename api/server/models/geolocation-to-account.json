@@ -1,35 +1,41 @@
 {
-  "name": "GeolocationToUser",
+  "name": "GeolocationToAccount",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "geolocation_to_user",
+      "table": "geolocation_to_account",
       "schema": "spiti"
     }
   },
   "properties": {
-    "user_id": {
+    "userId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
     },
-    "geolocation_id": {
+    "geolocationId": {
       "type": "number",
-      "required": true
+      "required": true,
+      "postgresql": {
+        "columnName": "geolocationId"
+      }
     }
   },
   "validations": [],
   "relations": {
-    "clients": {
+    "account": {
       "type": "belongsTo",
-      "model": "Client",
-      "foreignKey": "user_id"
+      "model": "Account",
+      "foreignKey": "userId"
     },
     "geolocation": {
       "type": "belongsTo",
       "model": "Geolocation",
-      "foreignKey": "geolocation_id"
+      "foreignKey": "geolocationId"
     }
   },
   "acls": [

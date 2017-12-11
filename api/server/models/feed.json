@@ -99,6 +99,11 @@
       "model": "Client",
       "foreignKey": "userId"
     },
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "userId"
+    },
     "feedOptions": {
       "type": "hasOne",
       "model": "FeedOptions",

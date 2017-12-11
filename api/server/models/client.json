@@ -19,13 +19,7 @@
         "@find",
         "@findById",
         "@create",
-        "updateAttributes",
-        "__link__geolocations",
-        "__unlink__geolocations",
-        "__link__favoriteFeeds",
-        "__unlink__favoriteFeeds",
-        "__get__favoriteFeeds",
-        "__get__savedFeed"
+        "updateAttributes"
       ]
     }
   },

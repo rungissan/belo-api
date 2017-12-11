@@ -108,7 +108,7 @@
     "dataSource": "postgres",
     "public": true
   },
-  "GeolocationToUser": {
+  "GeolocationToAccount": {
     "dataSource": "postgres",
     "public": false
   },

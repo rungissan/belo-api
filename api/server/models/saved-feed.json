@@ -99,9 +99,9 @@
   },
   "validations": [],
   "relations": {
-    "user": {
+    "account": {
       "type": "belongsTo",
-      "model": "Client",
+      "model": "Account",
       "foreignKey": "userId"
     }
   },
