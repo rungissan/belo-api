@@ -10,8 +10,9 @@
     }
   },
   "mixins": {
+    "SetOwner": {},
     "RelationsValidate": {
-      "followed": {
+      "account": {
         "checkNotOwner": true,
         "validateProps": {
           "type": {
@@ -40,12 +41,12 @@
   },
   "validations": [],
   "relations": {
-    "account": {
+    "followerAccount": {
       "type": "belongsTo",
       "model": "Account",
       "foreignKey": "userId"
     },
-    "followed": {
+    "account": {
       "type": "belongsTo",
       "model": "Account",
       "foreignKey": "followedId"
