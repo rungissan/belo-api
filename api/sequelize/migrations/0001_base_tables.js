@@ -21,7 +21,7 @@ const user = (DataTypes) => ({
 });
 
 const account = (DataTypes) => ({
-  userid: { type: DataTypes.INTEGER,
+  userId: { type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
     references: {model: {tableName: 'user', ...BASE_SCHEMA}},

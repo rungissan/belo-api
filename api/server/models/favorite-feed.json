@@ -34,9 +34,9 @@
   },
   "validations": [],
   "relations": {
-    "client": {
+    "account": {
       "type": "belongsTo",
-      "model": "Client",
+      "model": "Account",
       "foreignKey": "userId"
     },
     "feed": {

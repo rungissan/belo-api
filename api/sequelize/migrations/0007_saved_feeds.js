@@ -10,7 +10,7 @@ const saved_feed = (DataTypes) => ({
   id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   userId: {
     type: DataTypes.INTEGER,
-    references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+    references: {model: {tableName: 'account', ...BASE_SCHEMA}, key: 'userId'},
     ...CASCADE_RULES,
     allowNull: false
   },

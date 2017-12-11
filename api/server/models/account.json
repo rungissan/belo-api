@@ -19,7 +19,14 @@
         "@findById",
         "updateAttributes",
         "__get__background",
-        "__get__avatar"
+        "__get__avatar",
+        "__get__geolocations",
+        "__link__geolocations",
+        "__unlink__geolocations",
+        "__get__favoriteFeeds",
+        "__link__favoriteFeeds",
+        "__unlink__favoriteFeeds",
+        "__get__savedFeeds"
       ]
     },
     "AjvValidation": {
@@ -39,7 +46,10 @@
   "properties": {
     "userId": {
       "type": "number",
-      "id": true
+      "id": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
     },
     "type": {
       "type": "string",
@@ -165,6 +175,25 @@
       "type": "belongsTo",
       "model": "Attachment",
       "foreignKey": "backgroundId"
+    },
+    "geolocations": {
+      "type": "hasMany",
+      "model": "Geolocation",
+      "through": "GeolocationToAccount",
+      "foreignKey": "userId",
+      "keyThrough": "geolocationId"
+    },
+    "favoriteFeeds": {
+      "type": "hasMany",
+      "model": "Feed",
+      "through": "FavoriteFeed",
+      "foreignKey": "userId",
+      "keyThrough": "feedId"
+    },
+    "savedFeeds": {
+      "type": "hasMany",
+      "model": "SavedFeed",
+      "foreignKey": "userId"
     }
   },
   "acls": [
@@ -185,6 +214,12 @@
       "principalType": "ROLE",
       "principalId": "$owner",
       "permission": "ALLOW"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__savedFeeds"
     }
   ],
   "methods": []
