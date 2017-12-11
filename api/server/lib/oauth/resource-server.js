@@ -35,8 +35,12 @@ function setupResourceServer(app, options, models) {
   function checkAccessToken(req, accessToken, done) {
     debug('Verifying access token %s', accessToken);
     models.accessTokens.find(accessToken, function(err, token) {
-      if (err || !token) {
+      if (err) {
         return done(err);
+      }
+
+      if (!token) {
+        return done(new TokenError('Access token not found', 'invalid_grant'));
       }
 
       debug('Access token found: %j', token);

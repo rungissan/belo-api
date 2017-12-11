@@ -126,6 +126,9 @@
   "FeedOptions": {
     "dataSource": "postgres"
   },
+  "OpenHouse": {
+    "dataSource": "postgres"
+  },
   "FavoriteFeed": {
     "dataSource": "postgres",
     "public": false

@@ -43,11 +43,13 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('additionalImages') ? ', "additionalImages"' : ''}
              ${include.includes('geolocations') ? ', geolocations' : ''}
              ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
+             ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
       FROM (${query}) AS "${feed.tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
       ${include.includes('geolocations') ? this._includeGeolocations() : ''}
       ${include.includes('feedOptions') ? this._includeFeedOptions() : ''}
+      ${include.includes('openHouse') ? this._includeOpenHouse() : ''}
     `;
   }
 
@@ -90,6 +92,13 @@ export default class FeedSearch extends BaseSearchController {
     return `
       LEFT JOIN "spiti"."feed_options" AS "feedOptions"
         ON "feedOptions"."feedId" = "feed"."id"
+    `;
+  }
+
+  _includeOpenHouse() {
+    return `
+      LEFT JOIN "spiti"."open_house" AS "openHouse"
+        ON "openHouse"."id" = "feed"."openHouseId"
     `;
   }
 };

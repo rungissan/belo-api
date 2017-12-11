@@ -48,6 +48,13 @@
         "dataType": "integer"
       }
     },
+    "openHouseId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "openHouseId",
+        "dataType": "integer"
+      }
+    },
     "type": {
       "type": "string",
       "maxLength": 20,
@@ -127,6 +134,11 @@
       "through": "GeolocationToFeed",
       "foreignKey": "feedId",
       "keyThrough": "geolocationId"
+    },
+    "openHouse": {
+      "type": "belongsTo",
+      "model": "OpenHouse",
+      "foreignKey": "openHouseId"
     }
   },
   "acls": [
