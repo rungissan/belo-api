@@ -58,6 +58,16 @@ function getRelationSettings(validationSettings, Model) {
     throw new Error('Can not validate checkOwner and checkNotOwner simultaneously');
   }
 
+  if (validationSettings.validateProps) {
+    Object.keys(validationSettings.validateProps).map(prop => {
+      let validation = validationSettings.validateProps[prop];
+
+      if (typeof validation == 'object' && (!validation.is && !validation.not)) {
+        throw new Error('Property validation should have "is" or "not" parameter');
+      }
+    });
+  }
+
   validationSettings.relation = relation;
   return validationSettings;
 }
@@ -86,12 +96,17 @@ async function validateBelongsTo(userId, instance, validationSettings, RelationM
     return true;
   }
 
-  let relation = await RelationModel.findById(validatedValue, {
-    fields: {
-      id: true,
-      userId: true
-    }
-  });
+  let fields = {
+    id: true,
+    userId: true
+  };
+  if (validationSettings.validateProps) {
+    Object.keys(validationSettings.validateProps).forEach(key => {
+      fields[key] = true;
+    });
+  }
+
+  let relation = await RelationModel.findById(validatedValue, { fields });
 
   if (!relation) {
     throw errValidation(`Relation ${RelationModel.modelName} id: ${validatedValue} not found`);
@@ -105,5 +120,26 @@ async function validateBelongsTo(userId, instance, validationSettings, RelationM
     throw errValidation(`Setting own relations is not allowed - ${RelationModel.modelName} id: ${validatedValue}`);
   }
 
+  if (validationSettings.validateProps) {
+    validateProps(relation, validationSettings.validateProps);
+  }
+
   return true;
+}
+
+function validateProps(relation, validateProps = {}) {
+  Object.keys(validateProps).map(prop => {
+    let validation = validateProps[prop];
+    if (typeof validation != 'object') {
+      if (relation[prop] !== validation) {
+        throw errValidation(`Can link relation with ${prop}: ${validation}`);
+      }
+    } else {
+      if (validation.is && relation[prop] !== validation.is) {
+        throw errValidation(validation.message || `Can link relation with ${prop} is ${validation}`);
+      } else if (validation.not && relation[prop] !== validation.not) {
+        throw errValidation(validation.message || `Can link relation with ${prop} not ${validation}`);
+      }
+    }
+  });
 }

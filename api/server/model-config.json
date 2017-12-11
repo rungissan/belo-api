@@ -132,5 +132,8 @@
   },
   "SavedFeed": {
     "dataSource": "postgres"
+  },
+  "Followed": {
+    "dataSource": "postgres"
   }
 }

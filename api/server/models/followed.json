@@ -1,0 +1,64 @@
+{
+  "name": "Followed",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "followed",
+      "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "SetOwner": {},
+    "RelationsValidate": {
+      "account": {
+        "checkNotOwner": true,
+        "validateProps": {
+          "type": {
+            "is": "prof",
+            "message": "Only professionals allowed to be followed"
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "userId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
+    },
+    "followedId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "followedId"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "followerAccount": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "userId"
+    },
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "followedId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}
