@@ -26,7 +26,10 @@
         "__get__favoriteFeeds",
         "__link__favoriteFeeds",
         "__unlink__favoriteFeeds",
-        "__get__savedFeeds"
+        "__get__savedFeeds",
+        "__get__followed",
+        "__create__followed",
+        "__destroyById__followed"
       ]
     },
     "AjvValidation": {
@@ -193,6 +196,18 @@
     "savedFeeds": {
       "type": "hasMany",
       "model": "SavedFeed",
+      "foreignKey": "userId"
+    },
+    "followedAccount": {
+      "type": "hasMany",
+      "model": "Account",
+      "through": "Followed",
+      "foreignKey": "userId",
+      "keyThrough": "followedId"
+    },
+    "followed": {
+      "type": "hasMany",
+      "model": "Followed",
       "foreignKey": "userId"
     }
   },
