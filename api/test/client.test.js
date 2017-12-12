@@ -5,63 +5,37 @@ import supertest from 'supertest';
 import Promise from 'bluebird';
 
 import app from '../server/server';
+import { createUsers, clearUsers } from './utils';
 import {
-  TEST_APP_CLIENTS,
+  TEST_APP_CLIENT,
   TEST_ROLES,
-  TEST_USER
+  TEST_USERS
 } from './mocks/base-auth';
+
 const api = supertest(app);
 
 describe('Client', function() {
-  let userId;
-  let appClientId;
+  let appClient;
   let token;
-
-  const OAuthClientApplication = app.models.OAuthClientApplication;
-  const Client = app.models.Client;
-  const OAuthAccessToken = app.models.OAuthAccessToken;
-  const Role = app.models.Role;
+  let user;
 
   before(() => {
-    return OAuthClientApplication.create(TEST_APP_CLIENTS)
-      .then(appClients => {
-        appClientId = appClients[0].id;
-        return Client.create(TEST_USER);
-      })
-      .then(user => {
-        userId = user.id;
-        return OAuthAccessToken.create({
-          id: 'qwerty',
-          userId: userId,
-          appId: appClientId,
-          issuedAt: new Date(),
-          expiresIn: 3600 * 24,
-          scopes: ['DEFAULT']
-        });
-      })
-      .then(accessToken => {
-        token = accessToken;
-      })
-      .then(() => {
-        return Role.create(TEST_ROLES);
+    return createUsers(app, {
+      appClientData: TEST_APP_CLIENT,
+      usersData: [{
+        email: 'test@test.test',
+        password: 'testtest'
+      }],
+      rolesData: TEST_ROLES
+    })
+      .then(({ users, applicationClient }) => {
+        appClient = applicationClient;
+        user = users[0].user;
+        token = users[0].token;
       });
   });
 
-  after(() => {
-    const OAuthClientApplication = app.models.OAuthClientApplication;
-    const Client = app.models.Client;
-    const OAuthAccessToken = app.models.OAuthAccessToken;
-    const Role = app.models.Role;
-
-    let cleanQueries = [
-      OAuthClientApplication.destroyAll(),
-      Client.destroyAll(),
-      OAuthAccessToken.destroyAll(),
-      Role.destroyAll()
-    ];
-
-    return Promise.all(cleanQueries);
-  });
+  after(() => clearUsers(app));
 
   it('should reject get all clients without auth', () => {
     return api.get('/api/clients')
@@ -75,8 +49,11 @@ describe('Client', function() {
 
   it('should not register client with existent email', () => {
     return api.post('/api/clients')
-      .send(TEST_USER)
-      .auth(TEST_APP_CLIENTS[0].id, TEST_APP_CLIENTS[0].clientSecret)
+      .send({
+        email: 'test@test.test',
+        password: 'testtest'
+      })
+      .auth(appClient.id, appClient.clientSecret)
       .expect('Content-Type', /json/)
       .expect(422)
       .then((res) => {
@@ -91,7 +68,7 @@ describe('Client', function() {
         email: 'test_unique@test.test',
         password: 'testtest'
       })
-      .auth(TEST_APP_CLIENTS[0].id, TEST_APP_CLIENTS[0].clientSecret)
+      .auth(appClient.id, appClient.clientSecret)
       .expect('Content-Type', /json/)
       .expect(200)
       .then((res) => {
@@ -102,15 +79,15 @@ describe('Client', function() {
   });
 
   it('should set client role', () => {
-    return api.post(`/api/clients/${userId}/role`)
+    return api.post(`/api/clients/${user.id}/role`)
       .send({role: 'prof'})
-      .auth(TEST_APP_CLIENTS[0].id, TEST_APP_CLIENTS[0].clientSecret)
+      .auth(appClient.id, appClient.clientSecret)
       .set('Authorization', 'bearer ' + token.id)
       .expect('Content-Type', /json/)
       .expect(200)
       .then((res) => {
         expect(res.body).to.be.a('object');
-        expect(res.body.email).to.equal(TEST_USER.email);
+        expect(res.body.email).to.equal('test@test.test');
         expect(res.body.id).to.be.a('number');
       });
   });
@@ -121,6 +98,8 @@ describe('Client', function() {
       password: 'testtest'
     };
 
+    const Client = app.models.Client;
+
     return Client.create(testClientUnique)
       .then(() => {
         return api.post('/api/clients')
@@ -128,7 +107,7 @@ describe('Client', function() {
             email: 'uniqueClient@test.test',
             password: 'testtest'
           })
-          .auth(TEST_APP_CLIENTS[0].id, TEST_APP_CLIENTS[0].clientSecret)
+          .auth(appClient.id, appClient.clientSecret)
           .expect('Content-Type', /json/)
           .expect(422)
           .then((res) => {
