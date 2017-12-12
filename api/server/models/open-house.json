@@ -22,7 +22,7 @@
       "id": true
     },
     "host": {
-      "type": "text"
+      "type": "string"
     },
     "contactPhone": {
       "type": "string",
