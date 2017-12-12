@@ -7,20 +7,12 @@ import {
 } from '../utils';
 
 const open_house = (DataTypes) => ({
-  // feedId: {
-  //   type: DataTypes.INTEGER,
-  //   allowNull: false,
-  //   unique: true,
-  //   primaryKey: true,
-  //   references: {model: {tableName: 'feed', ...BASE_SCHEMA}},
-  //   ...CASCADE_RULES
-  // },
   id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   host:         { type: DataTypes.TEXT },
   contactPhone: { type: DataTypes.STRING(100) },
-  date:         { type: DataTypes.DATEONLY, allowNull: false },
-  timeStart:    { type: DataTypes.TIME },
-  timeEnd:      { type: DataTypes.TIME },
+  date:         { type: DataTypes.DATE, allowNull: false },
+  timeStart:    { type: DataTypes.DATE },
+  timeEnd:      { type: DataTypes.DATE },
   ...defaultFields(DataTypes)
 });
 

@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties" : {
+    "host": {
+      "type": "string"
+    },
+    "contactPhone": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeStart": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeEnd": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["date"]
+}
