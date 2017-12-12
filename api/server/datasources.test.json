@@ -1,0 +1,82 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "postgres": {
+    "host": "/usr/src/postgresql",
+    "port": 5432,
+    "url": "",
+    "database": "spiti_test",
+    "password": "UU6iyHsoTxAUznVgJDjewr8S",
+    "name": "postgres",
+    "user": "admin",
+    "connector": "postgresql",
+    "debug": true,
+    "min": 5,
+    "max": 10
+  },
+  "redis": {
+    "host": "redis",
+    "port": 6379,
+    "url": "",
+    "password": "6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB",
+    "name": "redis",
+    "db": 0,
+    "connector": "kv-redis"
+  },
+  "redisSession": {
+    "host": "redis",
+    "port": 6379,
+    "url": "",
+    "password": "6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB",
+    "name": "redis",
+    "db": 1,
+    "connector": "kv-redis"
+  },
+  "emailLocal": {
+    "name": "emailLocal",
+    "connector": "mail",
+    "transports": [{
+      "host": "mail",
+      "secure": false,
+      "port": 25,
+      "name": "domain.com",
+      "maxConnections": 5,
+      "maxMessages": 100,
+      "tls": {
+        "rejectUnauthorized": false
+      }
+    }]
+  },
+  "gmail": {
+    "name": "gmail",
+    "connector": "mail",
+    "transports": [{
+      "type": "SMTP",
+      "host": "smtp.gmail.com",
+      "secure": true,
+      "port": 465,
+      "auth": {
+        "user": "spiti.social.testing@gmail.com",
+        "pass": "VVz9iG9z7yPcOw7SgLnVVz9"
+      }
+    }]
+  },
+  "storagePrivate": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "/usr/src/storage_test/private",
+    "nameConflict": "makeUnique",
+    "allowedContentTypes": ["image/png", "image/jpeg"]
+  },
+  "storagePublic": {
+    "name": "storage",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "/usr/src/storage_test/public",
+    "nameConflict": "makeUnique",
+    "allowedContentTypes": ["image/png", "image/jpeg"]
+  }
+}

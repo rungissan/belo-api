@@ -29,10 +29,11 @@ services:
       - "./data/postgres/log:/var/log/postgresql"
       - "./data/postgres/postgresdb:/var/lib/postgresql/data"
       - "/var/run/postgresql:/var/run/postgresql"
+      - ./postgres/init-scripts:/docker-entrypoint-initdb.d
     environment:
+      POSTGRES_MULTIPLE_DATABASES: spiti,spiti_test
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: spiti
       POSTGRES_HOST: /usr/src/postgresql
     logging:
       options:

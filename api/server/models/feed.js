@@ -188,6 +188,46 @@ module.exports = function(Feed) {
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
 
+  Feed.prototype.setOpenHouse = async function(openHouseData) {
+    let feed = this;
+
+    if (!(feed && feed.id)) {
+      return;
+    }
+
+    if (feed.type !== 'listing') {
+      throw errValidation('Open house can be created only to listing');
+    }
+
+    const OpenHouse = Feed.app.models.OpenHouse;
+
+    if (feed.openHouseId) {
+      let openHouse = await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
+      return openHouseData;
+    } else {
+      let openHouse = await OpenHouse.create(openHouseData);
+      await feed.updateAttributes({openHouseId: openHouse.id});
+      return openHouse;
+    }
+  };
+
+  Feed.remoteMethod(
+    'prototype.setOpenHouse',
+    {
+      description: 'Set user role.',
+      accepts: [
+        {
+          arg: 'openHouse',
+          type: 'object',
+          required: true,
+          http: { source: 'body' }
+        }
+      ],
+      returns: { arg: 'data', type: 'OpenHouse', root: true},
+      http: {verb: 'post', path: '/open-house'}
+    }
+  );
+
   async function beforeSaveHook(ctx, modelInstance) {
     let feed = ctx.args.instance || ctx.args.data;
     if (!feed) {

@@ -27,7 +27,7 @@
       }
     },
     "rentType": {
-      "type": "text",
+      "type": "string",
       "default": "rent",
       "max": 20,
       "postgresql": {

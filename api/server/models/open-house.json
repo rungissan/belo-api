@@ -1,0 +1,67 @@
+{
+  "name": "OpenHouse",
+  "base": "PersistedModel",
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti",
+      "table": "open_house"
+    }
+  },
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById"
+      ]
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "host": {
+      "type": "string"
+    },
+    "contactPhone": {
+      "type": "string",
+      "min": 0,
+      "postgresql": {
+        "columnName": "contactPhone",
+        "dataType": "character varying",
+        "dataLength": 100
+      }
+    },
+    "date": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "date"
+      }
+    },
+    "timeStart": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "timeStart",
+        "dataType": "time without time zone"
+      }
+    },
+    "timeEnd": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "timeEnd",
+        "dataType": "time without time zone"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "feed": {
+      "type": "hasOne",
+      "model": "Feed",
+      "foreignKey": "openHouseId"
+    }
+  },
+  "acls": [],
+  "methods": []
+}

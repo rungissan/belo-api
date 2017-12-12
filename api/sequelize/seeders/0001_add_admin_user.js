@@ -9,12 +9,20 @@ const Role        = server.models.Role;
 const Client      = server.models.Client;
 const RoleMapping = server.models.RoleMapping;
 
+// TODO: change default admin for production
 const adminUserData = {
   username: 'John',
   firstname: 'John',
   lastname: 'Doe',
   email: 'john@doe.com',
   password: '94k3HG32NeF58Q94ksyX'
+};
+const baseUserData = {
+  username: 'test',
+  firstname: 'Washington',
+  lastname: 'Irving',
+  email: 'spiti.social.testing@gmail.com',
+  password: 'FuZ4vEU3nHVJn'
 };
 
 const roleData = [{
@@ -36,6 +44,16 @@ module.exports = {
         return Client.create(adminUserData)
           .then(client => {
             adminRole.principals.create({
+              principalType: RoleMapping.USER,
+              principalId: client.id
+            });
+          })
+          .then(() => {
+            return Client.create(baseUserData);
+          })
+          .then(client => {
+            let profRole = roles.find(r => r.name == 'prof');
+            profRole.principals.create({
               principalType: RoleMapping.USER,
               principalId: client.id
             });

@@ -7,7 +7,6 @@ import { errUnsupportedContainer } from '../lib/errors';
 const CONTAINERS_URL    = '/api/containers/';
 const PUBLIC_DIR        = '/public';
 const DEFAULT_CONTAINER = 'uploads';
-const CONTAINERS_WITH_THUMBS = ['uploads', 'post', 'listing'];
 const DEFAULT_COPY_OPTIONS = [{
   sizePrefix: 'thumbnail',
   width: 150,

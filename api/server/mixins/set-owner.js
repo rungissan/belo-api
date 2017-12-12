@@ -2,6 +2,15 @@
 
 import { errUnauthorized } from '../lib/errors.js';
 
+// NOTE: mixins order is important. if use ReadOnly mixin to protect userId, set it first by order
+// not to override userId
+/**
+ * @desc Mixin that add user id from token when creating model
+ * @param {Object} Model
+ * @param {Object} [options]
+ * @param {String} [options.ownerKey=userId] user id key
+ * @returns {String}
+ */
 export default function(Model, options = {}) {
   let ownerKey = options.ownerKey || 'userId';
 
