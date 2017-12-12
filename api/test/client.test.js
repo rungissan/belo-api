@@ -17,12 +17,12 @@ describe('Client', function() {
   let appClientId;
   let token;
 
-  before(() => {
-    const OAuthClientApplication = app.models.OAuthClientApplication;
-    const Client = app.models.Client;
-    const OAuthAccessToken = app.models.OAuthAccessToken;
-    const Role = app.models.Role;
+  const OAuthClientApplication = app.models.OAuthClientApplication;
+  const Client = app.models.Client;
+  const OAuthAccessToken = app.models.OAuthAccessToken;
+  const Role = app.models.Role;
 
+  before(() => {
     return OAuthClientApplication.create(TEST_APP_CLIENTS)
       .then(appClients => {
         appClientId = appClients[0].id;
@@ -112,6 +112,29 @@ describe('Client', function() {
         expect(res.body).to.be.a('object');
         expect(res.body.email).to.equal(TEST_USER.email);
         expect(res.body.id).to.be.a('number');
+      });
+  });
+
+  it('should validate email case insensetive wher register', () => {
+    const testClientUnique = {
+      email: 'uniqueclient@test.test',
+      password: 'testtest'
+    };
+
+    return Client.create(testClientUnique)
+      .then(() => {
+        return api.post('/api/clients')
+          .send({
+            email: 'uniqueClient@test.test',
+            password: 'testtest'
+          })
+          .auth(TEST_APP_CLIENTS[0].id, TEST_APP_CLIENTS[0].clientSecret)
+          .expect('Content-Type', /json/)
+          .expect(422)
+          .then((res) => {
+            expect(res.body.error).to.be.a('object');
+            expect(res.body.error.message).to.be.a('string').to.include('Email already exists');
+          });
       });
   });
 });
