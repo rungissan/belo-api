@@ -7,17 +7,27 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "development": "nodemon -e js,json --exec babel-node server/server.js",
     "start": "npm run build && node dist/server.js",
     "build": "babel server -d dist -D",
     "clean": "rm -rf build && mkdir build",
-    "development": "nodemon -e js,json --exec babel-node server/server.js",
-    "posttest": "npm run lint && nsp check"
+    "posttest": "npm run lint && nsp check",
+    "test": "npm run test:db:create && npm run migrate:test && npm run test:mocha",
+    "test:db:create": "sequelize --env test db:create --debug",
+    "test:db:drop": "sequelize --env test db:drop",
+    "test:dev": "npm run test:db:drop && npm run test:db:create && npm run migrate:test && npm run test:mocha",
+    "test:mocha": "mocha --require babel-core/register test/*.test.js",
+    "migrate": "sequelize --env db db:migrate --debug",
+    "migrate:test": "sequelize --env db db:migrate --debug",
+    "seed": "sequelize --env test db:seed:all --debug",
+    "seed:test": "sequelize --env test db:seed:all --debug"
   },
   "dependencies": {
     "babel-plugin-module-resolver": "^2.7.1",
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
     "compression": "^1.0.3",
     "connect-ensure-login": "^0.1.1",
     "connect-redis": "^3.3.2",
@@ -38,7 +48,8 @@
     "passport-local": "^1.0.0",
     "passport-oauth2-client-password": "^0.1.2",
     "serve-favicon": "^2.0.1",
-    "strong-error-handler": "^2.0.0"
+    "strong-error-handler": "^2.0.0",
+    "supertest": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^3.17.1",
