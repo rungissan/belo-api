@@ -15,6 +15,58 @@ Body   {
 Role can be set only once.
 
 
+## Account
+
+#### Account Get one
+
+URL: GET `/account/:id`
+
+Response :  Account data
+
+Query filter param
+```
+populate=:string[], any of ["followersCount","followedCount"]
+include=:string[]|:string,  any of ["background","avatar","geolocations","followed","savedFeeds"]
+```
+
+###### Example:
+
+GET
+```
+localhost/api/accounts/2?filter={
+  "include":["background","avatar","geolocations","followed","savedFeeds"],
+  "populate":["followersCount","followedCount"]
+}
+```
+Response: Array of relevant records of company entity
+```
+{
+  "userId": 2,
+  "type": "prof",
+  "firstName": null,
+  "lastName": null,
+  "userName": null,
+  "phone": null,
+  "about": null,
+  "biography": null,
+  "brokerage": null,
+  "licenseType": null,
+  "licenseState": null,
+  "licenseNumber": null,
+  "licenseExpiration": null,
+  "avatarId": null,
+  "backgroundId": null,
+  "created_at": "2017-12-12T12:29:58.703Z",
+  "updated_at": "2017-12-12T12:30:27.963Z",
+  "deleted_at": null,
+  "followersCount": 0,
+  "followedCount": 0,
+  "geolocations": [],
+  "followed": [],
+  "savedFeeds": []
+}
+```
+
 ## Feed
 
 #### Feed Get all
