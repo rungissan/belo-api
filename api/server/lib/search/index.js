@@ -18,6 +18,7 @@ const OPERATORS = {
 const MODELS = [
   { name: 'feed', model: 'Feed', isBase: true },
   { name: 'feedOptions', model: 'FeedOptions' },
+  { name: 'openHouse', model: 'OpenHouse' },
   { name: 'geolocations', model: 'Geolocation' },
   { name: 'geolocaion_to_feed', model: 'GeolocationToFeed', hide:true }
 ];
@@ -59,6 +60,7 @@ export default class FeedSearch {
   }
 
   buildQuery(filter = {}) {
+    filter = this._validateFilter(filter);
     this.filter = {...filter};
 
     let filters = filter.where || {};
@@ -218,7 +220,7 @@ export default class FeedSearch {
       } else {
         query += ` AND ${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
       }
-      console.log('value...............................', where.value)
+
       if (typeof where.value != 'undefined') {
         replacements.push(where.value);
       }
@@ -253,6 +255,8 @@ export default class FeedSearch {
       return this._buildJoinQueryHasOne(modelOptions);
     } else if (relation.type == 'hasMany' && relation.through) {
       return this._buildJoinQueryHasManyThrough(modelOptions);
+    } else if (relation.type == 'belongsTo' && relation.foreignKey) {
+      return this._buildJoinQueryBelongsTo(modelOptions);
     }
 
     return '';
@@ -265,6 +269,17 @@ export default class FeedSearch {
     return `
       LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
         ON "${tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
+        AND "${tableKey}"."deleted_at" IS NULL
+    `;
+  }
+
+  _buildJoinQueryBelongsTo(modelOptions) {
+    debug('Build join BelongsTo query');
+    let { tableName, tableKey, schema, relation } = modelOptions;
+
+    return `
+      LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+        ON "${tableKey}"."id" = "${this.baseModel.tableKey}"."${relation.foreignKey}"
         AND "${tableKey}"."deleted_at" IS NULL
     `;
   }
@@ -429,5 +444,9 @@ export default class FeedSearch {
     let { tableKey } = related;
     let relation = base.modelDefinition.settings.relations[tableKey];
     return relation;
+  }
+
+  _validateFilter(filter) {
+    return filter;
   }
 }

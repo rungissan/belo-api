@@ -11,6 +11,9 @@
   },
   "mixins": {
     "Timestamp": {},
+    "ReadOnly" : {
+      "userId": true
+    },
     "SetOwner": {},
     "RemoteRouting" : {
       "only": [
