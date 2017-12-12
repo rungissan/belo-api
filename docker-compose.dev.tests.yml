@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+
+  api:
+    tty: true
+    volumes:
+      - "./data/storage_test:/usr/src/storage_test"
+    environment:
+      POSTGRES_DB: spiti_test
+      NODE_ENV: test
+      DEBUG: ''
+    command: npm run test:dev
+
+  auth:
+    tty: true
+    environment:
+      POSTGRES_DB: spiti_test
+      NODE_ENV: test

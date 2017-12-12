@@ -17,5 +17,6 @@ node_modules
 /data/logs/api/
 /data/mailserver
 /data/storage
+/data/storage_test
 
 docker-compose-light.yml
