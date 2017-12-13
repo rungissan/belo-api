@@ -4,23 +4,31 @@ import BaseSearchController from './index';
 
 const debug = require('debug')('spiti:feed:search');
 
+const MODELS = [
+  { name: 'feed', model: 'Feed', isBase: true },
+  { name: 'feedOptions', model: 'FeedOptions' },
+  { name: 'openHouse', model: 'OpenHouse' },
+  { name: 'geolocations', model: 'Geolocation' },
+  { name: 'geolocaion_to_feed', model: 'GeolocationToFeed', hide:true }
+];
+
 export default class FeedSearch extends BaseSearchController {
-  constructor(connector, app, options) {
+  constructor(connector, app, options = {}) {
+    options.MODELS = MODELS;
     super(connector, app, options);
   }
 
   _buildWhereQuery() {
     let { whereValues, baseModel } = this;
+    let query = '';
 
-    let query = `WHERE "${baseModel.tableKey}"."deleted_at" IS NULL `;
-
-    Object.keys(whereValues).forEach(tableKey => {
+    Object.keys(whereValues).forEach((tableKey, index) => {
       let feedType = this.filter.where && this.filter.where.feedType;
       let orQuery;
       if (tableKey == 'feedOptions' && (!feedType || feedType === 'post')) {
         orQuery = `"${baseModel.tableKey}"."type" = 'post'`;
       }
-      query += this._buildWhereStrings(whereValues[tableKey], tableKey, orQuery);
+      query += this._buildWhereStrings(whereValues[tableKey], tableKey, index, orQuery);
     });
 
     return query;

@@ -13,15 +13,13 @@ const OPERATORS = {
   gte: '>=',
   lt: '<',
   lte: '<=',
-  is: '='
+  is: '=',
+  neq: '!='
 };
-const MODELS = [
-  { name: 'feed', model: 'Feed', isBase: true },
-  { name: 'feedOptions', model: 'FeedOptions' },
-  { name: 'openHouse', model: 'OpenHouse' },
-  { name: 'geolocations', model: 'Geolocation' },
-  { name: 'geolocaion_to_feed', model: 'GeolocationToFeed', hide:true }
-];
+const NULL_OPERATORS = {
+  is: 'IS NULL',
+  neq: 'IS NOT NULL'
+};
 
 /** Searcher for feeds. */
 export default class FeedSearch {
@@ -46,7 +44,7 @@ export default class FeedSearch {
     this.sqlWhere = '';
     this.sqlJoin = '';
 
-    this._prepareModelsData(app);
+    this._prepareModelsData(app, options.MODELS);
   }
 
   query(filter) {
@@ -105,8 +103,9 @@ export default class FeedSearch {
    * @param {Object} filters
    */
   _buildQueryForModel(modelOptions, filters = {}) {
-    debug('Build query for model');
+    debug('Build query for model', modelOptions.modelName);
     let { properties, tableKey, isBase } = modelOptions;
+    this.whereValues[tableKey] = this.whereValues[tableKey] || [];
 
     Object.keys(filters).forEach(key => {
       let property = properties[key];
@@ -129,9 +128,16 @@ export default class FeedSearch {
       let columnName = this._getColumnName(key);
       let expression = filters[key];
 
-      this.whereValues[tableKey] = this.whereValues[tableKey] || [];
       return this._buildWhereQueryForProp(tableKey, columnName, expression);
     });
+
+    if (isBase && properties.deleted_at) {
+      return this._buildWhereQueryForProp(tableKey, 'deleted_at', {not: null});
+    }
+
+    if (!this.whereValues[tableKey].length) {
+      delete this.whereValues[tableKey];
+    }
 
     if (isBase) {
       this.sqlSelect = this._buildSelectQuery(modelOptions);
@@ -175,17 +181,27 @@ export default class FeedSearch {
     if (expression === null || expression === 'null') {
       this.whereValues[tableKey].push({
         column: `"${tableKey}".${columnName}`,
-        operator: OPERATORS['is'],
-        value: null
+        operator: OPERATORS['isNull']
       });
     } else if (typeof expression == 'object') {
       Object.keys(expression).map(key => {
         if (OPERATORS[key]) {
-          this.whereValues[tableKey].push({
-            column: `"${tableKey}".${columnName}`,
-            operator: OPERATORS[key],
-            value: expression[key]
-          });
+          if (expression[key] === null) {
+            let nullOperator = NULL_OPERATORS[key];
+
+            if (nullOperator) {
+              this.whereValues[tableKey].push({
+                column: `"${tableKey}".${columnName}`,
+                operator: nullOperator
+              });
+            }
+          } else {
+            this.whereValues[tableKey].push({
+              column: `"${tableKey}".${columnName}`,
+              operator: OPERATORS[key],
+              value: expression[key]
+            });
+          }
         }
       });
     } else if (expression) {
@@ -199,29 +215,31 @@ export default class FeedSearch {
 
   _buildWhereQuery() {
     let { whereValues, baseModel } = this;
+    let query = '';
 
-    let query = `WHERE "${baseModel.tableKey}"."deleted_at" IS NULL `;
-
-    Object.keys(whereValues).forEach(tableKey => {
-      query += this._buildWhereStrings(whereValues[tableKey], tableKey);
+    Object.keys(whereValues).forEach((tableKey, index) => {
+      query += this._buildWhereStrings(whereValues[tableKey], tableKey, index);
     });
 
     return query;
   }
 
-  _buildWhereStrings(whereValues, tableKey, orQuery = '') {
+  _buildWhereStrings(whereValues, tableKey, index, orQuery = '') {
     let query = '';
     let { replacements } = this;
     let totalLength = replacements.length;
 
     whereValues.forEach((where, i) => {
+      let joinKey = (index === 0 && i === 0) ? 'WHERE' : 'AND';
+
       if (orQuery && i === 0) {
-        query += ` AND (${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
+        query += ` ${joinKey} (${where.column} ${where.operator || ''}`;
       } else {
-        query += ` AND ${where.column} ${where.operator || ''} $${i + 1 + totalLength}`;
+        query += ` ${joinKey} ${where.column} ${where.operator || ''}`;
       }
 
-      if (typeof where.value != 'undefined') {
+      if (typeof where.value != 'undefined' && where.value !== null) {
+        query += ` $${i + 1 + totalLength}`;
         replacements.push(where.value);
       }
     });
@@ -234,12 +252,12 @@ export default class FeedSearch {
   }
 
   _buildSelectQuery(modelOptions) {
-    let { tableName, tableKey } = modelOptions;
+    let { tableName, tableKey, schema } = modelOptions;
     debug('Build select query');
 
     return `
-      SELECT "${tableName}".*
-      FROM "spiti"."feed" as "${tableKey}"
+      SELECT "${tableKey}".*
+      FROM "${schema}"."${tableName}" as "${tableKey}"
     `;
   }
 
@@ -264,38 +282,74 @@ export default class FeedSearch {
 
   _buildJoinQueryHasOne(modelOptions) {
     debug('Build join HasOne query');
-    let { tableName, tableKey, schema, relation } = modelOptions;
+    let { tableName, tableKey, schema, relation, properties } = modelOptions;
 
-    return `
+    let query = `
       LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
         ON "${tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
-        AND "${tableKey}"."deleted_at" IS NULL
     `;
+
+    if (properties.deleted_at) {
+      query += ` AND "${tableKey}"."deleted_at" IS NULL `;
+    }
+
+    return query;
   }
 
   _buildJoinQueryBelongsTo(modelOptions) {
     debug('Build join BelongsTo query');
-    let { tableName, tableKey, schema, relation } = modelOptions;
+    let { tableName, tableKey, schema, relation, properties } = modelOptions;
 
-    return `
+    let query = `
       LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
         ON "${tableKey}"."id" = "${this.baseModel.tableKey}"."${relation.foreignKey}"
-        AND "${tableKey}"."deleted_at" IS NULL
     `;
+
+    if (properties.deleted_at) {
+      query += ` AND "${tableKey}"."deleted_at" IS NULL `;
+    }
+
+    return query;
+
+    // return `
+    //   LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+    //     ON "${tableKey}"."id" = "${this.baseModel.tableKey}"."${relation.foreignKey}"
+    //     AND "${tableKey}"."deleted_at" IS NULL
+    // `;
   }
 
   _buildJoinQueryHasManyThrough(modelOptions) {
     debug('Build join HasManyThrough query');
-    let { tableName, tableKey, schema, relation } = modelOptions;
+    let { tableName, tableKey, schema, relation, properties } = modelOptions;
     let throughModel = Object.values(this.models).find(model => model.modelName == relation.through);
 
-    return `
+    let query = `
       INNER JOIN "${throughModel.schema}"."${throughModel.tableName}" AS "${throughModel.tableKey}"
-          ON "${throughModel.tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
-        INNER JOIN "${schema}"."${tableName}" AS "${tableKey}"
-          ON "${throughModel.tableKey}"."${relation.keyThrough}" = "${tableKey}"."id"
-          AND "${tableKey}"."deleted_at" IS NULL
+        ON "${throughModel.tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
     `;
+
+    if (throughModel.properties.deleted_at) {
+      query += ` AND "${throughModel.tableKey}"."deleted_at" IS NULL `;
+    }
+
+    query += `
+      INNER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+        ON "${throughModel.tableKey}"."${relation.keyThrough}" = "${tableKey}"."id"
+    `;
+
+    if (properties.deleted_at) {
+      query += ` AND "${tableKey}"."deleted_at" IS NULL `;
+    }
+
+    return query;
+
+    // return `
+    //   INNER JOIN "${throughModel.schema}"."${throughModel.tableName}" AS "${throughModel.tableKey}"
+    //       ON "${throughModel.tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
+    //     INNER JOIN "${schema}"."${tableName}" AS "${tableKey}"
+    //       ON "${throughModel.tableKey}"."${relation.keyThrough}" = "${tableKey}"."id"
+    //       AND "${tableKey}"."deleted_at" IS NULL
+    // `;
   }
 
   _buildLimitOffsetQuery(modelOptions, filter) {
@@ -393,7 +447,10 @@ export default class FeedSearch {
     });
   }
 
-  _prepareModelsData(app) {
+  _prepareModelsData(app, MODELS) {
+    if (!MODELS) {
+      throw new Error('Models not specified');
+    }
     let modelKeys = Object.keys(MODELS).map;
 
     let baseModelOptions = MODELS.find(m => m.isBase);
