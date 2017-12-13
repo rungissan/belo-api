@@ -211,20 +211,41 @@ module.exports = function(Feed) {
     }
   };
 
+  const OPEN_HOUSE_ACCEPTS = [{
+    arg: 'openHouse',
+    type: 'object',
+    required: true,
+    http: { source: 'body' }
+  }];
+  const OPEN_HOUSE_RETURNS = { arg: 'data', type: 'OpenHouse', root: true};
+
   Feed.remoteMethod(
     'prototype.setOpenHouse',
     {
-      description: 'Set user role.',
-      accepts: [
-        {
-          arg: 'openHouse',
-          type: 'object',
-          required: true,
-          http: { source: 'body' }
-        }
-      ],
-      returns: { arg: 'data', type: 'OpenHouse', root: true},
+      description: 'Create/update open house for listing.',
+      accepts: OPEN_HOUSE_ACCEPTS,
+      returns: OPEN_HOUSE_RETURNS,
       http: {verb: 'post', path: '/open-house'}
+    }
+  );
+
+  Feed.prototype.deleteOpenHouse = async function() {
+    let feed = this;
+
+    if (!(feed && feed.openHouseId)) {
+      return;
+    }
+
+    const OpenHouse = Feed.app.models.OpenHouse;
+
+    return await OpenHouse.destroyById(feed.openHouseId);
+  };
+
+  Feed.remoteMethod(
+    'prototype.deleteOpenHouse',
+    {
+      description: 'Delete open house for listing.',
+      http: {verb: 'delete', path: '/open-house'}
     }
   );
 

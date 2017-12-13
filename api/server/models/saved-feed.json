@@ -20,6 +20,7 @@
         "@find",
         "@findById",
         "@create",
+        "@deleteById",
         "updateAttributes"
       ]
     }
@@ -113,15 +114,19 @@
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "$everyone",
-      "permission": "DENY",
-      "property": "patchAttributes"
+      "permission": "DENY"
     },
     {
       "accessType": "WRITE",
       "principalType": "ROLE",
       "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
       "permission": "ALLOW",
-      "property": "patchAttributes"
+      "property": "create"
     }
   ],
   "methods": []
