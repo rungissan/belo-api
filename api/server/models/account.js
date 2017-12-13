@@ -72,15 +72,18 @@ module.exports = function(Account) {
     }
   );
 
-  async function searchFavoriteFeeds(app, userId, filter) {
+  async function searchFavoriteFeeds(app, userId, filter = {}) {
     let { Feed } = app.models;
 
-    if (!(filter && filter.where)) {
+    if (!filter.where) {
+      filter.where = { userId };
       return await Feed.find(filter);
     }
+
     let where = filter.where;
 
     if (!(where.type || typeof where.openHouseId !== 'undefined')) {
+      filter.where = { userId };
       return await Feed.find(filter);
     }
 
