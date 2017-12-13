@@ -5,7 +5,7 @@ services:
     volumes:
       - "./data/storage_test:/usr/src/storage_test"
     environment:
-      POSTGRES_DB: spiti_test
+      POSTGRES_DB_TEST: spiti_test
       NODE_ENV: test
       DEBUG: ''
     command: npm run test:dev
@@ -14,7 +14,6 @@ services:
     volumes:
       - "./api/sequelize:/usr/src/app/sequelize"
     environment:
-      POSTGRES_DB: spiti_auth_test
+      POSTGRES_DB_TEST: spiti_auth_test
       NODE_ENV: test
-    # command: npm run test:dev
-    command: sleep 1000000
+    command: npm run test:dev

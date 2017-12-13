@@ -5,7 +5,7 @@ import supertest from 'supertest';
 import Promise from 'bluebird';
 
 import app from '../server/server';
-import { createUsers, clearUsers } from './utils';
+import { createBaseClients, clearClients } from './utils';
 import {
   TEST_APP_CLIENT,
   TEST_ROLES,
@@ -16,104 +16,72 @@ const api = supertest(app);
 
 describe('Client', function() {
   let appClient;
-  let token;
-  let user;
+  let user = TEST_USERS[0];
+  const tokenGrantData = {
+    grant_type: 'password',
+    scope: 'DEFAULT'
+  };
 
   before(() => {
-    return createUsers(app, {
+    return createBaseClients(app, {
       appClientData: TEST_APP_CLIENT,
-      usersData: [{
-        email: 'test@test.test',
-        password: 'testtest'
-      }],
+      usersData: TEST_USERS,
       rolesData: TEST_ROLES
     })
       .then(({ users, applicationClient }) => {
         appClient = applicationClient;
-        user = users[0].user;
-        token = users[0].token;
       });
   });
 
-  after(() => clearUsers(app));
+  after(() => clearClients(app));
 
-  it('should reject get all clients without auth', () => {
-    return api.get('/api/clients')
-      .expect(401);
-  });
+  describe('Resource Owner Password Credentials', function() {
+    it('should reject get token auth without Client Creadentials', () => {
+      return api.post('/oauth/token')
+        .send({
+          ...tokenGrantData,
+          username: user.email,
+          password: user.password
+        })
+        .expect(401);
+    });
 
-  it('should reject get a single client without auth', () => {
-    return api.get('/api/clients/findOne')
-      .expect(401);
-  });
+    it('should create access token after valid login', () => {
+      let data = {
+        ...tokenGrantData,
+        username: user.email,
+        password: user.password
+      };
 
-  it('should not register client with existent email', () => {
-    return api.post('/api/clients')
-      .send({
-        email: 'test@test.test',
-        password: 'testtest'
-      })
-      .auth(appClient.id, appClient.clientSecret)
-      .expect('Content-Type', /json/)
-      .expect(422)
-      .then((res) => {
-        expect(res.body.error).to.be.a('object');
-        expect(res.body.error.message).to.equal('The `Client` instance is not valid. Details: `email` Email already exists (value: "test@test.test").');
-      });
-  });
+      return api.post('/oauth/token')
+        .send(data)
+        .auth(appClient.id, appClient.clientSecret)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.be.a('object');
+          expect(res.body.access_token).to.be.a('string');
+          expect(res.body.refresh_token).to.be.a('string');
+          expect(res.body.userId).to.be.a('number');
+          expect(res.body.token_type).to.equal('Bearer');
+          expect(res.body.expires_in).to.be.a('number');
+        });
+    });
 
-  it('should register client', () => {
-    return api.post('/api/clients')
-      .send({
-        email: 'test_unique@test.test',
-        password: 'testtest'
-      })
-      .auth(appClient.id, appClient.clientSecret)
-      .expect('Content-Type', /json/)
-      .expect(200)
-      .then((res) => {
-        expect(res.body).to.be.a('object');
-        expect(res.body.email).to.equal('test_unique@test.test');
-        expect(res.body.id).to.be.a('number');
-      });
-  });
+    it('should reject invalid user credentials', () => {
+      let data = {
+        ...tokenGrantData,
+        username: user.email,
+        password: 'invalid_password'
+      };
 
-  it('should set client role', () => {
-    return api.post(`/api/clients/${user.id}/role`)
-      .send({role: 'prof'})
-      .auth(appClient.id, appClient.clientSecret)
-      .set('Authorization', 'bearer ' + token.id)
-      .expect('Content-Type', /json/)
-      .expect(200)
-      .then((res) => {
-        expect(res.body).to.be.a('object');
-        expect(res.body.email).to.equal('test@test.test');
-        expect(res.body.id).to.be.a('number');
-      });
-  });
-
-  it('should validate email case insensetive wher register', () => {
-    const testClientUnique = {
-      email: 'uniqueclient@test.test',
-      password: 'testtest'
-    };
-
-    const Client = app.models.Client;
-
-    return Client.create(testClientUnique)
-      .then(() => {
-        return api.post('/api/clients')
-          .send({
-            email: 'uniqueClient@test.test',
-            password: 'testtest'
-          })
-          .auth(appClient.id, appClient.clientSecret)
-          .expect('Content-Type', /json/)
-          .expect(422)
-          .then((res) => {
-            expect(res.body.error).to.be.a('object');
-            expect(res.body.error.message).to.be.a('string').to.include('Email already exists');
-          });
-      });
+      return api.post('/oauth/token')
+        .send(data)
+        .auth(appClient.id, appClient.clientSecret)
+        .expect(403)
+        .then((res) => {
+          expect(res.body.error).to.equal('invalid_grant');
+          expect(res.body.error_description).to.equal('Invalid resource owner credentials');
+        });
+    });
   });
 });

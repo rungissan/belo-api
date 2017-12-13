@@ -32,6 +32,6 @@ module.exports = {
   },
   test: {
     ...dbOptions,
-    database: process.env.POSTGRES_DB_TEST || 'spiti_test'
+    database: process.env.POSTGRES_DB_TEST
   }
 };
