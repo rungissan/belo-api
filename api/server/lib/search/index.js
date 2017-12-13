@@ -132,7 +132,7 @@ export default class FeedSearch {
     });
 
     if (isBase && properties.deleted_at) {
-      return this._buildWhereQueryForProp(tableKey, 'deleted_at', {not: null});
+      this._buildWhereQueryForProp(tableKey, 'deleted_at', {not: null});
     }
 
     if (!this.whereValues[tableKey].length) {
@@ -224,23 +224,25 @@ export default class FeedSearch {
     return query;
   }
 
-  _buildWhereStrings(whereValues, tableKey, index, orQuery = '') {
+  _buildWhereStrings(whereValues, tableKey, whereQueriesIndex, orQuery = '') {
     let query = '';
     let { replacements } = this;
-    let totalLength = replacements.length;
+    let totalConditionsLength = replacements.length;
+    let whereConditionId = 1;
 
     whereValues.forEach((where, i) => {
-      let joinKey = (index === 0 && i === 0) ? 'WHERE' : 'AND';
+      let joinKey = (whereQueriesIndex === 0 && i === 0) ? 'WHERE' : 'AND';
 
-      if (orQuery && i === 0) {
+      if (orQuery && whereConditionId === 1) {
         query += ` ${joinKey} (${where.column} ${where.operator || ''}`;
       } else {
         query += ` ${joinKey} ${where.column} ${where.operator || ''}`;
       }
 
       if (typeof where.value != 'undefined' && where.value !== null) {
-        query += ` $${i + 1 + totalLength}`;
+        query += ` $${whereConditionId + totalConditionsLength}`;
         replacements.push(where.value);
+        whereConditionId++;
       }
     });
 

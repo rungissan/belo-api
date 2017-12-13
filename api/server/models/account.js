@@ -89,19 +89,21 @@ module.exports = function(Account) {
     let idsSearchFilter = {
       where: {
         userId,
-        feed: {}
+        feed: {
+          ...where
+        }
       },
       limit: filter.limit,
       offset: filter.offset
     };
 
-    if (where.type) {
-      idsSearchFilter.where.feed.type = where.type;
-    }
-
-    if (typeof where.openHouseId !== 'undefined') {
-      idsSearchFilter.where.feed.openHouseId = where.openHouseId;
-    }
+    // if (where.type) {
+    //   idsSearchFilter.where.feed.type = where.type;
+    // }
+    //
+    // if (typeof where.openHouseId !== 'undefined') {
+    //   idsSearchFilter.where.feed.openHouseId = where.openHouseId;
+    // }
 
     let ids = await favoriteFeedSearch.query(idsSearchFilter).map(f => f.feedId);
 
