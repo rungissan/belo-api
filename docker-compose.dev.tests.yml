@@ -2,17 +2,18 @@ version: '3.3'
 services:
 
   api:
-    tty: true
     volumes:
       - "./data/storage_test:/usr/src/storage_test"
     environment:
-      POSTGRES_DB: spiti_test
+      POSTGRES_DB_TEST: spiti_test
       NODE_ENV: test
       DEBUG: ''
     command: npm run test:dev
 
   auth:
-    tty: true
+    volumes:
+      - "./api/sequelize:/usr/src/app/sequelize"
     environment:
-      POSTGRES_DB: spiti_test
+      POSTGRES_DB_TEST: spiti_auth_test
       NODE_ENV: test
+    command: npm run test:dev
