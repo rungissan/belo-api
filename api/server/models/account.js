@@ -97,14 +97,6 @@ module.exports = function(Account) {
       offset: filter.offset
     };
 
-    // if (where.type) {
-    //   idsSearchFilter.where.feed.type = where.type;
-    // }
-    //
-    // if (typeof where.openHouseId !== 'undefined') {
-    //   idsSearchFilter.where.feed.openHouseId = where.openHouseId;
-    // }
-
     let ids = await favoriteFeedSearch.query(idsSearchFilter).map(f => f.feedId);
 
     if (!ids.length) {

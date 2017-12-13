@@ -30,7 +30,11 @@ export default class FeedSearch {
    */
   constructor(connector, app, options = {}) {
     if (!connector) {
-      throw new Error('connector not specified');
+      throw new Error('connector is required');
+    }
+
+    if (!app) {
+      throw new Error('app is required');
     }
 
     this.connector = connector;
@@ -312,12 +316,6 @@ export default class FeedSearch {
     }
 
     return query;
-
-    // return `
-    //   LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
-    //     ON "${tableKey}"."id" = "${this.baseModel.tableKey}"."${relation.foreignKey}"
-    //     AND "${tableKey}"."deleted_at" IS NULL
-    // `;
   }
 
   _buildJoinQueryHasManyThrough(modelOptions) {
@@ -344,14 +342,6 @@ export default class FeedSearch {
     }
 
     return query;
-
-    // return `
-    //   INNER JOIN "${throughModel.schema}"."${throughModel.tableName}" AS "${throughModel.tableKey}"
-    //       ON "${throughModel.tableKey}"."${relation.foreignKey}" = "${this.baseModel.tableKey}"."id"
-    //     INNER JOIN "${schema}"."${tableName}" AS "${tableKey}"
-    //       ON "${throughModel.tableKey}"."${relation.keyThrough}" = "${tableKey}"."id"
-    //       AND "${tableKey}"."deleted_at" IS NULL
-    // `;
   }
 
   _buildLimitOffsetQuery(modelOptions, filter) {
