@@ -8,6 +8,7 @@ services:
       POSTGRES_DB_TEST: spiti_test
       NODE_ENV: test
       DEBUG: ''
+      SHOW_DB_QUERY: 0
     command: npm run test:dev
 
   auth:
@@ -16,4 +17,6 @@ services:
     environment:
       POSTGRES_DB_TEST: spiti_auth_test
       NODE_ENV: test
+      DEBUG: ''
+      SHOW_DB_QUERY: 0
     command: npm run test:dev
