@@ -165,7 +165,7 @@ export default class FeedSearch {
   }
 
   _isNestedPropertyAllowed(modelProps, property) {
-    let propOptions = modelProps[property] && modelProps[property].postgresql;
+    let propOptions = modelProps[property] && modelProps[property][this.connector.name];
     return propOptions && propOptions.dataType == 'jsonb';
   }
 
@@ -457,7 +457,7 @@ export default class FeedSearch {
 
     let modelDefinition = Model.definition;
     let modelName = modelDefinition.name;
-    let dbOptions = modelDefinition.settings && modelDefinition.settings.postgresql || {};
+    let dbOptions = modelDefinition.settings && modelDefinition.settings[this.connector.name] || {};
 
     let tableName = dbOptions.table || modelDefinition.tableName();
     let schema = dbOptions.schema || DEFAULT_SCHEMA;
@@ -503,7 +503,7 @@ export default class FeedSearch {
 
     if (modelThrough) {
       let modelThroughDefinition = modelThrough.definition;
-      let dbOptions = modelThroughDefinition.settings && modelThroughDefinition.settings.postgresql || {};
+      let dbOptions = modelThroughDefinition.settings && modelThroughDefinition.settings[this.connector.name] || {};
       let tableName = dbOptions.table || modelThroughDefinition.tableName();
       let schema = dbOptions.schema || DEFAULT_SCHEMA;
 
