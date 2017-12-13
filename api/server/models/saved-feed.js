@@ -48,7 +48,7 @@ module.exports = function(SavedFeed) {
   );
 
   async function searchSavedFeeds(dataSource, app, filter) {
-    const feedSearch = new FeedSearch(dataSource.connector, app);
+    const feedSearch = new FeedSearch(dataSource.connector, app, {baseModelName: 'Feed'});
     return await feedSearch.query(filter);
   }
 

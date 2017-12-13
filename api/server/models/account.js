@@ -84,7 +84,7 @@ module.exports = function(Account) {
       return await Feed.find(filter);
     }
 
-    const favoriteFeedSearch = new FavoriteFeedSearch(app.dataSources.postgres.connector, app);
+    const favoriteFeedSearch = new FavoriteFeedSearch(app.dataSources.postgres.connector, app, {baseModelName: 'FavoriteFeed'});
 
     let idsSearchFilter = {
       where: {

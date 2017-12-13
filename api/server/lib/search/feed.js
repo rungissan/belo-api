@@ -4,17 +4,8 @@ import BaseSearchController from './index';
 
 const debug = require('debug')('spiti:feed:search');
 
-const MODELS = [
-  { name: 'feed', model: 'Feed', isBase: true },
-  { name: 'feedOptions', model: 'FeedOptions' },
-  { name: 'openHouse', model: 'OpenHouse' },
-  { name: 'geolocations', model: 'Geolocation' },
-  { name: 'geolocaion_to_feed', model: 'GeolocationToFeed', hide:true }
-];
-
 export default class FeedSearch extends BaseSearchController {
   constructor(connector, app, options = {}) {
-    options.MODELS = MODELS;
     super(connector, app, options);
   }
 
