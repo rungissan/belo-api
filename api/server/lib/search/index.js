@@ -455,6 +455,10 @@ export default class FeedSearch {
       Model = models[modelAlias];
     }
 
+    if (!Model) {
+      throw new Error(`Model ${modelAlias} not found`);
+    }
+
     let modelDefinition = Model.definition;
     let modelName = modelDefinition.name;
     let dbOptions = modelDefinition.settings && modelDefinition.settings[this.connector.name] || {};
