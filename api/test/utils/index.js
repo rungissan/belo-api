@@ -70,7 +70,6 @@ export async function clearModels(app, models = []) {
   models.forEach(modelName => {
     let Model = app.models[modelName];
     if (typeof Model.destroyAllForce === 'function') {
-      console.log('destroyAllForce.........................')
       cleanQueries.push(Model.destroyAllForce());
     } else {
       cleanQueries.push(Model.destroyAll());
