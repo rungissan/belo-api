@@ -46,7 +46,7 @@ export default class FeedSearch {
     this.options = options;
     this.models = {};
 
-    this.whereValues = [];
+    this.whereValues = {};
     this.replacements = [];
 
     this.sqlSelect = '';
@@ -159,14 +159,9 @@ export default class FeedSearch {
     return key.split('.').length > 1;
   }
 
-  _getNestedProperty(property) {
-    let splitedProp = property.split('.');
-    return splitedProp.length > 1 ? splitedProp.length[0] : false;
-  }
-
   _isNestedPropertyAllowed(modelProps, property) {
     let propOptions = modelProps[property] && modelProps[property][this.connector.name];
-    return propOptions && propOptions.dataType == 'jsonb';
+    return propOptions ? propOptions.dataType === 'jsonb' : false;
   }
 
   _getColumnName(key) {
@@ -177,7 +172,7 @@ export default class FeedSearch {
           return (i === 0 ? this._getColumnName(val) : val);
         })
         .reduce((prev, next, i, arr) => {
-          return i == 0 ? next : i < arr.length - 1 ? prev + `->'${next}'` + next : prev + `->>'${next}'`;
+          return i == 0 ? next : i < arr.length - 1 ? prev + `->'${next}'` : prev + `->>'${next}'`;
         });
     } else {
       return `"${key}"`;
@@ -190,7 +185,7 @@ export default class FeedSearch {
     if (expression === null || expression === 'null') {
       this.whereValues[tableKey].push({
         column: `"${tableKey}".${columnName}`,
-        operator: OPERATORS['isNull']
+        operator: NULL_OPERATORS['is']
       });
     } else if (typeof expression == 'object') {
       Object.keys(expression).map(key => {

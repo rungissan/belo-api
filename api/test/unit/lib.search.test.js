@@ -54,4 +54,59 @@ describe('Search', function() {
       }).not.to.throw(Error);
     });
   });
+
+  describe('builders: property', function() {
+    let searchCtrl;
+
+    before(() => {
+      searchCtrl = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'TestProductOptions'});
+    });
+
+    it('_isNestedProperty should return falss if key not nested', () => {
+      expect(searchCtrl._isNestedProperty('prop')).to.equal(false);
+    });
+
+    it('_isNestedProperty should return true if key is nested', () => {
+      expect(searchCtrl._isNestedProperty('prop.nested')).to.equal(true);
+    });
+
+    it('_isNestedPropertyAllowed should return true only if property is jsonb', () => {
+      let modelProps = searchCtrl.baseModel.properties;
+
+      expect(searchCtrl._isNestedPropertyAllowed(modelProps, 'price')).to.equal(false);
+      expect(searchCtrl._isNestedPropertyAllowed(modelProps, 'settings')).to.equal(true);
+    });
+
+    it('_getColumnName should return column name for not nested property', () => {
+      expect(searchCtrl._getColumnName('price')).to.equal('"price"');
+    });
+
+    it('_getColumnName should return json column fild query for nested property', () => {
+      expect(searchCtrl._getColumnName('prop.nested')).to.equal(`"prop"->>'nested'`);
+    });
+
+    it('_getColumnName should return json column fild query for deep nested property', () => {
+      expect(searchCtrl._getColumnName('prop.nested.deep')).to.equal(`"prop"->'nested'->>'deep'`);
+    });
+  });
+
+  describe('builders: where options', function() {
+    let searchCtrl;
+
+    beforeEach(() => {
+      searchCtrl = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'TestProductOptions'});
+    });
+
+    it('_buildWhereQueryForProp should add "IS NULL" where expression', () => {
+      searchCtrl.whereValues = {tableKey: []};
+      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', null);
+
+      let expected = {
+        column: '"tableKey"."columnName"',
+        operator: 'IS NULL'
+      };
+
+      expect(searchCtrl.whereValues.tableKey).to.deep.equal([expected]);
+    });
+  });
 });
