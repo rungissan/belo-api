@@ -28,7 +28,7 @@ const TestProduct = {
   },
   'relations': {
     'category': {
-      'type': 'hasOne',
+      'type': 'belongsTo',
       'model': 'TestCategory',
       'foreignKey': 'categoryId'
     },
@@ -98,7 +98,8 @@ const TestProductOptions = {
         'dataType': 'jsonb'
       }
     },
-    'price': 'number'
+    'price': 'number',
+    'deleted_at': 'date'
   },
   'relations': {
     'product': {
@@ -138,7 +139,7 @@ const TestLocationToProduct = {
     'validateUpsert': true,
     'postgresql': {
       'schema': 'test',
-      'table': 'test_location'
+      'table': 'test_location_to_product'
     }
   },
   'properties': {

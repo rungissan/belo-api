@@ -93,7 +93,7 @@ export default class FeedSearch {
     query += this.sqlJoin;
     query += this._buildWhereQuery();
     query += this._buildOrderQuery(baseModel, filter.order);
-    query += this._buildLimitOffsetQuery(baseModel, filter);
+    query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
 
     debug('Finish build query');
@@ -261,10 +261,7 @@ export default class FeedSearch {
     let { tableName, tableKey, schema } = modelOptions;
     debug('Build select query');
 
-    return `
-      SELECT "${tableKey}".*
-      FROM "${schema}"."${tableName}" as "${tableKey}"
-    `;
+    return `SELECT "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
   }
 
   _buildJoinQuery(modelOptions) {
@@ -288,13 +285,11 @@ export default class FeedSearch {
     debug('Build join Has query');
     let { tableName, tableKey, schema, relation, properties } = modelOptions;
 
-    let query = `
-      LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
-        ON "${tableKey}"."${relation.keyTo}" = "${this.baseModel.tableKey}"."${relation.keyFrom}"
-    `;
+    let query = ` LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"`;
+    query += ` ON "${tableKey}"."${relation.keyTo}" = "${this.baseModel.tableKey}"."${relation.keyFrom}"`;
 
     if (properties.deleted_at) {
-      query += ` AND "${tableKey}"."deleted_at" IS NULL `;
+      query += ` AND "${tableKey}"."deleted_at" IS NULL`;
     }
 
     return query;
@@ -305,35 +300,28 @@ export default class FeedSearch {
     let { tableName, tableKey, schema, relation, properties } = modelOptions;
     let { keyFrom, keyTo, keyThrough, tableThrough } = relation;
 
-    let query = `
-      LEFT OUTER JOIN "${tableThrough.schema}"."${tableThrough.tableName}" AS "${tableThrough.tableName}"
-        ON "${tableThrough.tableName}"."${keyTo}" = "${this.baseModel.tableKey}"."${keyFrom}"
-    `;
+    let query = ` LEFT OUTER JOIN "${tableThrough.schema}"."${tableThrough.tableName}" AS "${tableThrough.tableName}"` +
+      ` ON "${tableThrough.tableName}"."${keyTo}" = "${this.baseModel.tableKey}"."${keyFrom}"`;
 
     if (tableThrough.properties.deleted_at) {
-      query += ` AND "${tableThrough.tableName}"."deleted_at" IS NULL `;
+      query += ` AND "${tableThrough.tableName}"."deleted_at" IS NULL`;
     }
 
-    query += `
-      LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"
-        ON "${tableThrough.tableName}"."${keyThrough}" = "${tableKey}"."id"
-    `;
+    query += ` LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"` +
+      ` ON "${tableThrough.tableName}"."${keyThrough}" = "${tableKey}"."id"`;
 
     if (properties.deleted_at) {
-      query += ` AND "${tableKey}"."deleted_at" IS NULL `;
+      query += ` AND "${tableKey}"."deleted_at" IS NULL`;
     }
 
     return query;
   }
 
-  _buildLimitOffsetQuery(modelOptions, filter) {
+  _buildLimitOffsetQuery(filter) {
     debug('Build limit, offset query');
     let {limit, offset, skip} = filter;
 
-    return `
-      LIMIT ${parseInt(limit) || 10}
-      OFFSET ${parseInt(offset) || skip || 0}
-    `;
+    return ` LIMIT ${parseInt(limit) || 10} OFFSET ${parseInt(offset) || skip || 0}`;
   }
 
   _buildOrderQuery(modelOptions, order) {
@@ -343,22 +331,23 @@ export default class FeedSearch {
     if (Array.isArray(order)) {
       order.forEach(o => {
         let orderString = this._buildOrderQueryString(modelOptions, o);
-        if (orderString) {
-          orderStatments.push(orderString);
-        }
+        orderString && orderStatments.push(orderString);
       });
-    } else {
+    } else if (order) {
       let orderString = this._buildOrderQueryString(modelOptions, order);
-      if (orderString) {
-        orderStatments.push(orderString);
-      }
+      orderString && orderStatments.push(orderString);
     }
 
     if (!orderStatments.length) {
-      orderStatments.push('id DESC');
+      let defaultOrderString = this._buildOrderQueryString(modelOptions, 'id DESC');
+      defaultOrderString && orderStatments.push(defaultOrderString);
     }
 
-    return ` ORDER BY ${orderStatments.join(', ')} `;
+    if (!orderStatments.length) {
+      return '';
+    }
+
+    return ` ORDER BY ${orderStatments.join(', ')}`;
   }
 
   _buildOrderQueryString(modelOptions, order) {
@@ -367,7 +356,7 @@ export default class FeedSearch {
     }
 
     let [columnName, direction] = order.split(' ');
-    if (!columnName && !direction && ['ASC', 'DESC'].includes(direction)) {
+    if (!(columnName && direction && ['ASC', 'DESC', 'asc', 'desc'].includes(direction))) {
       return null;
     }
 
@@ -400,7 +389,7 @@ export default class FeedSearch {
    * @return {Promise<Array>} query results.
    */
   _query(sql, replacements) {
-    if (this.options.debugSql || true) {
+    if (this.options.debugSql) {
       let rawSql = sql;
       replacements.forEach((value, i) => {
         rawSql = rawSql.replace(`$${i + 1}`, value);
