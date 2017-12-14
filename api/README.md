@@ -166,7 +166,7 @@ Body:
 	  	"storage": true, //boolean
 	  	"doorman": true //boolean
 	  },
-	  "buildingFeatures": {
+	  "utilitiesIncluded": {
 	  	"electric": true, //boolean
 	  	"heat": true, //boolean
 	  	"gas": true, //boolean
@@ -174,7 +174,7 @@ Body:
 	  	"water": true, //boolean
 	  	"garbage": true //boolean
 	  },
-	  "buildingFeatures": {
+	  "moveInFees": {
 	  	"firstMonthRent": true, //boolean
 	  	"lastMonthRent": true, //boolean
 	  	"securityDeposit": 123, //number

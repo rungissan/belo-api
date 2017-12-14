@@ -5,22 +5,21 @@ import BaseSearchController from './index';
 const debug = require('debug')('spiti:feed:search');
 
 export default class FeedSearch extends BaseSearchController {
-  constructor(connector, app, options) {
+  constructor(connector, app, options = {}) {
     super(connector, app, options);
   }
 
   _buildWhereQuery() {
     let { whereValues, baseModel } = this;
+    let query = '';
 
-    let query = `WHERE "${baseModel.tableKey}"."deleted_at" IS NULL `;
-
-    Object.keys(whereValues).forEach(tableKey => {
+    Object.keys(whereValues).forEach((tableKey, index) => {
       let feedType = this.filter.where && this.filter.where.feedType;
       let orQuery;
       if (tableKey == 'feedOptions' && (!feedType || feedType === 'post')) {
         orQuery = `"${baseModel.tableKey}"."type" = 'post'`;
       }
-      query += this._buildWhereStrings(whereValues[tableKey], tableKey, orQuery);
+      query += this._buildWhereStrings(whereValues[tableKey], tableKey, index, orQuery);
     });
 
     return query;
@@ -35,16 +34,16 @@ export default class FeedSearch extends BaseSearchController {
       return query;
     }
 
-    let {feed, feedOptions, geolocations} = this.models;
+    let tableKey = this.baseModel.tableKey;
 
     return `
-      SELECT "${feed.tableKey}".*
+      SELECT "${tableKey}".*
              ${include.includes('image') ? ', "image"' : ''}
              ${include.includes('additionalImages') ? ', "additionalImages"' : ''}
              ${include.includes('geolocations') ? ', geolocations' : ''}
              ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
              ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
-      FROM (${query}) AS "${feed.tableKey}"
+      FROM (${query}) AS "${tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
       ${include.includes('geolocations') ? this._includeGeolocations() : ''}
@@ -60,7 +59,7 @@ export default class FeedSearch extends BaseSearchController {
         json_agg("addImage") AS "additionalImages"
       FROM "spiti"."attachment_to_feed" AS "attachment_to_feed"
         INNER JOIN "spiti"."attachment" AS "addImage" ON "addImage"."id" = "attachment_to_feed"."attachmentId"
-          AND "attachment_to_feed"."feedId" = "feed"."id"
+          AND "attachment_to_feed"."feedId" = "${this.baseModel.tableKey}"."id"
     ) "additionalImages" ON true
     `;
   }
@@ -72,7 +71,7 @@ export default class FeedSearch extends BaseSearchController {
         json_agg("geolocation") AS "geolocations"
       FROM "spiti"."geolocation_to_feed" AS "geolocation_to_feed"
         INNER JOIN "spiti"."geolocation" AS "geolocation" ON "geolocation"."id" = "geolocation_to_feed"."geolocationId"
-          AND "geolocation_to_feed"."feedId" = "feed"."id"
+          AND "geolocation_to_feed"."feedId" = "${this.baseModel.tableKey}"."id"
     ) "geolocations" ON true
     `;
   }
@@ -83,7 +82,7 @@ export default class FeedSearch extends BaseSearchController {
       SELECT
         json_build_object('id', "attachment"."id") AS "image"
       FROM "spiti"."attachment" AS "attachment"
-        WHERE "attachment"."id" = "feed"."imageId"
+        WHERE "attachment"."id" = "${this.baseModel.tableKey}"."imageId"
     ) "image" ON true
     `;
   }
@@ -91,14 +90,14 @@ export default class FeedSearch extends BaseSearchController {
   _includeFeedOptions() {
     return `
       LEFT JOIN "spiti"."feed_options" AS "feedOptions"
-        ON "feedOptions"."feedId" = "feed"."id"
+        ON "feedOptions"."feedId" = "${this.baseModel.tableKey}"."id"
     `;
   }
 
   _includeOpenHouse() {
     return `
       LEFT JOIN "spiti"."open_house" AS "openHouse"
-        ON "openHouse"."id" = "feed"."openHouseId"
+        ON "openHouse"."id" = "${this.baseModel.tableKey}"."openHouseId"
     `;
   }
 };
