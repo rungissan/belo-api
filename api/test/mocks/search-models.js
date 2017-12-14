@@ -33,7 +33,7 @@ const TestProduct = {
       'foreignKey': 'categoryId'
     },
     'productOptions': {
-      'type': 'belongsTo',
+      'type': 'hasOne',
       'model': 'TestProductOptions',
       'foreignKey': 'productId'
     },
