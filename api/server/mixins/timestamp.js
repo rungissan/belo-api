@@ -34,19 +34,8 @@ export default function(Model, bootOptions = {}) {
   Model.destroyByIdForce = Model.destroyById;
   let destroy = Model.prototype.destroy;
 
-  Model.destroyAll = (where, options, cb) => {
-    if (options === undefined && cb === undefined) {
-      if (typeof where === 'function') {
-        cb = where;
-        where = {};
-      }
-    } else if (cb === undefined) {
-      if (typeof options === 'function') {
-        cb = options;
-        options = {};
-      }
-    }
-
+  // TODO: check deleteAll
+  Model.destroyAll = (where = {}, cb) => {
     return Model.updateAll(where, {[options.deletedKey]: new Date()})
       .then(result => (typeof cb === 'function') ? cb(null, result) : result)
       .catch(error => (typeof cb === 'function') ? cb(error) : Promise.reject(error));
@@ -106,7 +95,7 @@ export default function(Model, bootOptions = {}) {
     },
     ...Model.settings.mixins.ReadOnly
   };
-  // 
+  //
   // Model.mixin('ReadOnly', {
   //   [options.createdKey]: true,
   //   [options.updatedKey]: true,
