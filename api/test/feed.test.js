@@ -343,6 +343,15 @@ describe('Feed', function() {
         });
     });
 
+    it('should deny to delete OpenHouse for not owner', () => {
+      return Feed.create({...testListing, userId: user.id})
+        .then(post => {
+          return apiCall('delete', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(testOpenHouse)
+            .expect(403);
+        });
+    });
+
     it('should allow to update OpenHouse', () => {
       let postId;
       let updatedDate;
