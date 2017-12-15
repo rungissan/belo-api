@@ -182,8 +182,8 @@ const FEATURES_VALIDATIONS = {
 module.exports = function(Feed) {
   Feed.validatesInclusionOf('type', {in: ['post', 'listing', 'openHouse']});
 
-  Feed.beforeRemote('create', beforeSaveHook);
-  Feed.beforeRemote('prototype.patchAttributes', beforeSaveHook);
+  Feed.beforeRemote('create', getBeforeSaveHook());
+  Feed.beforeRemote('prototype.patchAttributes', getBeforeSaveHook({type: 'update'}));
 
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
@@ -249,22 +249,28 @@ module.exports = function(Feed) {
     }
   );
 
-  async function beforeSaveHook(ctx, modelInstance) {
-    let feed = ctx.args.instance || ctx.args.data;
-    if (!feed) {
-      return;
-    }
-
-    if (feed.options) {
-      if (feed.type === 'post') {
-        throw errValidation('"options" allowed only for Listings');
+  function getBeforeSaveHook(options = {}) {
+    return async function beforeSaveHook(ctx, modelInstance) {
+      let feed = ctx.args.instance || ctx.args.data;
+      if (!feed) {
+        return;
       }
 
-      await validateBySchema(feed.options, FEATURES_OPTIONS, 'Feed');
-      await validateFeedOptions(feed.options);
-    }
+      if ((options.type === 'update') && (typeof feed.type !== 'undefined')) {
+        throw errValidation('type can not be changed');
+      }
 
-    return feed;
+      if (feed.options) {
+        if (feed.type === 'post') {
+          throw errValidation('"options" allowed only for Listings');
+        }
+
+        await validateBySchema(feed.options, FEATURES_OPTIONS, 'Feed');
+        await validateFeedOptions(feed.options);
+      }
+
+      return feed;
+    };
   }
 
   async function afterSaveHook(ctx, feed) {

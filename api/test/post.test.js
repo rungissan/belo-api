@@ -98,6 +98,17 @@ describe('Feed', function() {
         });
     });
 
+    it('should not allow post creation with options', () => {
+      let invalidPost = {...testPost, options: {rentType: 'sale'}};
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(invalidPost)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.error).to.be.a('object');
+          expect(res.body.error.message).to.equal('"options" allowed only for Listings');
+        });
+    });
+
     it('created post should have properties', () => {
       return apiCall('post', '/api/feeds', tokenProf)
         .send(testPost)
@@ -124,6 +135,19 @@ describe('Feed', function() {
         });
     });
 
+    it('should not allow to edit feed type', () => {
+      return Feed.create({...testPost, userId: prof.id})
+        .then(post => {
+          return apiCall('patch', `/api/feeds/${post.id}`, tokenProf)
+            .send({type: 'listing'})
+            .expect(422)
+            .then((res) => {
+              expect(res.body.error).to.be.a('object');
+              expect(res.body.error.message).to.equal('type can not be changed');
+            });
+        });
+    });
+
     it('should disallow to edit post for not owner', () => {
       return Feed.create({...testPost, userId: user.id})
         .then(post => {
@@ -145,6 +169,122 @@ describe('Feed', function() {
       return Feed.create({...testPost, userId: user.id})
         .then(post => {
           return apiCall('delete', `/api/feeds/${post.id}`, tokenProf)
+            .expect(403);
+        });
+    });
+  });
+
+  describe('Listing', function() {
+    const testListing = {
+      type: 'listing',
+      title: 'test listing',
+      description: 'test description',
+      options: {
+        rentType: 'sale',
+        bedrooms: 1,
+        bathrooms: 1,
+        price: 20,
+        square: 2,
+        propertyFeatures: {
+          laundry: true,
+          dogs: true
+        }
+      }
+    };
+
+    after(() => clearModels(app, ['Feed']));
+
+    it('should deny listing creation for "user"', () => {
+      return apiCall('post', '/api/feeds', tokenUser)
+        .send(testListing)
+        .expect(403)
+        .then((res) => {
+          expect(res.body.error).to.be.a('object');
+          expect(res.body.error.code).to.equal('ACCESS_DENIED');
+        });
+    });
+
+    it('should allow listing creation for "prof"', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListing)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.be.a('object');
+          expect(res.body.type).to.equal('listing');
+        });
+    });
+
+    it('should require listing price', () => {
+      let invalidListing = {...testListing};
+      invalidListing.options = {
+        propertyFeatures: {
+          laundry: true,
+          dogs: true
+        }
+      };
+
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(invalidListing)
+        .expect(422)
+        .then((res) => {
+          expect(res.body.error).to.be.a('object');
+          expect(res.body.error.code).to.equal('VALIDATION_ERROR');
+          expect(res.body.error.details).to.be.a('object');
+          expect(res.body.error.details.codes).to.be.a('object');
+
+          ['rentType', 'bedrooms', 'bathrooms', 'price', 'square'].forEach(key => {
+            expect(res.body.error.details.codes[key]).to.be.a('array').to.include('required');
+          });
+        });
+    });
+
+    it('created listing should have properties', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListing)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).to.be.a('object');
+          expect(res.body.id).to.be.a('number');
+          expect(res.body.type).to.equal('listing');
+          expect(res.body.title).to.equal('test listing');
+          expect(res.body.description).to.equal('test description');
+        });
+    });
+
+    it('should allow to edit post for owner', () => {
+      return Feed.create({...testListing, userId: prof.id})
+        .then(post => {
+          return apiCall('patch', `/api/feeds/${post.id}`, tokenProf)
+            .send({title: 'updated title'})
+            .expect(200)
+            .then((res) => {
+              expect(res.body).to.be.a('object');
+              expect(res.body.title).to.equal('updated title');
+            });
+        });
+    });
+
+    it('should disallow to edit post for not owner', () => {
+      return Feed.create({...testListing, userId: user.id})
+        .then(listing => {
+          return apiCall('patch', `/api/feeds/${listing.id}`, tokenProf)
+            .send({title: 'updated title'})
+            .expect(403);
+        });
+    });
+
+    it('should allow to delete post for owner', () => {
+      return Feed.create({...testListing, userId: prof.id})
+        .then(listing => {
+          return apiCall('delete', `/api/feeds/${listing.id}`, tokenProf)
+            .expect(200);
+        });
+    });
+
+    it('should deny to delete post for not owner', () => {
+      return Feed.create({...testListing, userId: user.id})
+        .then(listing => {
+          return apiCall('delete', `/api/feeds/${listing.id}`, tokenProf)
             .expect(403);
         });
     });
