@@ -14,7 +14,7 @@ export default class FeedSearch extends BaseSearchController {
     let query = '';
 
     Object.keys(whereValues).forEach((tableKey, index) => {
-      let feedType = this.filter.where && this.filter.where.feedType;
+      let feedType = this.filter.where && this.filter.where.type;
       let orQuery;
       if (tableKey == 'feedOptions' && (!feedType || feedType === 'post')) {
         orQuery = `"${baseModel.tableKey}"."type" = 'post'`;

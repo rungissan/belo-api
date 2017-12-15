@@ -33,7 +33,7 @@ export async function createUsers(app, options) {
       let userRole = roles.find(r => r.name === userData.role);
       await userRole.principals.create({
         principalType: RoleMapping.USER,
-        principalId: applicationClient.id
+        principalId: user.id
       });
     }
 
@@ -52,25 +52,28 @@ export async function createUsers(app, options) {
 }
 
 export async function clearUsers(app, additionalModels = []) {
-  const {
-    OAuthClientApplication,
-    OAuthAccessToken,
-    Client,
-    Role,
-    RoleMapping
-  } = app.models;
-
-  let cleanQueries = [
-    OAuthClientApplication.destroyAll(),
-    OAuthAccessToken.destroyAll(),
-    Client.destroyAll(),
-    Role.destroyAll(),
-    RoleMapping.destroyAll()
+  let models = [
+    'OAuthClientApplication',
+    'OAuthAccessToken',
+    'Client',
+    'Role',
+    'RoleMapping',
+    ...additionalModels
   ];
 
-  additionalModels.forEach(modelName => {
+  return clearModels(app, models);
+}
+
+export async function clearModels(app, models = []) {
+  let cleanQueries = [];
+
+  models.forEach(modelName => {
     let Model = app.models[modelName];
-    cleanQueries.push(Model.destroyAll());
+    if (typeof Model.destroyAllForce === 'function') {
+      cleanQueries.push(Model.destroyAllForce());
+    } else {
+      cleanQueries.push(Model.destroyAll());
+    }
   });
 
   return await Promise.all(cleanQueries);

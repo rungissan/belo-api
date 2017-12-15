@@ -162,7 +162,7 @@ Body:
 	  	"fitness": true, //boolean
 	  	"pool": true, //boolean
 	  	"elevator": true, //boolean
-	  	"elevator": true, //boolean
+	  	"bikeRoom": true, //boolean
 	  	"storage": true, //boolean
 	  	"doorman": true //boolean
 	  },
