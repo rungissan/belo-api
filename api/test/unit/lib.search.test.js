@@ -4,6 +4,7 @@
 import { expect } from 'chai';
 import Promise from 'bluebird';
 import { join } from 'path';
+import sinon from 'sinon';
 
 import app from '../../server/server';
 import Search from '../../server/lib/search';
@@ -462,6 +463,153 @@ describe('Search', function() {
     it('_buildOrderQuery should bulid default order query', () => {
       let sql = searchCtrl._buildOrderQuery(searchCtrl.baseModel);
       expect(sql).to.equal(' ORDER BY "TestProduct"."id" DESC');
+    });
+  });
+
+  describe('run', function() {
+    let searchCtrl;
+    const multiModelQuery = {
+      where: {
+        productOptions: {
+          price: 7
+        },
+        locations: {
+          name: 'test'
+        },
+        type: 'test'
+      }
+    };
+
+    beforeEach(() => {
+      searchCtrl = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'TestProduct'});
+    });
+
+    it('_validateFilter should be called once', () => {
+      let spy = sinon.spy(searchCtrl, '_validateFilter');
+      searchCtrl.buildQuery({});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildWhereQuery should be called once', () => {
+      let spy = sinon.spy(searchCtrl, '_buildWhereQuery');
+      searchCtrl.buildQuery({});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildOrderQuery should be called once', () => {
+      let spy = sinon.spy(searchCtrl, '_buildOrderQuery');
+      searchCtrl.buildQuery({});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildLimitOffsetQuery should be called once', () => {
+      let spy = sinon.spy(searchCtrl, '_buildLimitOffsetQuery');
+      searchCtrl.buildQuery({});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildIncludesQuery should be called once', () => {
+      let spy = sinon.spy(searchCtrl, '_buildIncludesQuery');
+      searchCtrl.buildQuery({});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_modelHaveProperty should be called for all properties', () => {
+      let spy = sinon.spy(searchCtrl, '_modelHaveProperty');
+      searchCtrl.buildQuery({where: {id: 2, type: 'test', quantity: {gt: 2}}});
+      sinon.assert.callCount(spy, 3);
+    });
+
+    it('_isModelRelated should be called for all properties that is not in base model', () => {
+      let spy = sinon.spy(searchCtrl, '_isModelRelated');
+      searchCtrl.buildQuery({where: {unexistent: 2, type: 'test', quantity: 5}});
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildQueryForModel should be called for all models that a queried', () => {
+      let spy = sinon.spy(searchCtrl, '_buildQueryForModel');
+      searchCtrl.buildQuery(multiModelQuery);
+      sinon.assert.callCount(spy, 3);
+    });
+
+    it('_buildSelectQuery _buildJoinQuery should be called for models', () => {
+      let spySelect = sinon.spy(searchCtrl, '_buildSelectQuery');
+      let spyJoin = sinon.spy(searchCtrl, '_buildJoinQuery');
+      searchCtrl.buildQuery(multiModelQuery);
+
+      sinon.assert.callCount(spySelect, 1);
+      sinon.assert.callCount(spyJoin, 2);
+    });
+
+    it('_buildWhereStrings should be called for all models with where conditions', () => {
+      let spy = sinon.spy(searchCtrl, '_buildWhereStrings');
+      searchCtrl.buildQuery(multiModelQuery);
+      sinon.assert.callCount(spy, 3);
+    });
+
+    it('_buildWhereStrings should be skipped for all models without where conditions', () => {
+      let query = {...multiModelQuery};
+      delete query.where.type;
+
+      let spy = sinon.spy(searchCtrl, '_buildWhereStrings');
+      searchCtrl.buildQuery(query);
+      sinon.assert.callCount(spy, 2);
+    });
+
+    it('_buildJoinQueryThrough should be called for model with HasManyThrough relaiton', () => {
+      const query = {
+        where: {
+          locations: {
+            name: 'test'
+          }
+        }
+      };
+
+      let spy = sinon.spy(searchCtrl, '_buildJoinQueryThrough');
+      searchCtrl.buildQuery(query);
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildJoinQueryHas should be called for model with Has or belongsTo relaiton', () => {
+      const query = {
+        where: {
+          productOptions: {
+            price: 7
+          },
+          category: {
+            name: 'test'
+          }
+        }
+      };
+
+      let spy = sinon.spy(searchCtrl, '_buildJoinQueryHas');
+      searchCtrl.buildQuery(query);
+      sinon.assert.calledTwice(spy);
+    });
+
+    it('_query should be called', () => {
+      let queryStub = sinon.stub(searchCtrl, '_query');
+
+      searchCtrl.query({});
+      sinon.assert.calledOnce(queryStub);
+    });
+
+    it('_query should be called with correct args', () => {
+      const query = {
+        where: {
+          type: 'test',
+          quantity: 2
+        }
+      };
+      let queryStub = sinon.stub(searchCtrl, '_query');
+
+      searchCtrl.query(query);
+      let [sql, replacements] = queryStub.getCall(0).args;
+
+      expect(replacements).to.deep.equal(['test', 2]);
+      expect(sql).to.be.a('string')
+        .to.include('"type" = $1')
+        .to.include('"quantity" = $2');
     });
   });
 });
