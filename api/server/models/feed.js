@@ -196,7 +196,7 @@ module.exports = function(Feed) {
     }
 
     if (feed.type !== 'listing') {
-      throw errValidation('Open house can be created only to listing');
+      throw errValidation('Open house can be created only for listing');
     }
 
     const OpenHouse = Feed.app.models.OpenHouse;

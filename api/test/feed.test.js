@@ -289,4 +289,124 @@ describe('Feed', function() {
         });
     });
   });
+
+  describe('OpenHouse', function() {
+    const testListing = {
+      type: 'listing',
+      title: 'test listing',
+      description: 'test description',
+      options: {
+        rentType: 'sale',
+        bedrooms: 1,
+        bathrooms: 1,
+        price: 20,
+        square: 2,
+        propertyFeatures: {
+          laundry: true,
+          dogs: true
+        }
+      }
+    };
+    let testOpenHouse = {
+      host: 'test',
+      contactPhone: 1234,
+      date: new Date(),
+      timeStart: new Date(),
+      timeEnd: new Date()
+    };
+
+    after(() => clearModels(app, ['Feed', 'FeedOptions', 'OpenHouse']));
+
+    it('should allow to link OpenHouse to Listing', () => {
+      return Feed.create({...testListing, userId: prof.id})
+        .then(post => {
+          return apiCall('post', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(testOpenHouse)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).to.be.a('object');
+              expect(res.body.id).to.be.a('number');
+            });
+        });
+    });
+
+    it('should allow to delete OpenHouse', () => {
+      return Feed.create({...testListing, userId: prof.id})
+        .then(post => {
+          return apiCall('delete', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(testOpenHouse)
+            .expect(200)
+            .then((res) => {
+              expect(res.body).to.be.a('object');
+              expect(res.body.ok).to.equal(true);
+            });
+        });
+    });
+
+    it('should allow to update OpenHouse', () => {
+      let postId;
+      let updatedDate;
+      return Feed.create({...testListing, userId: prof.id})
+        .then(post => {
+          postId = post.id;
+          return apiCall('post', `/api/feeds/${postId}/open-house`, tokenProf).send(testOpenHouse);
+        })
+        .then((res) => {
+          expect(res.body.contactPhone).to.equal('1234');
+          updatedDate = new Date();
+          return apiCall('post', `/api/feeds/${postId}/open-house`, tokenProf)
+            .send({
+              date: updatedDate,
+              contactPhone: 11111
+            });
+        })
+        .then((res) => {
+          expect(res.body.contactPhone).to.equal('11111');
+          expect(res.body.date).to.equal(updatedDate.toISOString());
+        });
+    });
+
+    it('should deny to link OpenHouse to Post', () => {
+      return Feed.create({...testListing, userId: prof.id, type: 'post'})
+        .then(post => {
+          return apiCall('post', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(testOpenHouse)
+            .expect(422)
+            .then((res) => {
+              expect(res.body.error).to.be.a('object');
+              expect(res.body.error.message).to.equal('Open house can be created only for listing');
+            });
+        });
+    });
+
+    it('should deny to link OpenHouse if user not own Listing', () => {
+      return Feed.create({...testListing, userId: user.id})
+        .then(post => {
+          return apiCall('post', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(testOpenHouse)
+            .expect(403)
+            .then((res) => {
+              expect(res.body.error).to.be.a('object');
+              expect(res.body.error.code).to.equal('ACCESS_DENIED');
+            });
+        });
+    });
+
+    it('should require date when linking OpenHouse', () => {
+      let data = {...testOpenHouse};
+      delete data.date;
+
+      return Feed.create({...testListing, userId: prof.id})
+        .then(post => {
+          return apiCall('post', `/api/feeds/${post.id}/open-house`, tokenProf)
+            .send(data)
+            .expect(422)
+            .then((res) => {
+              expect(res.body.error).to.be.a('object');
+              expect(res.body.error.code).to.equal('VALIDATION_ERROR');
+              expect(res.body.error.details.codes.date).to.be.a('array').to.include('required');
+            });
+        });
+    });
+  });
 });
