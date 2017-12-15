@@ -52,6 +52,7 @@ export default class FeedSearch {
     this.sqlSelect = '';
     this.sqlWhere = '';
     this.sqlJoin = '';
+    this.joinKey = 'WHERE';
 
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
@@ -80,11 +81,7 @@ export default class FeedSearch {
         return;
       }
 
-      let isModelRelated = this._isModelRelated(baseModel.Model, key);
-      if (isModelRelated) {
-        const modelOptions = this._getOptionsForModel(this.app.models, key, baseModel);
-        this._buildQueryForModel(modelOptions, filters[key]);
-      }
+      this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
 
     this._buildQueryForModel(baseModel, filters);
@@ -103,6 +100,24 @@ export default class FeedSearch {
     };
   }
 
+  _buildQueryForNotBasicProperty(baseModel, key, filters, aggregateKey = '') {
+    let isModelRelated = this._isModelRelated(baseModel.Model, key);
+
+    if (isModelRelated) {
+      const modelOptions = this._getOptionsForModel(this.app.models, key, baseModel);
+      this._buildQueryForModel(modelOptions, filters, aggregateKey);
+    } else if (key === 'or' && Array.isArray(filters)) {
+      filters.forEach(orCondition => {
+        let modelKey = Object.keys(orCondition)[0];
+        if (!modelKey) {
+          return;
+        }
+
+        this._buildQueryForNotBasicProperty(baseModel, modelKey, orCondition[modelKey], key);
+      });
+    }
+  }
+
   /**
    * @param {Object} modelOptions
    * @param {Object} modelOptions.properties - loopback model definition. used to filter properties.
@@ -111,10 +126,10 @@ export default class FeedSearch {
    * @param {String} modelOptions.tableKey - table alias.
    * @param {Object} filters
    */
-  _buildQueryForModel(modelOptions, filters = {}) {
+  _buildQueryForModel(modelOptions, filters = {}, aggregateKey) {
     debug('Build query for model', modelOptions.modelName);
     let { properties, tableKey, isBase } = modelOptions;
-    this.whereValues[tableKey] = this.whereValues[tableKey] || [];
+    let conditions = [];
 
     Object.keys(filters).forEach(key => {
       let property = properties[key];
@@ -137,15 +152,20 @@ export default class FeedSearch {
       let columnName = this._getColumnName(key);
       let expression = filters[key];
 
-      return this._buildWhereQueryForProp(tableKey, columnName, expression);
+      return this._buildWhereQueryForProp(conditions, tableKey, columnName, expression);
     });
 
     if (isBase && properties.deleted_at) {
-      this._buildWhereQueryForProp(tableKey, 'deleted_at', {not: null});
+      this._buildWhereQueryForProp(conditions, tableKey, 'deleted_at', {not: null});
     }
 
-    if (!this.whereValues[tableKey].length) {
-      delete this.whereValues[tableKey];
+    if (conditions.length) {
+      if (aggregateKey) {
+        this.whereValues[aggregateKey] = this.whereValues[aggregateKey] || [];
+        this.whereValues[aggregateKey].push(conditions);
+      } else {
+        this.whereValues[tableKey] = conditions;
+      }
     }
 
     if (isBase) {
@@ -179,11 +199,11 @@ export default class FeedSearch {
     }
   }
 
-  _buildWhereQueryForProp(tableKey, columnName, expression) {
+  _buildWhereQueryForProp(conditionsList, tableKey, columnName, expression) {
     debug('Build tableName: ', tableKey, columnName, expression);
 
     if (expression === null || expression === 'null') {
-      this.whereValues[tableKey].push({
+      conditionsList.push({
         column: `"${tableKey}".${columnName}`,
         operator: NULL_OPERATORS['is']
       });
@@ -194,13 +214,13 @@ export default class FeedSearch {
             let nullOperator = NULL_OPERATORS[key];
 
             if (nullOperator) {
-              this.whereValues[tableKey].push({
+              conditionsList.push({
                 column: `"${tableKey}".${columnName}`,
                 operator: nullOperator
               });
             }
           } else {
-            this.whereValues[tableKey].push({
+            conditionsList.push({
               column: `"${tableKey}".${columnName}`,
               operator: OPERATORS[key],
               value: expression[key]
@@ -209,7 +229,7 @@ export default class FeedSearch {
         }
       });
     } else if (expression) {
-      this.whereValues[tableKey].push({
+      conditionsList.push({
         column: `"${tableKey}".${columnName}`,
         operator: OPERATORS['is'],
         value: expression
@@ -222,40 +242,86 @@ export default class FeedSearch {
     let query = '';
 
     Object.keys(whereValues).forEach((tableKey, index) => {
-      query += this._buildWhereStrings(whereValues[tableKey], tableKey, index);
+      if (tableKey === 'or') {
+        let orConditions = whereValues[tableKey].map(orWhereValues => {
+          return this._buildWhereStrings(orWhereValues, index, true);
+        });
+        query += ` ${this.joinKey} (${orConditions.map(sql => `(${sql})`).join(' OR ')})`;
+
+        if (this.joinKey === 'WHERE') {
+          this.joinKey = 'AND';
+        }
+      } else {
+        query += this._buildWhereStrings(whereValues[tableKey], index);
+      }
     });
 
     return query;
   }
 
-  _buildWhereStrings(whereValues, tableKey, whereQueriesIndex, orQuery = '') {
+  // _buildWhereQuery() {
+  //   let { whereValues, baseModel } = this;
+  //   let query = '';
+  //
+  //   Object.keys(whereValues).forEach((tableKey, index) => {
+  //     query += this._buildWhereStrings(whereValues[tableKey], index);
+  //   });
+  //
+  //   return query;
+  // }
+
+  _buildWhereStrings(whereValues, whereQueriesIndex, isOrCondition = false) {
     let query = '';
     let { replacements } = this;
-    let totalConditionsLength = replacements.length;
-    let whereConditionId = 1;
 
     whereValues.forEach((where, i) => {
-      let joinKey = (whereQueriesIndex === 0 && i === 0) ? 'WHERE' : 'AND';
+      if (!(isOrCondition && i === 0)) {
+        query += ` ${this.joinKey}`;
 
-      if (orQuery && whereConditionId === 1) {
-        query += ` ${joinKey} (${where.column} ${where.operator || ''}`;
-      } else {
-        query += ` ${joinKey} ${where.column} ${where.operator || ''}`;
+        if (this.joinKey === 'WHERE') {
+          this.joinKey = 'AND';
+        }
       }
 
+      query += ` ${where.column} ${where.operator || ''}`;
+
       if (typeof where.value != 'undefined' && where.value !== null) {
-        query += ` $${whereConditionId + totalConditionsLength}`;
+        query += ` $${replacements.length + 1}`;
         replacements.push(where.value);
-        whereConditionId++;
       }
     });
 
-    if (orQuery) {
-      query += ` OR ${orQuery})`;
-    }
-
     return query;
   }
+  //
+  // _buildWhereStrings(whereValues, whereQueriesIndex, orQuery = '') {
+  //   let query = '';
+  //   let { replacements } = this;
+  //   let totalConditionsLength = replacements.length;
+  //   let whereConditionId = 1;
+  //
+  //   whereValues.forEach((where, i) => {
+  //     let joinKey = (whereQueriesIndex === 0 && i === 0) ? 'WHERE' : 'AND';
+  //
+  //     if (orQuery && whereConditionId === 1) {
+  //       query += ` ${joinKey} (${where.column} ${where.operator || ''}`;
+  //     } else {
+  //       query += ` ${joinKey} ${where.column} ${where.operator || ''}`;
+  //     }
+  //
+  //     if (typeof where.value != 'undefined' && where.value !== null) {
+  //       query += ` $${whereConditionId + totalConditionsLength}`;
+  //       replacements.push(where.value);
+  //       whereConditionId++;
+  //     }
+  //   });
+  //
+  //   if (orQuery) {
+  //     query += ` OR ${orQuery})`;
+  //   }
+  //
+  //   return query;
+  // }
 
   _buildSelectQuery(modelOptions) {
     let { tableName, tableKey, schema } = modelOptions;
