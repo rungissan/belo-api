@@ -53,6 +53,7 @@ export default class FeedSearch {
     this.sqlWhere = '';
     this.sqlJoin = '';
     this.joinKey = 'WHERE';
+    this.selectedTables = [];
 
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
@@ -167,6 +168,11 @@ export default class FeedSearch {
         this.whereValues[tableKey] = conditions;
       }
     }
+
+    if (this.selectedTables.includes(modelOptions.tableKey)) {
+      return;
+    }
+    this.selectedTables.push(modelOptions.tableKey);
 
     if (isBase) {
       this.sqlSelect = this._buildSelectQuery(modelOptions);
