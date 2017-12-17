@@ -176,7 +176,8 @@ export default class FeedSearch {
       if (aggregateKey) {
         _set(this.whereValues, aggregateKey, conditions);
       } else {
-        this.whereValues[tableKey] = conditions;
+        let conditionsList = this.whereValues[tableKey] || [];
+        this.whereValues[tableKey] = [...conditionsList, ...conditions];
       }
     }
 
@@ -320,11 +321,7 @@ export default class FeedSearch {
     let { replacements } = this;
 
     if (!(aggType && i === 0)) {
-      query += ` ${this.joinKey}`;
-
-      if (this.joinKey === 'WHERE') {
-        this.joinKey = 'AND';
-      }
+      query += ` ${this._getJoinKey()}`;
     }
 
     query += ` ${where.column} ${where.operator || ''}`;
