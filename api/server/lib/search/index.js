@@ -3,6 +3,10 @@
 const debug = require('debug')('spiti:feed:search');
 
 import Promise from 'bluebird';
+import {
+  set as _set,
+  get as _get
+} from 'lodash';
 
 import { errValidation } from '../errors';
 import { formatSQLReplacements } from '../util';
@@ -20,6 +24,7 @@ const NULL_OPERATORS = {
   is: 'IS NULL',
   neq: 'IS NOT NULL'
 };
+const AGGREGATE_OPERATORS = ['or', 'and'];
 
 /** Searcher for feeds. */
 export default class FeedSearch {
@@ -78,14 +83,8 @@ export default class FeedSearch {
     let { baseModel } = this;
 
     Object.keys(filters).forEach(key => {
-      if (this._modelHaveProperty(baseModel.properties, key)) {
-        return;
-      }
-
       this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
-
-    this._buildQueryForModel(baseModel, filters);
 
     let query = this.sqlSelect;
     query += this.sqlJoin;
@@ -102,19 +101,32 @@ export default class FeedSearch {
   }
 
   _buildQueryForNotBasicProperty(baseModel, key, filters, aggregateKey = '') {
+    if (this._modelHaveProperty(baseModel.properties, key)) {
+      this._buildQueryForModel(baseModel, {[key]: filters}, aggregateKey);
+      return;
+    }
+
     let isModelRelated = this._isModelRelated(baseModel.Model, key);
 
     if (isModelRelated) {
       const modelOptions = this._getOptionsForModel(this.app.models, key, baseModel);
       this._buildQueryForModel(modelOptions, filters, aggregateKey);
-    } else if (key === 'or' && Array.isArray(filters)) {
-      filters.forEach(orCondition => {
-        let modelKey = Object.keys(orCondition)[0];
+    } else if (AGGREGATE_OPERATORS.includes(key) && Array.isArray(filters)) {
+      filters.forEach((condition, i) => {
+        let modelKey = Object.keys(condition)[0];
+
         if (!modelKey) {
           return;
         }
 
-        this._buildQueryForNotBasicProperty(baseModel, modelKey, orCondition[modelKey], key);
+        let path = aggregateKey;
+        if (!aggregateKey) {
+          path = `${key}.${i}`;
+        } else {
+          path = `${path}.${key}.${i}`;
+        }
+
+        this._buildQueryForNotBasicProperty(baseModel, modelKey, condition[modelKey], path);
       });
     }
   }
@@ -162,8 +174,7 @@ export default class FeedSearch {
 
     if (conditions.length) {
       if (aggregateKey) {
-        this.whereValues[aggregateKey] = this.whereValues[aggregateKey] || [];
-        this.whereValues[aggregateKey].push(conditions);
+        _set(this.whereValues, aggregateKey, conditions);
       } else {
         this.whereValues[tableKey] = conditions;
       }
@@ -247,87 +258,84 @@ export default class FeedSearch {
     let { whereValues, baseModel } = this;
     let query = '';
 
-    Object.keys(whereValues).forEach((tableKey, index) => {
-      if (tableKey === 'or') {
-        let orConditions = whereValues[tableKey].map(orWhereValues => {
-          return this._buildWhereStrings(orWhereValues, index, true);
-        });
-        query += ` ${this.joinKey} (${orConditions.map(sql => `(${sql})`).join(' OR ')})`;
-
-        if (this.joinKey === 'WHERE') {
-          this.joinKey = 'AND';
-        }
-      } else {
-        query += this._buildWhereStrings(whereValues[tableKey], index);
-      }
-    });
+    query = this._buildWhereForValues(whereValues);
 
     return query;
   }
 
-  // _buildWhereQuery() {
-  //   let { whereValues, baseModel } = this;
-  //   let query = '';
-  //
-  //   Object.keys(whereValues).forEach((tableKey, index) => {
-  //     query += this._buildWhereStrings(whereValues[tableKey], index);
-  //   });
-  //
-  //   return query;
-  // }
+  _buildWhereForValues(values, aggType, aggIndex = 0) {
+    let query = '';
 
-  _buildWhereStrings(whereValues, whereQueriesIndex, isOrCondition = false) {
+    if (aggType) {
+      if (aggType === 'and') {
+        query += ` ${this._getJoinKey()} ( `;
+      } else {
+        if (aggType === 'or' && aggIndex === 0) {
+          query += ' ( ';
+        } else {
+          query += ` ${aggType} ( `;
+        }
+      }
+    }
+
+    if (Array.isArray(values)) {
+      values.forEach((value, i) => {
+        if (Array.isArray(value) && values.length > 1) {
+          if (aggType) {
+            return this._buildWhereForValues(value, aggType);
+          }
+        } else {
+          query += this._buildWhereStrings(value, i, aggType);
+        }
+      });
+    } else if (typeof values === 'object') {
+      Object.keys(values).forEach(key => {
+        if (AGGREGATE_OPERATORS.includes(key) && Array.isArray(values[key])) {
+          let aggValuesList = values[key];
+          aggValuesList.forEach((aggValues, i) => {
+            query += this._buildWhereForValues(aggValues, key, i);
+          });
+        } else if (!aggType) {
+          query += this._buildWhereForValues(values[key]);
+        };
+      });
+    }
+
+    if (aggType) {
+      query += ' ) ';
+    }
+    return query;
+  }
+
+  _getJoinKey() {
+    if (this.joinKey === 'WHERE') {
+      this.joinKey = 'AND';
+      return 'WHERE';
+    }
+    return this.joinKey;
+  }
+
+  _buildWhereStrings(where, i, aggType) {
     let query = '';
     let { replacements } = this;
 
-    whereValues.forEach((where, i) => {
-      if (!(isOrCondition && i === 0)) {
-        query += ` ${this.joinKey}`;
+    if (!(aggType && i === 0)) {
+      query += ` ${this.joinKey}`;
 
-        if (this.joinKey === 'WHERE') {
-          this.joinKey = 'AND';
-        }
+      if (this.joinKey === 'WHERE') {
+        this.joinKey = 'AND';
       }
+    }
 
-      query += ` ${where.column} ${where.operator || ''}`;
+    query += ` ${where.column} ${where.operator || ''}`;
 
-      if (typeof where.value != 'undefined' && where.value !== null) {
-        query += ` $${replacements.length + 1}`;
-        replacements.push(where.value);
-      }
-    });
+    if (typeof where.value != 'undefined' && where.value !== null) {
+      query += ` $${replacements.length + 1}`;
+      replacements.push(where.value);
+    }
 
     return query;
   }
-  //
-  // _buildWhereStrings(whereValues, whereQueriesIndex, orQuery = '') {
-  //   let query = '';
-  //   let { replacements } = this;
-  //   let totalConditionsLength = replacements.length;
-  //   let whereConditionId = 1;
-  //
-  //   whereValues.forEach((where, i) => {
-  //     let joinKey = (whereQueriesIndex === 0 && i === 0) ? 'WHERE' : 'AND';
-  //
-  //     if (orQuery && whereConditionId === 1) {
-  //       query += ` ${joinKey} (${where.column} ${where.operator || ''}`;
-  //     } else {
-  //       query += ` ${joinKey} ${where.column} ${where.operator || ''}`;
-  //     }
-  //
-  //     if (typeof where.value != 'undefined' && where.value !== null) {
-  //       query += ` $${whereConditionId + totalConditionsLength}`;
-  //       replacements.push(where.value);
-  //       whereConditionId++;
-  //     }
-  //   });
-  //
-  //   if (orQuery) {
-  //     query += ` OR ${orQuery})`;
-  //   }
-  //
-  //   return query;
-  // }
 
   _buildSelectQuery(modelOptions) {
     let { tableName, tableKey, schema } = modelOptions;
@@ -461,7 +469,7 @@ export default class FeedSearch {
    * @return {Promise<Array>} query results.
    */
   _query(sql, replacements) {
-    if (this.options.debugSql) {
+    if (this.options.debugSql || true) {
       let rawSql = sql;
       replacements.forEach((value, i) => {
         rawSql = rawSql.replace(`$${i + 1}`, value);
