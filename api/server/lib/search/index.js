@@ -245,7 +245,7 @@ export default class FeedSearch {
           }
         }
       });
-    } else if (expression) {
+    } else if (typeof expression !== 'undefined') {
       conditionsList.push({
         column: `"${tableKey}".${columnName}`,
         operator: OPERATORS['is'],
