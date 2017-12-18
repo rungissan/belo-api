@@ -38,7 +38,7 @@ export default class FeedSearch extends BaseSearchController {
 
     return `
       SELECT "${tableKey}".*
-             ${include.includes('image') ? ', "image"' : ''}
+             ${include.includes('image') ? ', row_to_json("image".*) AS "image"' : ''}
              ${include.includes('additionalImages') ? ', "additionalImages"' : ''}
              ${include.includes('geolocations') ? ', geolocations' : ''}
              ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
@@ -80,12 +80,7 @@ export default class FeedSearch extends BaseSearchController {
 
   _includeImage() {
     return `
-    LEFT JOIN LATERAL (
-      SELECT
-        json_build_object('id', "attachment"."id") AS "image"
-      FROM "spiti"."attachment" AS "attachment"
-        WHERE "attachment"."id" = "${this.baseModel.tableKey}"."imageId"
-    ) "image" ON true
+      LEFT JOIN "spiti"."attachment" AS "image" ON "image"."id" = "${this.baseModel.tableKey}"."imageId"
     `;
   }
 
