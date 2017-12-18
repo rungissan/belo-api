@@ -264,20 +264,8 @@ export default class FeedSearch {
     return query;
   }
 
-  _buildWhereForValues(values, aggType, aggIndex = 0) {
+  _buildWhereForValues(values, aggType, aggIndex = 0, aggLevel = 0) {
     let query = '';
-
-    if (aggType) {
-      if (aggType === 'and') {
-        query += ` ${this._getJoinKey()} ( `;
-      } else {
-        if (aggType === 'or' && aggIndex === 0) {
-          query += ' ( ';
-        } else {
-          query += ` ${aggType} ( `;
-        }
-      }
-    }
 
     if (Array.isArray(values)) {
       values.forEach((value, i) => {
@@ -293,18 +281,28 @@ export default class FeedSearch {
       Object.keys(values).forEach(key => {
         if (AGGREGATE_OPERATORS.includes(key) && Array.isArray(values[key])) {
           let aggValuesList = values[key];
+          if (aggLevel === 0) {
+            query += ` ${this._getJoinKey()} ( `;
+          }
+
           aggValuesList.forEach((aggValues, i) => {
-            query += this._buildWhereForValues(aggValues, key, i);
+            if (i > 0) {
+              query += ` ${key} `;
+            }
+            query += ' ( ';
+            query += this._buildWhereForValues(aggValues, key, i, aggLevel + 1);
+            query += ' ) ';
           });
+
+          if (aggLevel === 0) {
+            query += ' ) ';
+          }
         } else if (!aggType) {
           query += this._buildWhereForValues(values[key]);
         };
       });
     }
 
-    if (aggType) {
-      query += ' ) ';
-    }
     return query;
   }
 
