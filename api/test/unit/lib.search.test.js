@@ -111,10 +111,10 @@ describe('Search', function() {
     });
 
     it('_buildWhereQueryForProp should add NULL where condition when expression = null', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', null);
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {is: null});
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {neq: null});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', null);
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {is: null});
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {neq: null});
 
       let expectedNull = {
         column: '"tableKey"."columnName"',
@@ -125,72 +125,72 @@ describe('Search', function() {
         operator: 'IS NOT NULL'
       };
 
-      expect(searchCtrl.whereValues.tableKey[0]).to.deep.equal(expectedNull);
-      expect(searchCtrl.whereValues.tableKey[1]).to.deep.equal(expectedNull);
-      expect(searchCtrl.whereValues.tableKey[2]).to.deep.equal(expectedNotNull);
+      expect(conditionsList[0]).to.deep.equal(expectedNull);
+      expect(conditionsList[1]).to.deep.equal(expectedNull);
+      expect(conditionsList[2]).to.deep.equal(expectedNotNull);
     });
 
     it('_buildWhereQueryForProp should skip unknown expression', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {unknown: true});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {unknown: true});
 
-      expect(searchCtrl.whereValues.tableKey.length).to.equal(0);
+      expect(conditionsList.length).to.equal(0);
     });
 
     it('_buildWhereQueryForProp should add "is" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {is: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {is: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('=');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('=');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "neq" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {neq: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {neq: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('!=');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('!=');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "gt" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {gt: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {gt: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('>');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('>');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "lt" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {lt: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {lt: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('<');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('<');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "gte" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {gte: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {gte: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('>=');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('>=');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "lte" condition', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', {lte: 10});
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {lte: 10});
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('<=');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('<=');
+      expect(conditionsList[0].value).to.equal(10);
     });
 
     it('_buildWhereQueryForProp should add "is" condition if expression is not object', () => {
-      searchCtrl.whereValues = {tableKey: []};
-      searchCtrl._buildWhereQueryForProp('tableKey', '"columnName"', 10);
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', 10);
 
-      expect(searchCtrl.whereValues.tableKey[0].operator).to.equal('=');
-      expect(searchCtrl.whereValues.tableKey[0].value).to.equal(10);
+      expect(conditionsList[0].operator).to.equal('=');
+      expect(conditionsList[0].value).to.equal(10);
     });
   });
 
@@ -275,24 +275,25 @@ describe('Search', function() {
     });
 
     it('_buildWhereStrings should set "WHERE" keyword for first condition', () => {
-      let whereValues = [{
+      let whereValue = {
         column: '"columnName"',
         operator: '=',
         value: 'value'
-      }];
-      let sql = searchCtrl._buildWhereStrings(whereValues, 'tableKey', 0);
+      };
+      let sql = searchCtrl._buildWhereStrings(whereValue, 0);
 
       expect(sql).to.be.a('string');
       expect(sql).to.equal(' WHERE "columnName" = $1');
     });
 
     it('_buildWhereStrings should set "AND" keyword if other conditions already processed', () => {
-      let whereValues = [{
+      let whereValue = {
         column: '"columnName"',
         operator: '=',
         value: 'value'
-      }];
-      let sql = searchCtrl._buildWhereStrings(whereValues, 'tableKey', 1);
+      };
+      searchCtrl._getJoinKey();
+      let sql = searchCtrl._buildWhereStrings(whereValue, 1);
 
       expect(sql).to.be.a('string');
       expect(sql).to.equal(' AND "columnName" = $1');
@@ -308,31 +309,85 @@ describe('Search', function() {
         operator: '!=',
         value: 'anotherValue'
       }];
-      let sql = searchCtrl._buildWhereStrings(whereValues, 'tableKey', 0);
+      let sql = '';
+      whereValues.forEach((value, i) => {
+        sql += searchCtrl._buildWhereStrings(value, i);
+      });
 
       expect(sql).to.be.a('string');
       expect(sql).to.equal(' WHERE "columnName" = $1 AND "anotherColumnName" != $2');
     });
 
     it('_buildWhereStrings should add "OR" query', () => {
-      let whereValues = [{
-        column: '"columnName"',
-        operator: '=',
-        value: 'value'
-      }];
-      let sql = searchCtrl._buildWhereStrings(whereValues, 'tableKey', 1, `"columnOr" = 'orValue'`);
+      let whereValues = {
+        or: [[{
+          column: '"columnName"',
+          operator: '=',
+          value: 'value'
+        }, {
+          column: '"anotherColumnName"',
+          operator: '=',
+          value: 'another'
+        }], [{
+          column: '"thirdColumnName"',
+          operator: '=',
+          value: 'val'
+        }]]
+      };
+      searchCtrl._getJoinKey();
+      let sql = searchCtrl._buildWhereForValues(whereValues);
 
       expect(sql).to.be.a('string');
-      expect(sql).to.equal(` AND ("columnName" = $1 OR "columnOr" = 'orValue')`);
+      expect(sql).to.equal(' AND (( "columnName" = $1 AND "anotherColumnName" = $2) OR ( "thirdColumnName" = $3))');
+    });
+
+    it('_buildWhereStrings should add nested "OR" query', () => {
+      let whereValues = {
+        and: [{
+          or: [
+            [{
+              column: '"table"."col_1"',
+              operator: '=',
+              value: 'val'
+            }],
+            [{
+              column: '"table"."col_2"',
+              operator: '=',
+              value: 'val_2'
+            }]
+          ]
+        },
+        {
+          or: [
+            [{
+              column: '"table_2"."col_1"',
+              operator: '>',
+              value: 'val_3'
+            }],
+            [{
+              column: '"table_2"."col_4"',
+              operator: '>',
+              value: 'val_4'
+            }]
+          ]
+        }]
+      };
+      searchCtrl._getJoinKey();
+      let sql = searchCtrl._buildWhereForValues(whereValues);
+      let expected = ' AND ((( "table"."col_1" = $1) OR ( "table"."col_2" = $2)) ' +
+        'AND (( "table_2"."col_1" > $3) OR ( "table_2"."col_4" > $4)))';
+
+      expect(sql).to.be.a('string');
+      expect(sql).to.equal(expected);
     });
 
     it('_buildWhereStrings should add value to replacements array', () => {
-      let whereValues = [{
+      let whereValue = {
         column: '"columnNameOne"',
         operator: '=',
         value: 'value'
-      }];
-      let sql = searchCtrl._buildWhereStrings(whereValues, 'tableKey', 1);
+      };
+      let sql = searchCtrl._buildWhereStrings(whereValue);
 
       expect(searchCtrl.replacements.length).to.equal(1);
       expect(searchCtrl.replacements[0]).to.equal('value');
@@ -346,7 +401,9 @@ describe('Search', function() {
         operator: '=',
         value: 2
       }];
-      sql += searchCtrl._buildWhereStrings(anotherWhereValues, 'tableKey', 1);
+      anotherWhereValues.forEach(value => {
+        sql += searchCtrl._buildWhereStrings(value);
+      });
 
       expect(searchCtrl.replacements.length).to.equal(3);
       expect(searchCtrl.replacements[1]).to.equal(false);

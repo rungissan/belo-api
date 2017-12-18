@@ -4,6 +4,7 @@ const options = {
   limit: 10
 };
 
+// TODO: refactor limit filters. allow to disable for some routes
 module.exports = (app) => {
   app.remotes().before('**', (ctx, next) => {
     let filter = ctx.args && ctx.args.filter || {};
