@@ -469,7 +469,7 @@ export default class FeedSearch {
    * @return {Promise<Array>} query results.
    */
   _query(sql, replacements) {
-    if (this.options.debugSql || true) {
+    if (this.options.debugSql) {
       let rawSql = sql;
       replacements.forEach((value, i) => {
         rawSql = rawSql.replace(`$${i + 1}`, value);
