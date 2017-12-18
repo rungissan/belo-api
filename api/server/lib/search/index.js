@@ -90,7 +90,7 @@ export default class FeedSearch {
       this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
 
-    let query = this.sqlSelect;
+    let query = this._buildSelectQuery(baseModel);
     query += this.sqlJoin;
     query += this._buildWhereQuery();
     query += this._buildOrderQuery(baseModel, filter.order);
@@ -191,7 +191,7 @@ export default class FeedSearch {
     this.selectedTables.push(modelOptions.tableKey);
 
     if (isBase) {
-      this.sqlSelect = this._buildSelectQuery(modelOptions);
+      // this.sqlSelect = this._buildSelectQuery(modelOptions);
     } else {
       this.sqlJoin += this._buildJoinQuery(modelOptions);
     }
@@ -285,6 +285,7 @@ export default class FeedSearch {
       Object.keys(values).forEach(key => {
         if (AGGREGATE_OPERATORS[key] && Array.isArray(values[key])) {
           let aggValuesList = values[key];
+          aggValuesList = aggValuesList.filter(val => !!val);
           if (aggLevel === 0) {
             query += ` ${this._getJoinKey()} (`;
           }
@@ -482,7 +483,10 @@ export default class FeedSearch {
     return new Promise((resolve, reject) => {
       return this.connector.execute(sql, replacements, (err, data) => {
         if (err) {
-          return reject(err);
+          console.log(err);
+          let error = new Error('Error occured');
+          error.status = 500;
+          return reject(error);
         }
         return resolve(data);
       });
