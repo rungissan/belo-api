@@ -7,7 +7,6 @@ import FeedSearch from '../lib/search/feed';
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(filter) {
     filter.where = formatFeedQuery(filter.where);
-    console.log('filter.where............', filter.where)
     return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
   };
 
@@ -26,7 +25,6 @@ module.exports = function(SavedFeed) {
   SavedFeed.prototype.getFeeds = async function(filterQuery = {}) {
     let feed = this;
     let where = formatFeedQuery(getSearchFilter(feed));
-    console.log('getSearchFilter............', where)
     let filter = {
       where,
       limit: filterQuery.limit,
