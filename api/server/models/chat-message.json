@@ -1,0 +1,63 @@
+{
+  "name": "Feed",
+  "base": "ChatMessage",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti",
+      "table": "chat_message"
+    }
+  },
+  "mixins": {
+    "Timestamp": {},
+    "RelationsValidate": {
+      "chat": {}
+    },
+    "ReadOnly" : {
+      "accountId": true,
+      "chatId" : true
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "chatId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "chatId",
+        "dataType": "integer"
+      }
+    },
+    "userId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "userId",
+        "dataType": "integer"
+      }
+    },
+    "message": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "accountId"
+    },
+    "chat": {
+      "type": "belongsTo",
+      "model": "Chat",
+      "foreignKey": "chatId"
+    }
+  },
+  "acls": [
+  ],
+  "methods": []
+}
