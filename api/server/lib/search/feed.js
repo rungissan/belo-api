@@ -20,6 +20,22 @@ export default class FeedSearch extends BaseSearchController {
 
     let tableKey = this.baseModel.tableKey;
 
+    let accountIncludeQuery = `
+      , json_build_object(
+        'id', "account"."userId",
+        'name', "account"."first_name",
+        'phone', "account"."last_name",
+        'phone', "account"."username",
+        'brokerage', "account"."brokerage",
+        'avatar', json_build_object(
+          'id', "accountAvatar".id,
+          'public_url', "accountAvatar".public_url,
+          'name', "accountAvatar".name,
+          'sizes', "accountAvatar".sizes
+        )
+      ) AS "account"
+    `;
+
     return `
       SELECT "${tableKey}".*
              ${include.includes('image') ? ', "image"' : ''}
@@ -27,12 +43,14 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('geolocations') ? ', geolocations' : ''}
              ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
              ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
+             ${include.includes('account') ? accountIncludeQuery : ''}
       FROM (${query}) AS "${tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
       ${include.includes('geolocations') ? this._includeGeolocations() : ''}
       ${include.includes('feedOptions') ? this._includeFeedOptions() : ''}
       ${include.includes('openHouse') ? this._includeOpenHouse() : ''}
+      ${include.includes('account') ? this._includeAccount() : ''}
     `;
   }
 
@@ -82,6 +100,15 @@ export default class FeedSearch extends BaseSearchController {
     return `
       LEFT JOIN "spiti"."open_house" AS "openHouse"
         ON "openHouse"."id" = "${this.baseModel.tableKey}"."openHouseId"
+    `;
+  }
+
+  _includeAccount() {
+    return `
+      LEFT JOIN "spiti"."account" AS "account"
+        ON "account"."userId" = "${this.baseModel.tableKey}"."userId"
+      LEFT JOIN "spiti"."attachment" AS "accountAvatar"
+        ON "accountAvatar"."id" = "account"."avatar_id"
     `;
   }
 };

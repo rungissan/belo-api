@@ -7,6 +7,7 @@ import FeedSearch from '../lib/search/feed';
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(filter) {
     filter.where = formatFeedQuery(filter.where);
+    filter.queryOptions = {distinct: true};
     return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
   };
 
@@ -32,6 +33,7 @@ module.exports = function(SavedFeed) {
       order: filterQuery.order,
       include: filterQuery.include
     };
+    filter.queryOptions = {distinct: true};
 
     return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
   };
