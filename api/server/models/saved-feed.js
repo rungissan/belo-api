@@ -6,6 +6,8 @@ import FeedSearch from '../lib/search/feed';
 
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(filter) {
+    filter.where = formatFeedQuery(filter.where);
+    console.log('filter.where............', filter.where)
     return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
   };
 
@@ -21,9 +23,10 @@ module.exports = function(SavedFeed) {
     }
   );
 
-  SavedFeed.prototype.getFeeds = async function(filterQuery) {
+  SavedFeed.prototype.getFeeds = async function(filterQuery = {}) {
     let feed = this;
-    let where = getSearchFilter(feed);
+    let where = formatFeedQuery(getSearchFilter(feed));
+    console.log('getSearchFilter............', where)
     let filter = {
       where,
       limit: filterQuery.limit,
@@ -67,6 +70,50 @@ module.exports = function(SavedFeed) {
         where[filter] = feed[filter];
       }
     });
+
+    return where;
+  }
+
+  /**
+   * @desc Build where query for multiple geolocations or feed types.
+   * This need only to simplify api.
+   * @param {Integer} [length]
+   * @param {String} [alphabet]
+   * @returns {String}
+   */
+  function formatFeedQuery(where) {
+    if (!where) {
+      return where;
+    }
+
+    let aggQuery;
+
+    if (Array.isArray(where.geolocations)) {
+      aggQuery = {
+        or: where.geolocations.map(query => ({geolocations: query}))
+      };
+      delete where.geolocations;
+    }
+
+    if (typeof where.feedOptions !== 'undefined') {
+      if (!where.type) {
+        if (aggQuery) {
+          aggQuery = {
+            and: [
+              {or: [{feedOptions: where.feedOptions}, { type: 'post'}] },
+              aggQuery
+            ]
+          };
+        } else {
+          aggQuery = {or: [{feedOptions: where.feedOptions}, { type: 'post'}] };
+        }
+      }
+      delete where.feedOptions;
+    }
+
+    if (aggQuery) {
+      where = {...where, ...aggQuery};
+    }
 
     return where;
   }
