@@ -11,7 +11,7 @@ import { BasicStrategy } from 'passport-http';
 import { Strategy as ClientPasswordStrategy } from 'passport-oauth2-client-password';
 
 import modelBuilder        from './models/index';
-import setupResourceServer from './resource-server';
+import setupResourceServer, { getAccessTokenCheckHandler } from './resource-server';
 
 const debug = log('loopback:oauth2');
 
@@ -40,7 +40,8 @@ module.exports = function(app, options) {
     app.middleware('auth', passport.session());
   }
 
-  handlers.authenticate = setupResourceServer(app, options, models, true);
+  handlers.authenticate     = setupResourceServer(app, options, models);
+  handlers.checkAccessToken = getAccessTokenCheckHandler(app, options, models);
 
   if (options.useClientCredentialsStrategy == false) {
     return handlers;
