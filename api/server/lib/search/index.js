@@ -24,7 +24,11 @@ const NULL_OPERATORS = {
   is: 'IS NULL',
   neq: 'IS NOT NULL'
 };
-const AGGREGATE_OPERATORS = ['or', 'and'];
+// const AGGREGATE_OPERATORS = ['or', 'and'];
+const AGGREGATE_OPERATORS = {
+  or: 'OR',
+  and: 'AND'
+};
 
 /** Searcher for feeds. */
 export default class FeedSearch {
@@ -111,7 +115,7 @@ export default class FeedSearch {
     if (isModelRelated) {
       const modelOptions = this._getOptionsForModel(this.app.models, key, baseModel);
       this._buildQueryForModel(modelOptions, filters, aggregateKey);
-    } else if (AGGREGATE_OPERATORS.includes(key) && Array.isArray(filters)) {
+    } else if (AGGREGATE_OPERATORS[key] && Array.isArray(filters)) {
       filters.forEach((condition, i) => {
         let modelKey = Object.keys(condition)[0];
 
@@ -279,23 +283,23 @@ export default class FeedSearch {
       });
     } else if (typeof values === 'object') {
       Object.keys(values).forEach(key => {
-        if (AGGREGATE_OPERATORS.includes(key) && Array.isArray(values[key])) {
+        if (AGGREGATE_OPERATORS[key] && Array.isArray(values[key])) {
           let aggValuesList = values[key];
           if (aggLevel === 0) {
-            query += ` ${this._getJoinKey()} ( `;
+            query += ` ${this._getJoinKey()} (`;
           }
 
           aggValuesList.forEach((aggValues, i) => {
             if (i > 0) {
-              query += ` ${key} `;
+              query += ` ${AGGREGATE_OPERATORS[key]} `;
             }
-            query += ' ( ';
+            query += '(';
             query += this._buildWhereForValues(aggValues, key, i, aggLevel + 1);
-            query += ' ) ';
+            query += ')';
           });
 
           if (aggLevel === 0) {
-            query += ' ) ';
+            query += ')';
           }
         } else if (!aggType) {
           query += this._buildWhereForValues(values[key]);

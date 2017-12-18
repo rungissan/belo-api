@@ -103,7 +103,6 @@ describe('Search', function() {
     });
   });
 
-  // TODO: add tests to check aggregate queries
   describe('builders: where options', function() {
     let searchCtrl;
 
@@ -329,13 +328,57 @@ describe('Search', function() {
           column: '"anotherColumnName"',
           operator: '=',
           value: 'another'
+        }], [{
+          column: '"thirdColumnName"',
+          operator: '=',
+          value: 'val'
         }]]
       };
       searchCtrl._getJoinKey();
       let sql = searchCtrl._buildWhereForValues(whereValues);
 
       expect(sql).to.be.a('string');
-      expect(sql).to.equal(' (  "columnName" = $1 AND "anotherColumnName" = $2 ) ');
+      expect(sql).to.equal(' AND (( "columnName" = $1 AND "anotherColumnName" = $2) OR ( "thirdColumnName" = $3))');
+    });
+
+    it('_buildWhereStrings should add nested "OR" query', () => {
+      let whereValues = {
+        and: [{
+          or: [
+            [{
+              column: '"table"."col_1"',
+              operator: '=',
+              value: 'val'
+            }],
+            [{
+              column: '"table"."col_2"',
+              operator: '=',
+              value: 'val_2'
+            }]
+          ]
+        },
+        {
+          or: [
+            [{
+              column: '"table_2"."col_1"',
+              operator: '>',
+              value: 'val_3'
+            }],
+            [{
+              column: '"table_2"."col_4"',
+              operator: '>',
+              value: 'val_4'
+            }]
+          ]
+        }]
+      };
+      searchCtrl._getJoinKey();
+      let sql = searchCtrl._buildWhereForValues(whereValues);
+      let expected = ' AND ((( "table"."col_1" = $1) OR ( "table"."col_2" = $2)) ' +
+        'AND (( "table_2"."col_1" > $3) OR ( "table_2"."col_4" > $4)))';
+
+      expect(sql).to.be.a('string');
+      expect(sql).to.equal(expected);
     });
 
     it('_buildWhereStrings should add value to replacements array', () => {
