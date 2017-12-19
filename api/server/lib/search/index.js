@@ -65,6 +65,10 @@ export default class FeedSearch {
     this.joinKey = 'WHERE';
     this.selectedTables = [];
 
+    this.aggregateFunction = {
+      count: this._addCountQuery
+    };
+
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
 
@@ -95,6 +99,7 @@ export default class FeedSearch {
     let query = this._buildSelectQuery(baseModel);
     query += this.sqlJoin;
     query += this._buildWhereQuery();
+    query += this._buildGroupByQuery();
     query += this._buildOrderQuery(baseModel, filter.order);
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
@@ -313,6 +318,28 @@ export default class FeedSearch {
     return query;
   }
 
+  _buildGroupByQuery() {
+    let query = '';
+    let groupBy = this.queryOptions.groupBy;
+    if (!(groupBy && groupBy.modelName && groupBy.column)) {
+      return query;
+    }
+
+    let modelOptions = this.models[groupBy.modelName];
+    if (!modelOptions) {
+      return query;
+    }
+
+    let property = modelOptions.properties[groupBy.column];
+    if (!property) {
+      return query;
+    }
+
+    let columnName = this._getColumnName(groupBy.column);
+
+    return ` GROUP BY "${modelOptions.tableKey}".${columnName}`;
+  }
+
   _getJoinKey() {
     if (this.joinKey === 'WHERE') {
       this.joinKey = 'AND';
@@ -339,22 +366,28 @@ export default class FeedSearch {
     return query;
   }
 
-  // TODO: Check if need distinct query
   _buildSelectQuery(modelOptions) {
-    let { tableName, tableKey, schema } = modelOptions;
     debug('Build select query');
-
-    // let distinctQuery =
+    let { tableName, tableKey, schema, idName } = modelOptions;
+    let { distinct, selectFunctions } = this.queryOptions;
 
     let query = 'SELECT';
-
-    if (this.queryOptions.distinct) {
-      query += ` DISTINCT ON ("${tableKey}".id)`;
+    if (distinct) {
+      query += ` DISTINCT ON ("${tableKey}"."${idName}")`;
     }
 
-    query += ` "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
+    query += ` "${tableKey}".*`;
+
+    if (selectFunctions && selectFunctions.length) {
+      selectFunctions.forEach(options => {
+        if (options && this.aggregateFunction[options.fn]) {
+          query += this.aggregateFunction[options.fn](options);
+        }
+      });
+    }
+
+    query += ` FROM "${schema}"."${tableName}" as "${tableKey}" `;
     return query;
-    // return `SELECT "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
   }
 
   _buildJoinQuery(modelOptions) {
@@ -408,6 +441,28 @@ export default class FeedSearch {
     }
 
     return query;
+  }
+
+  _addCountQuery(options) {
+    let query = '';
+
+    let { modelName, column } = options;
+    if (!(modelName && column)) {
+      return query;
+    }
+
+    let modelOptions = this.models[modelName];
+    if (!modelOptions) {
+      return query;
+    }
+
+    let property = modelOptions.properties[column];
+    if (!property) {
+      return query;
+    }
+
+    let columnName = this._getColumnName(column);
+    return `, count("${modelOptions.tableKey}".${columnName})`;
   }
 
   _buildLimitOffsetQuery(filter) {
@@ -562,6 +617,7 @@ export default class FeedSearch {
       collectedOptions.relation = this._getRelationOptions(modelRelation);
     }
 
+    this.models.tableKey = collectedOptions;
     return collectedOptions;
   }
 

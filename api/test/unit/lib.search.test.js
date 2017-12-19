@@ -423,7 +423,7 @@ describe('Search', function() {
       searchCtrl = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'TestProduct'});
     });
 
-    it('_buildJoinQueryHas should return select sql', () => {
+    it('_buildSelectQuery should return select sql', () => {
       let sql = searchCtrl._buildSelectQuery(searchCtrl.baseModel);
       expect(sql).to.equal('SELECT "TestProduct".* FROM "test"."test_product" as "TestProduct" ');
     });

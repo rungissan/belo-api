@@ -68,17 +68,23 @@ module.exports = function(Chat) {
       throw new Error('Account not found');
     }
 
-    let where = {
-      and: [{
-        account: { userId: user.id }
-      }, {
-        account: { userId: accountToId }
-      }],
-      type
+    let query = {
+      where: {
+        and: [{
+          account: { userId: user.id }
+        }, {
+          account: { userId: accountToId }
+        }],
+        type
+      },
+      queryOptions: {
+        groupBy: {modelName: 'Chat', column: 'id'},
+        selectFunctions: [{fn: 'count', modelName: 'account', column: 'userId'}]
+      }
     };
     const chetSearch = new Search(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
 
-    let existentChat = await chetSearch.query({where});
+    let existentChat = await chetSearch.query(query);
     if (existentChat && existentChat[0]) {
       return existentChat[0];
     }
