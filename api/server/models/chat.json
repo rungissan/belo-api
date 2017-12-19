@@ -62,7 +62,7 @@
       "model": "Account",
       "through": "ChatToAccount",
       "foreignKey": "chatId",
-      "keyThrough": "accountId"
+      "keyThrough": "userId"
     },
     "message": {
       "type": "hasMany",

@@ -5,6 +5,7 @@
   "options": {
     "validateUpsert": true,
     "postgresql": {
+      "table": "account",
       "schema": "spiti"
     }
   },

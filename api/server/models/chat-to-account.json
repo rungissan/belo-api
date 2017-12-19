@@ -35,7 +35,8 @@
     "chat": {
       "type": "belongsTo",
       "model": "Chat",
-      "foreignKey": "chatId"
+      "foreignKey": "chatId",
+      "keyTo": "userId"
     }
   },
   "acls": [

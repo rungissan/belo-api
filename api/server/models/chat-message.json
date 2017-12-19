@@ -49,7 +49,7 @@
     "account": {
       "type": "belongsTo",
       "model": "Account",
-      "foreignKey": "accountId"
+      "foreignKey": "userId"
     },
     "chat": {
       "type": "belongsTo",
