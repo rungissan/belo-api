@@ -59,7 +59,7 @@ module.exports = function enableAuthentication(app) {
 
     ioAuth(app.io, {
       authenticate: function(socket, data, callback) {
-        handlers.checkAccessToken({}, data.tokenId, (err, token) => {
+        handlers.checkAccessToken({}, data.token, (err, token) => {
           if (err) {
             debug('socket: auth error', err);
             callback(err);

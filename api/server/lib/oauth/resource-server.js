@@ -106,6 +106,10 @@ export default function setupResourceServer(app, options, models) {
 
 export function getAccessTokenCheckHandler(app, options, models) {
   return function checkAccessToken(req, accessToken, done) {
+    if (!accessToken) {
+      return done(new TokenError('Access token not found', 'invalid_grant'));
+    }
+
     debug('Verifying access token %s', accessToken);
     models.accessTokens.find(accessToken, function(err, token) {
       if (err) {
