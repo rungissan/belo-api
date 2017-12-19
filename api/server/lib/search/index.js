@@ -54,6 +54,7 @@ export default class FeedSearch {
     this.app = app;
     this.options = options;
     this.models = {};
+    this.queryOptions = {};
 
     this.whereValues = {};
     this.replacements = [];
@@ -80,6 +81,7 @@ export default class FeedSearch {
   buildQuery(filter = {}) {
     filter = this._validateFilter(filter);
     this.filter = {...filter};
+    this.queryOptions = filter.queryOptions || {};
 
     let filters = filter.where || {};
 
@@ -337,11 +339,22 @@ export default class FeedSearch {
     return query;
   }
 
+  // TODO: Check if need distinct query
   _buildSelectQuery(modelOptions) {
     let { tableName, tableKey, schema } = modelOptions;
     debug('Build select query');
 
-    return `SELECT "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
+    // let distinctQuery =
+
+    let query = 'SELECT';
+
+    if (this.queryOptions.distinct) {
+      query += ` DISTINCT ON ("${tableKey}".id)`;
+    }
+
+    query += ` "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
+    return query;
+    // return `SELECT "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
   }
 
   _buildJoinQuery(modelOptions) {
