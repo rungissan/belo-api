@@ -1,6 +1,6 @@
 {
-  "name": "Feed",
-  "base": "ChatMessage",
+  "name": "ChatMessage",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,

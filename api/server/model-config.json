@@ -138,5 +138,17 @@
   },
   "Followed": {
     "dataSource": "postgres"
+  },
+  "Chat": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "ChatMessage": {
+    "dataSource": "postgres",
+    "public": false
+  },
+  "ChatToAccount": {
+    "dataSource": "postgres",
+    "public": false
   }
 }

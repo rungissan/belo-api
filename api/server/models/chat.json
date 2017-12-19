@@ -1,6 +1,6 @@
 {
-  "name": "Feed",
-  "base": "Chat",
+  "name": "Chat",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
@@ -68,6 +68,16 @@
       "type": "hasMany",
       "model": "ChatMessage",
       "foreignKey": "chatId"
+    },
+    "image": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "imageId"
+    },
+    "background": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "backgroundId"
     }
   },
   "acls": [

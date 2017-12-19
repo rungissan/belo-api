@@ -1,10 +1,10 @@
 'use strict';
 
 import oauth2 from '../lib/oauth';
-import io     from 'socket.io';
-import ioAuth from 'socketio-auth';
 
 const debug = require('debug')('spiti:boot:authentication');
+
+import setupIoHandlers from '../lib/socket';
 
 module.exports = function enableAuthentication(app) {
   const options = {
@@ -54,28 +54,11 @@ module.exports = function enableAuthentication(app) {
 
   app.enableAuth();
 
+  if (!(app.ioHandlers && app.ioHandlers.length)) {
+    return;
+  }
+
   app.on('started', function() {
-    app.io = io(app.server);
-
-    ioAuth(app.io, {
-      authenticate: function(socket, data, callback) {
-        handlers.checkAccessToken({}, data.token, (err, token) => {
-          if (err) {
-            debug('socket: auth error', err);
-            callback(err);
-          } else {
-            debug('socket: auth success', token);
-            callback(null, token);
-          }
-        });
-      }
-    });
-
-    app.io.on('connection', function(socket) {
-      debug('socket: user connected');
-      socket.on('disconnect', function() {
-        debug('socket: user disconnected');
-      });
-    });
+    setupIoHandlers(app, handlers.checkAccessToken);
   });
 };
