@@ -377,7 +377,7 @@ export default class FeedSearch {
 
   _buildJoinQueryThrough(modelOptions) {
     debug('Build join through query');
-    let { tableName, tableKey, schema, relation, properties } = modelOptions;
+    let { tableName, tableKey, schema, relation, properties, idName } = modelOptions;
     let { keyFrom, keyTo, keyThrough, tableThrough } = relation;
 
     let query = ` LEFT OUTER JOIN "${tableThrough.schema}"."${tableThrough.tableName}" AS "${tableThrough.tableName}"` +
@@ -388,7 +388,7 @@ export default class FeedSearch {
     }
 
     query += ` LEFT OUTER JOIN "${schema}"."${tableName}" AS "${tableKey}"` +
-      ` ON "${tableThrough.tableName}"."${keyThrough}" = "${tableKey}"."id"`;
+      ` ON "${tableThrough.tableName}"."${keyThrough}" = "${tableKey}"."${idName}"`;
 
     if (properties.deleted_at) {
       query += ` AND "${tableKey}"."deleted_at" IS NULL`;
@@ -540,6 +540,7 @@ export default class FeedSearch {
       modelName,
       tableName,
       schema,
+      idName: Model.getIdName(),
       properties: modelDefinition.properties,
       isBase: !baseModel
     };

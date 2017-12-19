@@ -3,7 +3,7 @@
 import io     from 'socket.io';
 import ioAuth from 'socketio-auth';
 
-const debug = require('debug')('spiti:boot:socket-handler');
+const debug = require('debug')('spiti:boot:socket');
 
 export function addSocketHandler(Model, handler, options) {
   let app = Model.app;
@@ -100,6 +100,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
         let response = await eventHandler.handler(socket, data);
         cb(null, response);
       } catch (err) {
+        debug('socket handler error: ', err);
         let error = {
           message: err.message,
           code: err.code,

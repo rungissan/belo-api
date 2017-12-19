@@ -63,7 +63,7 @@ module.exports = function(Chat) {
     let { type = 'personal', title, accountToId } = data;
     const { Account } = Chat.app.models;
 
-    let accountTo = Account.findById(accountToId);
+    let accountTo = await Account.findById(accountToId);
     if (!accountTo) {
       throw new Error('Account not found');
     }
@@ -79,8 +79,8 @@ module.exports = function(Chat) {
     const chetSearch = new Search(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
 
     let existentChat = await chetSearch.query({where});
-    if (existentChat) {
-      return existentChat;
+    if (existentChat && existentChat[0]) {
+      return existentChat[0];
     }
 
     let createdChat;
@@ -90,13 +90,15 @@ module.exports = function(Chat) {
 
       createdChat = await ChatModel.create({title, type});
 
-      await ChatToAccountModel.create([{
+      let connectedAccounts = [{
         userId: user.id,
         chatId: createdChat.id
       }, {
         userId: accountTo.id,
         chatId: createdChat.id
-      }]);
+      }];
+
+      await ChatToAccountModel.create(connectedAccounts);
     });
 
     return createdChat;
