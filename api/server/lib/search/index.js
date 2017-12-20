@@ -66,7 +66,8 @@ export default class FeedSearch {
     this.selectedTables = [];
 
     this.aggregateFunction = {
-      count: this._addCountQuery
+      count: this._addCountQuery.bind(this),
+      arrayAgg: this._addArrayAggQuery.bind(this)
     };
 
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
@@ -444,25 +445,51 @@ export default class FeedSearch {
   }
 
   _addCountQuery(options) {
-    let query = '';
+    let { columnName, tableKey, as } = this._getFnOptions(options);
 
-    let { modelName, column } = options;
-    if (!(modelName && column)) {
+    if (columnName && tableKey) {
+      let query = `, count("${tableKey}".${columnName})`;
+      if (as) {
+        query += ` AS "${as}"`;
+      }
       return query;
+    }
+    return '';
+  }
+
+  _addArrayAggQuery(options) {
+    let { columnName, tableKey, as } = this._getFnOptions(options);
+    if (columnName && tableKey) {
+      let query = `, array_agg("${tableKey}".${columnName})`;
+      if (as) {
+        query += ` AS "${as}"`;
+      }
+      return query;
+    }
+    return '';
+  }
+
+  _getFnOptions(options) {
+    let { modelName, column, as } = options;
+    if (!(modelName && column)) {
+      return options;
     }
 
     let modelOptions = this.models[modelName];
     if (!modelOptions) {
-      return query;
+      return options;
     }
 
     let property = modelOptions.properties[column];
     if (!property) {
-      return query;
+      return options;
     }
 
-    let columnName = this._getColumnName(column);
-    return `, count("${modelOptions.tableKey}".${columnName})`;
+    return {
+      columnName: this._getColumnName(column),
+      tableKey: modelOptions.tableKey,
+      as: this._replaceCharacters(as)
+    };
   }
 
   _buildLimitOffsetQuery(filter) {
@@ -526,6 +553,18 @@ export default class FeedSearch {
       throw errValidation(`Unsupported search property ${prop}.`);
     }
     return true;
+  }
+
+  /**
+   * Check property for unsupported symbols.
+   * @param {String} prop
+   * @return {Boolean}.
+   */
+  _replaceCharacters(str) {
+    if (typeof str !== 'string') {
+      return null;
+    }
+    return str.replace(/[^\w]/, '');
   }
 
   _buildIncludesQuery(query) {
@@ -617,7 +656,7 @@ export default class FeedSearch {
       collectedOptions.relation = this._getRelationOptions(modelRelation);
     }
 
-    this.models.tableKey = collectedOptions;
+    this.models[collectedOptions.tableKey] = collectedOptions;
     return collectedOptions;
   }
 

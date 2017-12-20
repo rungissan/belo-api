@@ -13,19 +13,21 @@ module.exports = function(Chat) {
 
     const { ChatToAccount } = Chat.app.models;
 
-    let chats = await ChatToAccount.find({
+    let chatConnections = await ChatToAccount.find({
       where: { userId: user.id },
       include: {
         relation: 'chat',
         scope: {
-          include: {
+          include: [{
             relation: 'image'
-          }
+          }, {
+            relation: 'account'
+          }]
         }
       }
     });
 
-    return chats;
+    return chatConnections.map(c => c.toJSON().chat);
   };
 
   async function getMessages(socket, data = {}) {
@@ -70,7 +72,7 @@ module.exports = function(Chat) {
 
     let query = {
       where: {
-        and: [{
+        or: [{
           account: { userId: user.id }
         }, {
           account: { userId: accountToId }
@@ -79,14 +81,20 @@ module.exports = function(Chat) {
       },
       queryOptions: {
         groupBy: {modelName: 'Chat', column: 'id'},
-        selectFunctions: [{fn: 'count', modelName: 'account', column: 'userId'}]
+        selectFunctions: [{fn: 'arrayAgg', modelName: 'account', column: 'userId', as: 'participants'}]
       }
     };
-    const chetSearch = new Search(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
+    const chatSearch = new Search(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
 
-    let existentChat = await chetSearch.query(query);
-    if (existentChat && existentChat[0]) {
-      return existentChat[0];
+    let existentChats = await chatSearch.query(query);
+    if (existentChats.length) {
+      let existentChat = existentChats.find(chat => {
+        return [user.id, accountToId].every(uId => chat.participants.includes(uId));
+      });
+
+      if (existentChat) {
+        return existentChat;
+      }
     }
 
     let createdChat;
@@ -108,6 +116,23 @@ module.exports = function(Chat) {
     });
 
     return createdChat;
+  };
+
+  // TODO: implement sendMessage
+  async function sendMessage(socket, data = {}) {
+    let { user } = socket;
+    let { message, chatId } = data;
+
+    const { ChatMessage, ChatToAccount } = Chat.app.models;
+
+    let linkedAccount = await ChatToAccount.findOne({where: {userId: user.id, chatId}});
+
+    if (!linkedAccount) {
+      throw errUnauthorized();
+    }
+
+    return true;
+    // let createdMessage = ChatMessage.create();
   };
 
   Chat.on('attached', () => {
