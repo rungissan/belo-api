@@ -60,6 +60,13 @@
       "type": "hasOne",
       "model": "Feed",
       "foreignKey": "openHouseId"
+    },
+    "images": {
+      "type": "hasMany",
+      "model": "Attachment",
+      "through": "AttachmentToOpenHouse",
+      "foreignKey": "openHouseId",
+      "keyThrough": "attachmentId"
     }
   },
   "acls": [],
