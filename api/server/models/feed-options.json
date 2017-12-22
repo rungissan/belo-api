@@ -61,6 +61,12 @@
     "square": {
       "type": "number"
     },
+    "propertyType": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "propertyType"
+      }
+    },
     "propertyFeatures": {
       "type": "object",
       "postgresql": {
