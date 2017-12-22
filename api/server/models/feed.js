@@ -30,6 +30,9 @@ const FEATURES_OPTIONS = {
     square: {
       type: 'number'
     },
+    propertyType: {
+      type: 'string'
+    },
     propertyFeatures: {
       type: 'object'
     },
@@ -172,8 +175,24 @@ const FEATURES_VALIDATIONS = {
       }
     }
   },
-  schoolInformation: {},
-  transportation: {},
+  schoolInformation: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      custom: {
+        type: 'array'
+      }
+    }
+  },
+  transportation: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      custom: {
+        type: 'array'
+      }
+    }
+  },
   additionalFeatures: {
     type: 'object'
   }
