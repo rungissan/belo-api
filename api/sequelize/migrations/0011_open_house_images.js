@@ -31,12 +31,24 @@ module.exports = {
         {
           indicesType: 'UNIQUE'
         }
-      ));
+      ))
+      .then(() => {
+        return queryInterface.addColumn({tableName: 'open_house', ...BASE_SCHEMA},
+          'userId',
+          {
+            type: DataTypes.INTEGER,
+            references: {model: {tableName: 'user', ...BASE_SCHEMA}},
+            ...CASCADE_RULES,
+            allowNull: false
+          }
+        );
+      });
   },
   down: (queryInterface) => {
     return queryInterface.dropTable({
       tableName: 'attachment_to_open_house',
       ...BASE_SCHEMA
-    });
+    })
+      .then(() => queryInterface.removeColumn({tableName: 'open_house', ...BASE_SCHEMA}, 'userId'));
   }
 };
