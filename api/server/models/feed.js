@@ -207,10 +207,12 @@ module.exports = function(Feed) {
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
 
-  Feed.prototype.setOpenHouse = async function(openHouseData) {
+  Feed.prototype.setOpenHouse = async function(ctx, openHouseData) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
     let feed = this;
 
-    if (!(feed && feed.id)) {
+    if (!(feed && feed.id) || !userId) {
       return;
     }
 
@@ -218,24 +220,62 @@ module.exports = function(Feed) {
       throw errValidation('Open house can be created only for listing');
     }
 
-    const OpenHouse = Feed.app.models.OpenHouse;
+    const { OpenHouse, Attachment, AttachmentToOpenHouse } = Feed.app.models;
+    let openHouse;
 
     if (feed.openHouseId) {
-      let openHouse = await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
-      return openHouseData;
+      await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
     } else {
-      let openHouse = await OpenHouse.create(openHouseData);
+      openHouseData.userId = userId;
+      openHouse = await OpenHouse.create(openHouseData);
       await feed.updateAttributes({openHouseId: openHouse.id});
-      return openHouse;
     }
+
+    if (openHouseData.images && openHouseData.images.length) {
+      if (!openHouse) {
+        openHouse = await OpenHouse.findById(feed.openHouseId);
+      }
+
+      await Promise.map(openHouseData.images, async imageId => {
+        imageId = Number(imageId);
+        if (!imageId) {
+          return false;
+        }
+
+        let relationInstance =  await Attachment.findById(imageId);
+        if (!relationInstance) {
+          return false;
+        }
+
+        if (!(relationInstance.userId && relationInstance.userId == userId)) {
+          return false;
+        }
+
+        let attachmentLinkData = {
+          attachmentId: imageId,
+          openHouseId: openHouse.id
+        };
+
+        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({where: attachmentLinkData});
+        if (!attachmentToOpenHouse) {
+          AttachmentToOpenHouse.create({attachmentId: imageId, openHouseId: openHouse.id}, {accessToken: token});
+        }
+        return;
+      });
+    }
+
+    return openHouse || openHouseData;
   };
 
-  const OPEN_HOUSE_ACCEPTS = [{
-    arg: 'openHouse',
-    type: 'object',
-    required: true,
-    http: { source: 'body' }
-  }];
+  const OPEN_HOUSE_ACCEPTS = [
+    { arg: 'ctx',    type: 'object', http: { source: 'context' } },
+    {
+      arg: 'openHouse',
+      type: 'object',
+      required: true,
+      http: { source: 'body' }
+    }
+  ];
   const OPEN_HOUSE_RETURNS = { arg: 'data', type: 'OpenHouse', root: true};
 
   Feed.remoteMethod(

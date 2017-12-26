@@ -1,0 +1,57 @@
+{
+  "name": "AttachmentToOpenHouse",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "attachment_to_open_house",
+      "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "RelationsValidate": {
+      "attachment": {
+        "checkOwner": true
+      }
+    }
+  },
+  "properties": {
+    "openHouseId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "openHouseId"
+      }
+    },
+    "attachmentId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "attachmentId"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "openHouse": {
+      "type": "belongsTo",
+      "model": "OpenHouse",
+      "foreignKey": "openHouseId"
+    },
+    "attachment": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "attachmentId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}

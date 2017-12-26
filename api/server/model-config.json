@@ -120,6 +120,10 @@
     "dataSource": "postgres",
     "public": false
   },
+  "AttachmentToOpenHouse": {
+    "dataSource": "postgres",
+    "public": false
+  },
   "Feed": {
     "dataSource": "postgres"
   },

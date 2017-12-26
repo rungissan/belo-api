@@ -12,14 +12,29 @@
     "RemoteRouting" : {
       "only": [
         "@find",
-        "@findById"
+        "@findById",
+        "updateAttributes",
+        "__get__images",
+        "__link__images",
+        "__unlink__images"
       ]
+    },
+    "ReadOnly" : {
+      "userId": true,
+      "openHouseId" : true
     }
   },
   "properties": {
     "id": {
       "type": "number",
       "id": true
+    },
+    "userId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "userId",
+        "dataType": "integer"
+      }
     },
     "host": {
       "type": "string"
@@ -60,8 +75,39 @@
       "type": "hasOne",
       "model": "Feed",
       "foreignKey": "openHouseId"
+    },
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "userId"
+    },
+    "images": {
+      "type": "hasMany",
+      "model": "Attachment",
+      "through": "AttachmentToOpenHouse",
+      "foreignKey": "openHouseId",
+      "keyThrough": "attachmentId"
     }
   },
-  "acls": [],
+  "acls": [
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    }
+  ],
   "methods": []
 }
