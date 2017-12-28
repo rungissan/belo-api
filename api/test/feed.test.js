@@ -324,7 +324,6 @@ describe('Feed', function() {
             .send(testOpenHouse)
             .expect(200)
             .then((res) => {
-              console.log('res.body.......................', res.body)
               expect(res.body).to.be.a('object');
               expect(res.body.id).to.be.a('number');
             });

@@ -11,9 +11,7 @@
   },
   "mixins": {
     "RelationsValidate": {
-      "feed": {
-        "checkNotOwner": true
-      }
+      "feed": {}
     }
   },
   "properties": {
