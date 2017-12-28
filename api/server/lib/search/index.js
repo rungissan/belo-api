@@ -55,6 +55,7 @@ export default class FeedSearch {
     this.options = options;
     this.models = {};
     this.queryOptions = {};
+    this.userOptions = {};
 
     this.whereValues = {};
     this.replacements = [];
@@ -68,7 +69,8 @@ export default class FeedSearch {
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
 
-  query(filter) {
+  query(filter, userOptions = {}) {
+    this.userOptions = userOptions;
     try {
       let { query, replacements } = this.buildQuery(filter);
 

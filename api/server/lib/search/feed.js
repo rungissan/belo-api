@@ -36,6 +36,8 @@ export default class FeedSearch extends BaseSearchController {
       ) AS "account"
     `;
 
+    let favoriteIncludeQuery = ', "favoriteFeed"."id" IS NOT NULL AS "isFavorite"';
+
     return `
       SELECT "${tableKey}".*
              ${include.includes('image') ? ', row_to_json("image".*) AS "image"' : ''}
@@ -44,6 +46,7 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('feedOptions') ? ', row_to_json("feedOptions".*) AS "feedOptions"' : ''}
              ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
              ${include.includes('account') ? accountIncludeQuery : ''}
+             ${include.includes('isFavorite') && this.userOptions.userId ? favoriteIncludeQuery : ''}
       FROM (${query}) AS "${tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
@@ -51,6 +54,7 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('feedOptions') ? this._includeFeedOptions() : ''}
       ${include.includes('openHouse') ? this._includeOpenHouse() : ''}
       ${include.includes('account') ? this._includeAccount() : ''}
+      ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
     `;
   }
 
@@ -104,6 +108,14 @@ export default class FeedSearch extends BaseSearchController {
         ON "account"."userId" = "${this.baseModel.tableKey}"."userId"
       LEFT JOIN "spiti"."attachment" AS "accountAvatar"
         ON "accountAvatar"."id" = "account"."avatar_id"
+    `;
+  }
+
+  _includeIsFavorite() {
+    return `
+      LEFT JOIN "spiti"."favorite_feed" AS "favoriteFeed"
+        ON "favoriteFeed"."userId" = ${this.userOptions.userId}
+        AND "favoriteFeed"."feedId" = "${this.baseModel.tableKey}"."id"
     `;
   }
 };
