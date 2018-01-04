@@ -69,7 +69,8 @@
     "provider": "filesystem",
     "root": "/usr/src/storage/private",
     "nameConflict": "makeUnique",
-    "allowedContentTypes": ["image/png", "image/jpeg"]
+    "allowedContentTypes": ["image/png", "image/jpeg"],
+    "maxFieldsSize": 15728640
   },
   "storagePublic": {
     "name": "storage",
@@ -77,6 +78,7 @@
     "provider": "filesystem",
     "root": "/usr/src/storage/public",
     "nameConflict": "makeUnique",
-    "allowedContentTypes": ["image/png", "image/jpeg"]
+    "allowedContentTypes": ["image/png", "image/jpeg"],
+    "maxFieldsSize": 15728640
   }
 }
