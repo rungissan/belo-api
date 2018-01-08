@@ -521,6 +521,14 @@ describe('Search', function() {
       let sql = searchCtrl._buildOrderQuery(searchCtrl.baseModel);
       expect(sql).to.equal(' ORDER BY "TestProduct"."id" DESC');
     });
+
+    it('_buildOrderQuery should push to orderColumns list', () => {
+      let sql = searchCtrl._buildOrderQueryString(searchCtrl.baseModel, 'quantity DESC');
+      expect(searchCtrl.orderColumns).to.deep.equal([{
+        column: '"TestProduct"."quantity"',
+        direction: 'DESC'
+      }]);
+    });
   });
 
   describe('run', function() {

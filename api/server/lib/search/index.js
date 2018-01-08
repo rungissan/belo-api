@@ -65,6 +65,7 @@ export default class FeedSearch {
     this.sqlJoin = '';
     this.joinKey = 'WHERE';
     this.selectedTables = [];
+    this.orderColumns = [];
 
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
@@ -94,10 +95,11 @@ export default class FeedSearch {
       this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
 
+    let orderQuery = this._buildOrderQuery(baseModel, filter.order);
     let query = this._buildSelectQuery(baseModel);
     query += this.sqlJoin;
     query += this._buildWhereQuery();
-    query += this._buildOrderQuery(baseModel, filter.order);
+    query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
 
@@ -351,7 +353,14 @@ export default class FeedSearch {
     let query = 'SELECT';
 
     if (this.queryOptions.distinct) {
-      query += ` DISTINCT ON ("${tableKey}".id)`;
+      query += ` DISTINCT ON ("${tableKey}"."id"`;
+      if (this.orderColumns.length) {
+        this.orderColumns.forEach(order => {
+          query += `, ${order.column}`;
+        });
+      }
+
+      query += ')';
     }
 
     query += ` "${tableKey}".* FROM "${schema}"."${tableName}" as "${tableKey}" `;
@@ -459,6 +468,11 @@ export default class FeedSearch {
     if (!properties[columnName]) {
       return null;
     }
+
+    this.orderColumns.push({
+      column: `"${tableKey}"."${columnName}"`,
+      direction
+    });
 
     return `"${tableKey}"."${columnName}" ${direction}`;
   }
