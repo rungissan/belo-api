@@ -2,8 +2,10 @@
 
 import BaseSearchController from './index';
 
-export default class FeedSearch extends BaseSearchController {
+export default class ClientSearch extends BaseSearchController {
   constructor(connector, app, options = {}) {
     super(connector, app, options);
   }
+
+
 };

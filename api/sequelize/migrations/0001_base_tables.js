@@ -24,6 +24,7 @@ const account = (DataTypes) => ({
   userId: { type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
+    primaryKey: true,
     references: {model: {tableName: 'user', ...BASE_SCHEMA}},
     ...CASCADE_RULES
   },

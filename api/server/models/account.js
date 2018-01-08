@@ -2,7 +2,8 @@
 
 import Promise from 'bluebird';
 
-import FavoriteFeedSearch from '../lib/search/favorite-feed';
+import Search from '../lib/search';
+import ClientSearch from '../lib/search/client';
 
 module.exports = function(Account) {
   Account.validatesLengthOf('licenseState',  {max: 4,   allowBlank: true, allowNull: true});
@@ -77,7 +78,7 @@ module.exports = function(Account) {
     filter.where = filter.where || {};
     let where = filter.where;
 
-    const favoriteFeedSearch = new FavoriteFeedSearch(app.dataSources.postgres.connector, app, {baseModelName: 'FavoriteFeed'});
+    const favoriteFeedSearch = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'FavoriteFeed'});
 
     let idsSearchFilter = {
       where: {
@@ -103,4 +104,36 @@ module.exports = function(Account) {
 
     return await Feed.find(filter);
   };
+
+  Account.search = async function(ctx, filter = {}) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+
+    const clientSearch = new ClientSearch(Account.app.dataSources.postgres.connector, Account.app, {baseModelName: 'Account'});
+
+    let query = {
+      where: {
+        type: 'prof'
+      },
+      limit: filter.limit,
+      offset: filter.offset
+    };
+
+    return await clientSearch.query(query);
+
+    // return await searchFavoriteFeeds(Account.app, userId, filter);
+  };
+
+  Account.remoteMethod(
+    'search',
+    {
+      description: 'Search by feed criterion.',
+      accepts: [
+        {arg: 'ctx',    type: 'object', http: { source: 'context' }},
+        {arg: 'filter', type: 'object', required: true}
+      ],
+      returns: { arg: 'filters', type: 'Array', root: true},
+      http: {verb: 'get', path: '/search'}
+    }
+  );
 };
