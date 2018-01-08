@@ -73,19 +73,9 @@ module.exports = function(Account) {
   );
 
   async function searchFavoriteFeeds(app, userId, filter = {}) {
-    let { Feed } = app.models;
-
-    if (!filter.where) {
-      filter.where = { userId };
-      return await Feed.find(filter);
-    }
-
+    let { Feed, FavoriteFeed } = app.models;
+    filter.where = filter.where || {};
     let where = filter.where;
-
-    if (!(where.type || typeof where.openHouseId !== 'undefined')) {
-      filter.where = { userId };
-      return await Feed.find(filter);
-    }
 
     const favoriteFeedSearch = new FavoriteFeedSearch(app.dataSources.postgres.connector, app, {baseModelName: 'FavoriteFeed'});
 

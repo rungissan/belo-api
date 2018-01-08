@@ -55,6 +55,7 @@ export default class FeedSearch {
     this.options = options;
     this.models = {};
     this.queryOptions = {};
+    this.userOptions = {};
 
     this.whereValues = {};
     this.replacements = [];
@@ -64,6 +65,7 @@ export default class FeedSearch {
     this.sqlJoin = '';
     this.joinKey = 'WHERE';
     this.selectedTables = [];
+    this.orderColumns = [];
 
     this.aggregateFunction = {
       count: this._addCountQuery.bind(this),
@@ -73,7 +75,8 @@ export default class FeedSearch {
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
 
-  query(filter) {
+  query(filter, userOptions = {}) {
+    this.userOptions = userOptions;
     try {
       let { query, replacements } = this.buildQuery(filter);
 
@@ -97,11 +100,12 @@ export default class FeedSearch {
       this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
 
+    let orderQuery = this._buildOrderQuery(baseModel, filter.order);
     let query = this._buildSelectQuery(baseModel);
     query += this.sqlJoin;
     query += this._buildWhereQuery();
     query += this._buildGroupByQuery();
-    query += this._buildOrderQuery(baseModel, filter.order);
+    query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
 
@@ -373,8 +377,15 @@ export default class FeedSearch {
     let { distinct, selectFunctions } = this.queryOptions;
 
     let query = 'SELECT';
-    if (distinct) {
-      query += ` DISTINCT ON ("${tableKey}"."${idName}")`;
+    if (this.queryOptions.distinct) {
+      query += ` DISTINCT ON ("${tableKey}"."${idName}"`;
+      if (this.orderColumns.length) {
+        this.orderColumns.forEach(order => {
+          query += `, ${order.column}`;
+        });
+      }
+
+      query += ')';
     }
 
     query += ` "${tableKey}".*`;
@@ -539,6 +550,11 @@ export default class FeedSearch {
     if (!properties[columnName]) {
       return null;
     }
+
+    this.orderColumns.push({
+      column: `"${tableKey}"."${columnName}"`,
+      direction
+    });
 
     return `"${tableKey}"."${columnName}" ${direction}`;
   }

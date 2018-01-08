@@ -1,46 +1,48 @@
 {
-  "name": "FavoriteFeed",
+  "name": "AttachmentToOpenHouse",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true,
     "postgresql": {
-      "table": "favorite_feed",
+      "table": "attachment_to_open_house",
       "schema": "spiti"
     }
   },
   "mixins": {
     "RelationsValidate": {
-      "feed": {}
+      "attachment": {
+        "checkOwner": true
+      }
     }
   },
   "properties": {
-    "userId": {
+    "openHouseId": {
       "type": "number",
       "required": true,
       "postgresql": {
-        "columnName": "userId"
+        "columnName": "openHouseId"
       }
     },
-    "feedId": {
+    "attachmentId": {
       "type": "number",
       "required": true,
       "postgresql": {
-        "columnName": "feedId"
+        "columnName": "attachmentId"
       }
     }
   },
   "validations": [],
   "relations": {
-    "account": {
+    "openHouse": {
       "type": "belongsTo",
-      "model": "Account",
-      "foreignKey": "userId"
+      "model": "OpenHouse",
+      "foreignKey": "openHouseId"
     },
-    "feed": {
+    "attachment": {
       "type": "belongsTo",
-      "model": "Feed",
-      "foreignKey": "feedId"
+      "model": "Attachment",
+      "foreignKey": "attachmentId"
     }
   },
   "acls": [

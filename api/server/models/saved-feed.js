@@ -23,7 +23,7 @@ module.exports = function(SavedFeed) {
     }
   );
 
-  SavedFeed.prototype.getFeeds = async function(filterQuery = {}) {
+  SavedFeed.prototype.getFeeds = async function(ctx, filterQuery = {}) {
     let feed = this;
     let where = formatFeedQuery(getSearchFilter(feed));
     let filter = {
@@ -35,7 +35,10 @@ module.exports = function(SavedFeed) {
     };
     filter.queryOptions = {distinct: true};
 
-    return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+
+    return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter, userId);
   };
 
   SavedFeed.remoteMethod(
@@ -43,6 +46,7 @@ module.exports = function(SavedFeed) {
     {
       description: 'Get feeds by saved filters.',
       accepts: [
+        { arg: 'ctx',    type: 'object', http: { source: 'context' } },
         { arg: 'filter', type: 'object', http: { source: 'query' } }
       ],
       returns: { arg: 'feeds', type: 'Array', root: true},
@@ -50,9 +54,9 @@ module.exports = function(SavedFeed) {
     }
   );
 
-  async function searchSavedFeeds(dataSource, app, filter) {
+  async function searchSavedFeeds(dataSource, app, filter, userId) {
     const feedSearch = new FeedSearch(dataSource.connector, app, {baseModelName: 'Feed'});
-    return await feedSearch.query(filter);
+    return await feedSearch.query(filter, {userId: userId});
   }
 
   const BASE_FILTERS = ['type', 'displayAddress', 'showInBrokerFeed'];
@@ -95,7 +99,7 @@ module.exports = function(SavedFeed) {
       delete where.geolocations;
     }
 
-    if (typeof where.feedOptions !== 'undefined') {
+    if (typeof where.feedOptions === 'object' && Object.keys(where.feedOptions).length) {
       if (!where.type) {
         if (aggQuery) {
           aggQuery = {
