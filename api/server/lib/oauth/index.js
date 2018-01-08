@@ -18,7 +18,7 @@ exports.oauth2orize = require('oauth2orize');
  * A factory function for middleware handler that obtains the `authentication`
  * handler configured by the OAuth2 component.
  */
-exports.authenticate = function(options) {
+exports.authenticate = function(options, verifyMiddleware) {
   var router;
   return function oauth2AuthenticateHandler(req, res, next) {
     if (!router) {
@@ -29,7 +29,7 @@ exports.authenticate = function(options) {
         return next(new Error('The OAuth2 component was not configured for this application.'));
       }
 
-      var handlers = authenticate(options);
+      var handlers = authenticate(options, verifyMiddleware);
       router = app.loopback.Router();
       for (var i = 0, n = handlers.length; i < n; i++) {
         router.use(handlers[i]);
