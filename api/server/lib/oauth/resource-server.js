@@ -164,14 +164,15 @@ function setupResourceServer(app, options, models) {
    * - scope
    * - jwt
    */
-  function authenticate(options) {
+  function authenticate(options, verifyMiddleware) {
     options = options || {};
     debug('Setting up authentication:', options);
 
     var authenticators = [];
     authenticators = [
       passport.authenticate(['loopback-oauth2-bearer', 'loopback-oauth2-mac'],
-        options)];
+        options,
+        verifyMiddleware)];
     if (options.scopes || options.scope) {
       authenticators.push(scopeValidator(options));
     }
