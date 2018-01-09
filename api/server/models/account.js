@@ -108,20 +108,21 @@ module.exports = function(Account) {
   Account.search = async function(ctx, filter = {}) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
+    let where = filter.where || {};
 
     const clientSearch = new ClientSearch(Account.app.dataSources.postgres.connector, Account.app, {baseModelName: 'Account'});
 
     let query = {
       where: {
-        type: 'prof'
+        type: 'prof',
+        searchString: where.searchString
       },
+      include: ['avatar'],
       limit: filter.limit,
       offset: filter.offset
     };
 
     return await clientSearch.query(query);
-
-    // return await searchFavoriteFeeds(Account.app, userId, filter);
   };
 
   Account.remoteMethod(

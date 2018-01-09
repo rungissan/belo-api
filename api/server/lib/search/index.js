@@ -66,6 +66,7 @@ export default class FeedSearch {
     this.joinKey = 'WHERE';
     this.selectedTables = [];
     this.orderColumns = [];
+    this.filter = {};
 
     this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
   }
@@ -271,6 +272,7 @@ export default class FeedSearch {
 
     query = this._buildWhereForValues(whereValues);
 
+    this.buildAdditionalWhereQuery && (query += this.buildAdditionalWhereQuery());
     return query;
   }
 
