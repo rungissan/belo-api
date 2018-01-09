@@ -29,9 +29,9 @@ const account = (DataTypes) => ({
     ...CASCADE_RULES
   },
   type:               { type: DataTypes.STRING(20) },
-  first_name:         { type: DataTypes.STRING(30) },
-  last_name:          { type: DataTypes.STRING(30) },
-  username:           { type: DataTypes.STRING(30) },
+  first_name:         { type: DataTypes.STRING(30), defaultValue: '' },
+  last_name:          { type: DataTypes.STRING(30), defaultValue: '' },
+  username:           { type: DataTypes.STRING(30), defaultValue: '' },
   phone:              { type: DataTypes.STRING(30) },
   about:              { type: DataTypes.TEXT },
   biography:          { type: DataTypes.TEXT },
