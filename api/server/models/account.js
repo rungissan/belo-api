@@ -117,12 +117,12 @@ module.exports = function(Account) {
         type: 'prof',
         searchString: where.searchString
       },
-      include: ['avatar'],
+      include: ['avatar', 'followed'],
       limit: filter.limit,
       offset: filter.offset
     };
 
-    return await clientSearch.query(query);
+    return await clientSearch.query(query, {userId: userId});
   };
 
   Account.remoteMethod(

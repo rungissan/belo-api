@@ -38,18 +38,30 @@ export default class ClientSearch extends BaseSearchController {
 
     let tableKey = this.baseModel.tableKey;
 
+    let isFollowedIncludeQuery = ', "followed"."id" IS NOT NULL AS "isFollowed"';
+
     return `
       SELECT "${tableKey}".*, "user"."email" AS "email"
              ${include.includes('avatar') ? ', row_to_json("avatar".*) AS "avatar"' : ''}
+             ${include.includes('followed') && this.userOptions.userId ? isFollowedIncludeQuery : ''}
       FROM (${query}) AS "${tableKey}"
       LEFT JOIN "spiti"."user" AS "user" ON "user"."id" = "${this.baseModel.tableKey}"."userId"
       ${include.includes('avatar') ? this._includeAvatar() : ''}
+      ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
     `;
   }
 
   _includeAvatar() {
     return `
       LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "${this.baseModel.tableKey}"."avatar_id"
+    `;
+  }
+
+  _includeIsFollowed() {
+    return `
+      LEFT JOIN "spiti"."followed" AS "followed"
+        ON "followed"."userId" = ${this.userOptions.userId}
+        AND "followed"."followedId" = "${this.baseModel.tableKey}"."userId"
     `;
   }
 };
