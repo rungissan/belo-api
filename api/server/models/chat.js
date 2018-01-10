@@ -6,6 +6,38 @@ import { addSocketHandler } from '../lib/socket';
 import { errUnauthorized }  from '../lib/errors';
 import Search from '../lib/search';
 
+//
+// SELECT "chat".*,
+//        "participants",
+//        "messages"
+// FROM (
+//   SELECT "Chat"."id"
+//   FROM "spiti"."chat" AS "Chat"
+//   INNER JOIN "spiti"."chat_to_account" AS "chat_to_account_from" ON "chat_to_account_from"."chatId" = "Chat"."id"
+//     AND "chat_to_account_from"."userId" = 3
+//   INNER JOIN "spiti"."chat_to_account" AS "chat_to_account_to" ON "chat_to_account_to"."chatId" = "Chat"."id"
+//     AND "chat_to_account_to"."userId" = 4
+// ) AS "filteredChat"
+//
+// INNER JOIN "spiti"."chat" AS "chat" ON "chat"."id" = "filteredChat"."id"
+// LEFT JOIN LATERAL (
+//   SELECT
+//     jsonb_agg("participant".*) AS "participant"
+//   FROM "spiti"."chat_to_account" AS "chat_to_account"
+//     LEFT OUTER JOIN "spiti"."account" AS "participant" ON "chat_to_account"."userId" = "participant"."userId"
+//   WHERE "chat_to_account"."chatId" = "chat"."id"
+// ) "participants" ON true
+// LEFT JOIN LATERAL (
+//   SELECT
+//     json_agg("message".*) AS "message"
+//   FROM "spiti"."chat_message" AS "message"
+//   WHERE "message"."chatId" = "chat"."id"
+// ) "messages" ON true
+//
+// LIMIT 10
+// OFFSET 0;
+//
+
 module.exports = function(Chat) {
   async function getChat(socket, data = {}) {
     let { filter = {} } = data;

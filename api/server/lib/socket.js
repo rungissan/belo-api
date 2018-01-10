@@ -78,7 +78,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
       if (!socket.auth) {
         let err = new Error('unauthorized');
         err.code = 'unauthorized';
-        return cb(err);
+        return (typeof cb === 'function') && cb(err);
       }
 
       if (!(eventName && typeof eventName === 'string')) {
@@ -98,7 +98,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
         }
 
         let response = await eventHandler.handler(socket, data);
-        cb(null, response);
+        (typeof cb === 'function') && cb(null, response);
       } catch (err) {
         debug('socket handler error: ', err);
         let error = {
@@ -106,7 +106,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
           code: err.code,
           status: err.status
         };
-        cb(error);
+        (typeof cb === 'function') && cb(error);
       }
     });
   });

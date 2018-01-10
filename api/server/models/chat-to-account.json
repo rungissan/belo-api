@@ -23,6 +23,12 @@
       "postgresql": {
         "columnName": "chatId"
       }
+    },
+    "lastReadedMessageId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "lastReadedMessageId"
+      }
     }
   },
   "validations": [],

@@ -46,6 +46,12 @@ const chat_to_account = (DataTypes) => ({
     allowNull: false,
     references: {model: {tableName: 'chat', ...BASE_SCHEMA}},
     ...CASCADE_RULES
+  },
+  lastReadedMessageId: {
+    type: DataTypes.INTEGER,
+    references: {model: {tableName: 'chat_message', ...BASE_SCHEMA}},
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL'
   }
 });
 
