@@ -1,6 +1,7 @@
 'use strict';
 
 import oauth2 from '../lib/oauth';
+import { errUnauthorized } from '../lib/errors';
 
 const debug = require('debug')('spiti:boot:authentication');
 
@@ -17,11 +18,6 @@ module.exports = function enableAuthentication(app) {
   };
 
   const handlers = oauth2.oAuth2Provider(app, options);
-
-  const auth = oauth2.authenticate({
-    session: false,
-    scopes: ['DEFAULT']
-  });
 
   const PUBLIC_ROUTES = [{
     path: '/clients',
@@ -43,7 +39,18 @@ module.exports = function enableAuthentication(app) {
     })) {
       return handlers.authenticateClientMiddleware(req, res, next);
     } else {
-      return auth(req, res, next);
+      return oauth2.authenticate({
+        session: false,
+        scopes: ['DEFAULT']
+      }, (err, user, info) => {
+        if (err) {
+          return next(err);
+        } else if (!user) {
+          return next(errUnauthorized());
+        } else {
+          return next();
+        }
+      })(req, res, next);
     }
   });
 

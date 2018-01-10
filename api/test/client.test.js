@@ -39,7 +39,12 @@ describe('Client', function() {
 
   it('should reject get all clients without auth', () => {
     return api.get('/api/clients')
-      .expect(401);
+      .expect(401)
+      .then((res) => {
+        console.log('res.......................................', res.body)
+        expect(res.body.error).to.be.a('object');
+        expect(res.body.error.code).to.equal('AUTHORIZATION_REQUIRED');
+      });
   });
 
   it('should reject get a single client without auth', () => {

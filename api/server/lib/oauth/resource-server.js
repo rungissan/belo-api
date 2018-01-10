@@ -21,6 +21,8 @@ var isExpired = helpers.isExpired;
 
 const TokenError = oauth2Provider.TokenError;
 
+// module.exports = setupResourceServer;
+
 /**
  * Set up oAuth 2.0 strategies
  * @param {Object} app App instance
@@ -86,14 +88,15 @@ export default function setupResourceServer(app, options, models) {
    * - scope
    * - jwt
    */
-  function authenticate(options) {
+  function authenticate(options, verifyMiddleware) {
     options = options || {};
     debug('Setting up authentication:', options);
 
     var authenticators = [];
     authenticators = [
       passport.authenticate(['loopback-oauth2-bearer', 'loopback-oauth2-mac'],
-        options)];
+        options,
+        verifyMiddleware)];
     if (options.scopes || options.scope) {
       authenticators.push(scopeValidator(options));
     }

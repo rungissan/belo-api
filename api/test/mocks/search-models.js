@@ -24,6 +24,7 @@ const TestProduct = {
       }
     },
     'type': 'string',
+    'description': 'string',
     'quantity': 'number'
   },
   'relations': {

@@ -66,6 +66,7 @@ export default class FeedSearch {
     this.joinKey = 'WHERE';
     this.selectedTables = [];
     this.orderColumns = [];
+    this.filter = {};
 
     this.aggregateFunction = {
       count: this._addCountQuery.bind(this),
@@ -277,6 +278,7 @@ export default class FeedSearch {
 
     query = this._buildWhereForValues(whereValues);
 
+    this.buildAdditionalWhereQuery && (query += this.buildAdditionalWhereQuery());
     return query;
   }
 
