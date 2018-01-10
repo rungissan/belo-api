@@ -38,6 +38,26 @@ import Search from '../lib/search';
 // OFFSET 0;
 //
 
+// -- testing perfomance
+// explain analyse
+// SELECT "chat"."id", "chat"."participants", array_agg("message".*) as "messages"
+// FROM (
+//   select "chat".*, "chat_to_account_from"."lastReadedMessageId" AS "lastReadedMessageId", array_agg("participant".*) as "participants"
+//   from "spiti"."chat" AS "chat"
+//   INNER JOIN "spiti"."chat_to_account" AS "chat_to_account_from" ON "chat_to_account_from"."chatId" = "chat"."id"
+//     AND "chat_to_account_from"."userId" = 2655
+//
+//   LEFT OUTER JOIN "spiti"."chat_to_account" AS "chat_to_account" ON "chat_to_account"."chatId" = "chat"."id"
+//     LEFT OUTER JOIN "spiti"."account" AS "participant" ON "chat_to_account"."userId" = "participant"."userId"
+//
+//   GROUP BY "chat"."id", "chat_to_account_from"."lastReadedMessageId"
+// ) as "chat"
+//
+// LEFT OUTER JOIN "spiti"."chat_message" AS "message" ON "message"."chatId" = "chat"."id"
+//   AND "message"."id" > COALESCE("chat"."lastReadedMessageId", 0)
+//
+// GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants";
+
 module.exports = function(Chat) {
   async function getChat(socket, data = {}) {
     let { filter = {} } = data;

@@ -12,15 +12,17 @@ const {
   RoleMapping,
   Account,
   Chat,
-  ChatMessage
+  ChatMessage,
+  ChatToAccount
 } = server.models;
 
-let CLIENTS = new Array(1000).fill(null).map((c, id) => {
+let CLIENTS = new Array(100).fill(null).map((c, id) => {
+  let i = id + 750;
   return {
-    username: `TestChat_${id}`,
-    firstname: `test_${id}`,
-    lastname: `chat_${id}`,
-    email: `test_${id}@chat.c`,
+    username: `TestChat_${i}`,
+    firstname: `test_${i}`,
+    lastname: `chat_${i}`,
+    email: `test_${i}@chat.c`,
     password: 'testtest'
   };
 });
@@ -29,7 +31,7 @@ module.exports = {
   up() {
     return Role.findOne({name: 'prof'})
       .then(role => {
-        return Promise.mapSeries(CLIENTS, clientData => {
+        return Promise.map(CLIENTS, clientData => {
           return Client.create(clientData)
             .then(client => {
               return role.principals.create({
@@ -40,7 +42,7 @@ module.exports = {
                   return client.account.create({});
                 });
             });
-        });
+        }, {concurrency: 10});
       })
       .then(accounts => {
         return addTestChats(accounts);
@@ -51,37 +53,74 @@ module.exports = {
   }
 };
 
-
-// delete from spiti.user where id > 6;
-// delete from spiti.rolemapping where principalid::int > 6;
+// delete from spiti.user where id > 15;
+// delete from spiti.rolemapping where principalid::int > 15;
+// delete from spiti.chat;
+// delete from "SequelizeData" where name = '0003_testing_chat.js';
 
 function addTestChats(accounts) {
   let accountIds = accounts.map(a => a.userId);
-  let accLength = accounts.length;
+  let accLength = accountIds.length;
   let accountPairs = [];
-  let filteredPairs = [];
+  let accountToChatPairs = [];
 
-  for (let i = 1; i < accounts.length * 20; i++) {
-    accountPairs.push({
-      fromId: Math.floor(Math.random() * (accLength - 1)),
-      toId: Math.floor(Math.random() * (accLength - 1))
-    });
+  for (let i = 1; i < accounts.length * 50; i++) {
+    let rndFrom = Math.floor(Math.random() * accLength);
+    let rndTo = Math.floor(Math.random() * accLength);
+    if (rndFrom !== rndTo) {
+      accountPairs.push({
+        fromId: accountIds[rndFrom],
+        toId: accountIds[rndTo]
+      });
+    }
   }
-  console.log('accountPairs.............', accountPairs)
 
   accountPairs.forEach(pair => {
-    let existent = filteredPairs.find(existentPair => {
+    let existent = accountToChatPairs.find(existentPair => {
       return (existentPair.fromId === pair.fromId && existentPair.toId === pair.toId) ||
         (existentPair.fromId === pair.toId && existentPair.fromId === pair.toId);
     });
 
     if (!existent) {
-      filteredPairs.push(pair);
+      accountToChatPairs.push(pair);
     }
   });
 
-  console.log('filteredPairs.............', filteredPairs)
-  // return Promise.map(accountPairs, chatParticipants => {
-  //   let account
-  // });
+  let bulkChats = [];
+  let bulkAccountToChatPairs = [];
+  let bulkMessages = [];
+  accountToChatPairs.forEach((pair, index) => {
+    bulkChats.push({
+      title: `chat: ${index} between ${pair.fromId} and ${pair.toId}`,
+      type: 'personal'
+    });
+  });
+
+  return Chat.create(bulkChats)
+    .then(createdChats => {
+      createdChats.forEach((createdChat, i) => {
+        if (accountToChatPairs[i]) {
+          bulkAccountToChatPairs.push({
+            userId: accountToChatPairs[i].fromId,
+            chatId: createdChat.id
+          });
+          bulkAccountToChatPairs.push({
+            userId: accountToChatPairs[i].toId,
+            chatId: createdChat.id
+          });
+
+          let msgCount = Math.floor(Math.random() * 50) + 5;
+          for (let j = 0; j < msgCount; j++) {
+            bulkMessages.push({
+              chatId: createdChat.id,
+              userId: (j % 3) ? accountToChatPairs[i].fromId : accountToChatPairs[i].toId,
+              message: `test msg ${i} for chat ${createdChat.id}`
+            });
+          }
+        }
+      });
+
+      return ChatToAccount.create(bulkAccountToChatPairs);
+    })
+    .then(() => ChatMessage.create(bulkMessages));
 }
