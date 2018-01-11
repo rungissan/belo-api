@@ -15,43 +15,67 @@ const {
   ChatMessage,
   ChatToAccount
 } = server.models;
-
-let CLIENTS = new Array(100).fill(null).map((c, id) => {
-  let i = id + 750;
-  return {
-    username: `TestChat_${i}`,
-    firstname: `test_${i}`,
-    lastname: `chat_${i}`,
-    email: `test_${i}@chat.c`,
-    password: 'testtest'
-  };
-});
+//
+// let CLIENTS = new Array(30).fill(null).map((c, id) => {
+//   let i = id + 350;
+//   return {
+//     username: `TestChat_${i}`,
+//     firstname: `test_${i}`,
+//     lastname: `chat_${i}`,
+//     email: `test_${i}@chat.c`,
+//     password: 'testtest'
+//   };
+// });
 
 module.exports = {
   up() {
-    return Role.findOne({name: 'prof'})
-      .then(role => {
-        return Promise.map(CLIENTS, clientData => {
-          return Client.create(clientData)
-            .then(client => {
-              return role.principals.create({
-                principalType: RoleMapping.USER,
-                principalId: client.id
-              })
-                .then(() => {
-                  return client.account.create({});
-                });
-            });
-        }, {concurrency: 10});
-      })
-      .then(accounts => {
-        return addTestChats(accounts);
-      });
+    return Promise.mapSeries(new Array(30).fill(null), (val, i) => {
+      console.log('i...............', i);
+      let clientsOptions = getRandomClients(i);
+      return addClients(clientsOptions);
+    });
   },
   down() {
     return true;
   }
 };
+const startId = 2000;
+const quantity = 30;
+
+function getRandomClients(totalId) {
+  return new Array(30).fill(null).map((c, id) => {
+    let i = id + startId + quantity * totalId;
+
+    return {
+      username: `TestChat_${i}`,
+      firstname: `test_${i}`,
+      lastname: `chat_${i}`,
+      email: `test_${i}@chat.c`,
+      password: 'testtest'
+    };
+  });
+}
+
+function addClients(clientsOptions) {
+  return Role.findOne({name: 'prof'})
+    .then(role => {
+      return Promise.map(clientsOptions, clientData => {
+        return Client.create(clientData)
+          .then(client => {
+            return role.principals.create({
+              principalType: RoleMapping.USER,
+              principalId: client.id
+            })
+              .then(() => {
+                return client.account.create({});
+              });
+          });
+      }, {concurrency: 10});
+    })
+    .then(accounts => {
+      return addTestChats(accounts);
+    });
+}
 
 // delete from spiti.user where id > 15;
 // delete from spiti.rolemapping where principalid::int > 15;
@@ -109,7 +133,7 @@ function addTestChats(accounts) {
             chatId: createdChat.id
           });
 
-          let msgCount = Math.floor(Math.random() * 50) + 5;
+          let msgCount = Math.floor(Math.random() * 500) + 5;
           for (let j = 0; j < msgCount; j++) {
             bulkMessages.push({
               chatId: createdChat.id,
