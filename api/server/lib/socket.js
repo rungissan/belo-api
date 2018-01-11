@@ -32,7 +32,7 @@ export function addSocketHandler(Model, handler, options) {
 export default function setupIoHandlers(app, checkAccessToken) {
   app.io = io(app.server);
 
-  const { Client, OAuthAccessToken } = app.models;
+  const { Client, OAuthAccessToken, SocketKey } = app.models;
   async function getUserData(socket, token) {
     let accessToken = await OAuthAccessToken.findById(token);
 
@@ -43,6 +43,9 @@ export default function setupIoHandlers(app, checkAccessToken) {
 
     if (user) {
       socket.user = user;
+
+      debug(`socket: set user id: ${user.id}, socket id: ${socket.id}`);
+      // SocketKey.set(`${user.id}`, socket.id);
     } else {
       socket.user = null;
     }
@@ -72,6 +75,11 @@ export default function setupIoHandlers(app, checkAccessToken) {
     debug('socket: user connected');
     socket.on('disconnect', function() {
       debug('socket: user disconnected');
+
+      if (socket.user && socket.user.id) {
+        debug(`socket: delete user id: ${socket.user.id}, socket id: ${socket.id}`);
+        // SocketKey.delete(`${socket.user.id}`);
+      }
     });
 
     socket.on('event', async function(eventName, data, cb) {

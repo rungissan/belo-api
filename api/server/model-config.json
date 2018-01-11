@@ -154,5 +154,9 @@
   "ChatToAccount": {
     "dataSource": "postgres",
     "public": false
+  },
+  "SocketKey": {
+    "dataSource": "redisSocket",
+    "public": false
   }
 }

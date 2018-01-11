@@ -16,14 +16,14 @@
     "min": 5,
     "max": 10
   },
-  "redis": {
+  "redisSocket": {
     "host": "redis",
     "port": 6379,
     "url": "",
     "password": "6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB",
-    "name": "redis",
+    "name": "redisSocket",
     "db": 0,
-    "connector": "kv-redis"
+    "connector": "redis"
   },
   "redisSession": {
     "host": "redis",
