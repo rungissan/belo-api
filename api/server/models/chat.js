@@ -2,7 +2,7 @@
 
 import Promise from 'bluebird';
 
-import { addSocketHandler } from '../lib/socket';
+import { addSocketHandler, sendToSocketByUserId } from '../lib/socket';
 import { errUnauthorized, errValidation }  from '../lib/errors';
 import ChatSearch from '../lib/search/chat';
 import ChatMessageSearch from '../lib/search/chatMessage';
@@ -150,31 +150,9 @@ module.exports = function(Chat) {
       throw new Error('Account not found');
     }
 
-    let query = {
-      where: {
-        or: [{
-          account: { userId: user.id }
-        }, {
-          account: { userId: accountToId }
-        }],
-        type
-      },
-      queryOptions: {
-        groupBy: {modelName: 'Chat', column: 'id'},
-        selectFunctions: [{fn: 'arrayAgg', modelName: 'account', column: 'userId', as: 'participants'}]
-      }
-    };
-    const chatSearch = new ChatSearch(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
-
-    let existentChats = await chatSearch.query(query);
-    if (existentChats.length) {
-      let existentChat = existentChats.find(chat => {
-        return [user.id, accountToId].every(uId => chat.participants.includes(uId));
-      });
-
-      if (existentChat) {
-        return existentChat;
-      }
+    let existentChat = await findChatWithType(user.id, accountToId, type);
+    if (existentChat) {
+      return existentChat;
     }
 
     let createdChat;
@@ -192,7 +170,12 @@ module.exports = function(Chat) {
         chatId: createdChat.id
       }];
 
-      await ChatToAccountModel.create(connectedAccounts);
+      let participants = await ChatToAccountModel.create(connectedAccounts);
+
+      let chatData = createdChat.toJSON();
+      let accountFrom = await Account.findById(user.id);
+      chatData.participants = [accountTo, accountFrom];
+      sendToSocketByUserId(Chat.app, accountTo.id, 'chatCreated', chatData);
     });
 
     return createdChat;
@@ -237,5 +220,19 @@ module.exports = function(Chat) {
 
   function scocketJoinChatRooms(socket, chats) {
     return socket.join(chats.map(c => `${ROOM_PREFIX}${c.id}`));
+  }
+
+  async function findChatWithType(fromId, toId, type) {
+    if (!(fromId && toId && type)) {
+      return false;
+    }
+
+    let query = {
+      where: { fromId, toId, type }
+    };
+    const chatSearch = new ChatSearch(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
+
+    let existentChats = await chatSearch.querySearchChat(query);
+    return existentChats && existentChats[0] || false;
   }
 };

@@ -1,9 +1,21 @@
 'use strict';
-
-import io     from 'socket.io';
-import ioAuth from 'socketio-auth';
-
 const debug = require('debug')('spiti:boot:socket');
+
+import io       from 'socket.io';
+import ioAuth   from 'socketio-auth';
+import redis    from 'redis';
+import sioRedis from 'socket.io-redis';
+import Promise  from 'bluebird';
+
+import config from '../config/index';
+
+// loopback-connector-kv-redis not support key delete and looks like not production ready.
+// so use redis client lib.
+const redisCliSocket = redis.createClient(config.redisSocketKeys);
+Promise.promisifyAll(redis.RedisClient.prototype);
+Promise.promisifyAll(redis.Multi.prototype);
+
+const USERID_PREFIX = 'user_';
 
 export function addSocketHandler(Model, handler, options) {
   let app = Model.app;
@@ -31,6 +43,7 @@ export function addSocketHandler(Model, handler, options) {
 
 export default function setupIoHandlers(app, checkAccessToken) {
   app.io = io(app.server);
+  app.io.adapter(sioRedis(config.redisSioAdapter));
 
   const { Client, OAuthAccessToken, SocketKey } = app.models;
   async function getUserData(socket, token) {
@@ -45,7 +58,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
       socket.user = user;
 
       debug(`socket: set user id: ${user.id}, socket id: ${socket.id}`);
-      // SocketKey.set(`${user.id}`, socket.id);
+      redisCliSocket.setAsync(USERID_PREFIX + user.id, socket.id);
     } else {
       socket.user = null;
     }
@@ -78,7 +91,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
 
       if (socket.user && socket.user.id) {
         debug(`socket: delete user id: ${socket.user.id}, socket id: ${socket.id}`);
-        // SocketKey.delete(`${socket.user.id}`);
+        redisCliSocket.delAsync(USERID_PREFIX + socket.user.id);
       }
     });
 
@@ -105,7 +118,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
           await getUserData(socket, socket.token);
         }
 
-        let response = await eventHandler.handler(socket, data);
+        let response = await eventHandler.handler(socket, data, redisCliSocket);
         (typeof cb === 'function') && cb(null, response);
       } catch (err) {
         debug('socket handler error: ', err);
@@ -119,3 +132,15 @@ export default function setupIoHandlers(app, checkAccessToken) {
     });
   });
 };
+
+export function sendToSocketByUserId(app, userId = 0, eventName, payload) {
+  return redisCliSocket.getAsync(USERID_PREFIX + userId)
+    .then(recipientSocketId => {
+      if (recipientSocketId) {
+        debug(`send message to user: ${userId}, socket: ${recipientSocketId}`, payload);
+        app.io.to(recipientSocketId).emit(eventName, payload);
+        return true;
+      }
+      return false;
+    });
+}
