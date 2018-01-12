@@ -216,7 +216,7 @@ module.exports = function(Chat) {
   Chat.on('attached', () => {
     addSocketHandler(Chat, getChats, {eventName: 'getChats'});
     addSocketHandler(Chat, readChat, {eventName: 'readChat'});
-    addSocketHandler(Chat, sendMessage, {eventName: 'sendMessage'});
+    addSocketHandler(Chat, sendMessage, {eventName: 'sendMessage', validationSchema: 'sendMessage'});
     addSocketHandler(Chat, searchMessages, {eventName: 'searchMessages'});
     addSocketHandler(Chat, findOrCreateChat, {eventName: 'findOrCreateChat'});
     addSocketHandler(Chat, getChat, {eventName: 'get'});

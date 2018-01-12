@@ -8,6 +8,7 @@ import sioRedis from 'socket.io-redis';
 import Promise  from 'bluebird';
 
 import config from '../config/index';
+import validate from '../lib/validate';
 
 // loopback-connector-kv-redis not support key delete and looks like not production ready.
 // so use redis client lib.
@@ -34,7 +35,9 @@ export function addSocketHandler(Model, handler, options) {
 
   let handlerOptions = {
     handler,
-    eventName
+    eventName,
+    validationSchema: options.validationSchema,
+    modelName: options.modelName || Model.definition.name
   };
 
   debug('added socket handler ', eventName);
@@ -118,14 +121,21 @@ export default function setupIoHandlers(app, checkAccessToken) {
           await getUserData(socket, socket.token);
         }
 
-        let response = await eventHandler.handler(socket, data, redisCliSocket);
+        if (eventHandler.validationSchema) {
+          await validate(data, eventHandler.modelName, eventHandler.validationSchema);
+        }
+
+        let response = await eventHandler.handler(socket, data);
         (typeof cb === 'function') && cb(null, response);
       } catch (err) {
         debug('socket handler error: ', err);
         let error = {
+          statusCode: err.statusCode,
+          type: err.type,
           message: err.message,
           code: err.code,
-          status: err.status
+          status: err.status,
+          details: err.details
         };
         (typeof cb === 'function') && cb(error);
       }
