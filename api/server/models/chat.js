@@ -90,7 +90,7 @@ module.exports = function(Chat) {
 
   async function getMessages(socket, data = {}) {
     let { user } = socket;
-    let { chatId, filter = {} } = data;
+    let { chatId, earlierThanId, limit, offset, order, include } = data;
 
     const { ChatMessage, ChatToAccount } = Chat.app.models;
 
@@ -100,20 +100,23 @@ module.exports = function(Chat) {
       throw errUnauthorized();
     }
 
-    let chats = await ChatMessage.find({
+    let query = {
       where: { chatId },
-      include: {
-        relation: 'account',
-        scope: {
-          include: {
-            relation: 'avatar'
-          }
-        }
-      },
-      limit: filter.limit || 10,
-      offset: filter.offset || filter.skip || 0,
-      order: filter.order || ['id DESC']
-    });
+      limit: limit || 10,
+      offset: offset || 0,
+      order: order || ['id DESC']
+    };
+
+    query.include = include || {
+      relation: 'account',
+      scope: { include: { relation: 'avatar' }}
+    };
+
+    if (earlierThanId) {
+      query.where.id = {'lt': earlierThanId};
+    }
+
+    let chats = await ChatMessage.find(query);
 
     return chats;
   };
@@ -220,7 +223,7 @@ module.exports = function(Chat) {
     addSocketHandler(Chat, searchMessages, {eventName: 'searchMessages'});
     addSocketHandler(Chat, findOrCreateChat, {eventName: 'findOrCreateChat'});
     addSocketHandler(Chat, getChat, {eventName: 'get'});
-    addSocketHandler(Chat, getMessages, {eventName: 'getMessages'});
+    addSocketHandler(Chat, getMessages, {eventName: 'getMessages', validationSchema: 'getMessages'});
   });
 
   function scocketJoinChatRooms(socket, chats) {
