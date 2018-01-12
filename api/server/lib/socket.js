@@ -133,6 +133,25 @@ export default function setupIoHandlers(app, checkAccessToken) {
   });
 };
 
+export function joinRoomByUserId(app, userId = 0, roomName) {
+  return redisCliSocket.getAsync(USERID_PREFIX + userId)
+    .then(recipientSocketId => {
+      debug(`join room user: ${userId}, socket: ${recipientSocketId}`);
+      if (!recipientSocketId) {
+        return null;
+      }
+
+      return new Promise((resolve) => {
+        app.io.of('/').adapter.remoteJoin(recipientSocketId, roomName, (err, data) => {
+          if (err) {
+            resolve(null);
+          }
+          resolve(recipientSocketId);
+        });
+      });
+    });
+}
+
 export function sendToSocketByUserId(app, userId = 0, eventName, payload) {
   return redisCliSocket.getAsync(USERID_PREFIX + userId)
     .then(recipientSocketId => {

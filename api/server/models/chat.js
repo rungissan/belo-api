@@ -2,7 +2,7 @@
 
 import Promise from 'bluebird';
 
-import { addSocketHandler, sendToSocketByUserId } from '../lib/socket';
+import { addSocketHandler, sendToSocketByUserId, joinRoomByUserId } from '../lib/socket';
 import { errUnauthorized, errValidation }  from '../lib/errors';
 import ChatSearch from '../lib/search/chat';
 import ChatMessageSearch from '../lib/search/chatMessage';
@@ -171,12 +171,16 @@ module.exports = function(Chat) {
       }];
 
       let participants = await ChatToAccountModel.create(connectedAccounts);
-
-      let chatData = createdChat.toJSON();
-      let accountFrom = await Account.findById(user.id);
-      chatData.participants = [accountTo, accountFrom];
-      sendToSocketByUserId(Chat.app, accountTo.id, 'chatCreated', chatData);
     });
+
+    let chatData = createdChat.toJSON();
+    let accountFrom = await Account.findById(user.id);
+    chatData.participants = [accountTo, accountFrom];
+
+    let recipientSocketId = await joinRoomByUserId(Chat.app, accountTo.id, getRoomName(chatData.id));
+    if (recipientSocketId) {
+      Chat.app.io.to(recipientSocketId).emit('chatCreated', chatData);
+    }
 
     return createdChat;
   };
@@ -204,7 +208,8 @@ module.exports = function(Chat) {
     });
     await linkedAccount.updateAttributes({lastReadedMessageId: createdMessage.id});
 
-    socket.to(`${ROOM_PREFIX}${chatId}`).emit('messageCreated', createdMessage);
+    socket.to(getRoomName(chatId)).emit('messageCreated', createdMessage);
+
     return createdMessage;
   };
 
@@ -219,7 +224,11 @@ module.exports = function(Chat) {
   });
 
   function scocketJoinChatRooms(socket, chats) {
-    return socket.join(chats.map(c => `${ROOM_PREFIX}${c.id}`));
+    return socket.join(chats.map(c => getRoomName(c.id)));
+  }
+
+  function getRoomName(roomId) {
+    return `${ROOM_PREFIX}${roomId}`;
   }
 
   async function findChatWithType(fromId, toId, type) {
