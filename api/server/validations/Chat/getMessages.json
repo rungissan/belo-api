@@ -1,0 +1,26 @@
+{
+  "type" : "object",
+  "additionalProperties": false,
+  "properties" : {
+    "message": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "chatId": {
+      "type": "integer"
+    },
+    "earlierThanId": {
+      "type": "integer"
+    },
+    "limit": {
+      "type": "integer"
+    },
+    "offset": {
+      "type": "integer"
+    },
+    "order": {
+      "type": "string"
+    }
+  },
+  "required": ["chatId"]
+}

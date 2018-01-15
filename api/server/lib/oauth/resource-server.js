@@ -21,7 +21,7 @@ var isExpired = helpers.isExpired;
 
 const TokenError = oauth2Provider.TokenError;
 
-module.exports = setupResourceServer;
+// module.exports = setupResourceServer;
 
 /**
  * Set up oAuth 2.0 strategies
@@ -31,8 +31,88 @@ module.exports = setupResourceServer;
  * @param {Boolean} jwt if jwt-bearer should be enabled
  * @returns {Function}
  */
-function setupResourceServer(app, options, models) {
-  function checkAccessToken(req, accessToken, done) {
+export default function setupResourceServer(app, options, models) {
+  var verifyAccessToken;
+  if (typeof options.checkAccessToken === 'function') {
+    verifyAccessToken = options.checkAccessToken;
+  } else {
+    verifyAccessToken = getAccessTokenCheckHandler(app, options, models);
+  }
+
+  function accessTokenValidator(req, accessToken, done) {
+    verifyAccessToken(req, accessToken, function(err, user, info) {
+      if (!err && info) {
+        req.accessToken = info.accessToken;
+      }
+      done(err, user, info);
+    });
+  }
+
+  /**
+   * BearerStrategy
+   *
+   * This strategy is used to authenticate users based on an access token (aka a
+   * bearer token).  The user must have previously authorized a client
+   * application, which is issued an access token to make requests on behalf of
+   * the authorizing user.
+   */
+  passport.use('loopback-oauth2-bearer',
+    new BearerStrategy({passReqToCallback: true}, accessTokenValidator)
+  );
+
+  passport.use('loopback-oauth2-mac',
+    new MacStrategy({passReqToCallback: true, jwtAlgorithm: 'HS256'},
+      function(req, accessToken, done) {
+        accessTokenValidator(req, accessToken, function(err, user, info) {
+          if (err || !user) {
+            return done(err, user, info);
+          }
+          var client = info && info.client;
+          var secret = client.clientSecret || client.restApiKey;
+          try {
+            var token = jwt.verify(accessToken, 'HS256', secret);
+            debug('JWT token verified: %j', token);
+          } catch (err) {
+            debug('Fail to verify JWT: %j', err);
+            done(err);
+          }
+          done(null, user, info);
+        });
+      })
+  );
+
+  /**
+   * Return the middleware chain to enforce oAuth 2.0 authentication and
+   * authorization
+   * @param {Object} [options] Options object
+   * - scope
+   * - jwt
+   */
+  function authenticate(options, verifyMiddleware) {
+    options = options || {};
+    debug('Setting up authentication:', options);
+
+    var authenticators = [];
+    authenticators = [
+      passport.authenticate(['loopback-oauth2-bearer', 'loopback-oauth2-mac'],
+        options,
+        verifyMiddleware)];
+    if (options.scopes || options.scope) {
+      authenticators.push(scopeValidator(options));
+    }
+    authenticators.push(oauth2Provider.errorHandler());
+    return authenticators;
+  }
+
+  return authenticate;
+}
+
+export function getAccessTokenCheckHandler(app, options, models) {
+  return function checkAccessToken(req, accessToken, done) {
+    if (!accessToken) {
+      return done(new TokenError('Access token not found', 'invalid_grant'));
+    }
+
     debug('Verifying access token %s', accessToken);
     models.accessTokens.find(accessToken, function(err, token) {
       if (err) {
@@ -109,76 +189,4 @@ function setupResourceServer(app, options, models) {
       });
     });
   }
-
-  var verifyAccessToken = checkAccessToken;
-  if (typeof options.checkAccessToken === 'function') {
-    verifyAccessToken = options.checkAccessToken;
-  }
-
-  function accessTokenValidator(req, accessToken, done) {
-    verifyAccessToken(req, accessToken, function(err, user, info) {
-      if (!err && info) {
-        req.accessToken = info.accessToken;
-      }
-      done(err, user, info);
-    });
-  }
-
-  /**
-   * BearerStrategy
-   *
-   * This strategy is used to authenticate users based on an access token (aka a
-   * bearer token).  The user must have previously authorized a client
-   * application, which is issued an access token to make requests on behalf of
-   * the authorizing user.
-   */
-  passport.use('loopback-oauth2-bearer',
-    new BearerStrategy({passReqToCallback: true}, accessTokenValidator)
-  );
-
-  passport.use('loopback-oauth2-mac',
-    new MacStrategy({passReqToCallback: true, jwtAlgorithm: 'HS256'},
-      function(req, accessToken, done) {
-        accessTokenValidator(req, accessToken, function(err, user, info) {
-          if (err || !user) {
-            return done(err, user, info);
-          }
-          var client = info && info.client;
-          var secret = client.clientSecret || client.restApiKey;
-          try {
-            var token = jwt.verify(accessToken, 'HS256', secret);
-            debug('JWT token verified: %j', token);
-          } catch (err) {
-            debug('Fail to verify JWT: %j', err);
-            done(err);
-          }
-          done(null, user, info);
-        });
-      })
-  );
-
-  /**
-   * Return the middleware chain to enforce oAuth 2.0 authentication and
-   * authorization
-   * @param {Object} [options] Options object
-   * - scope
-   * - jwt
-   */
-  function authenticate(options, verifyMiddleware) {
-    options = options || {};
-    debug('Setting up authentication:', options);
-
-    var authenticators = [];
-    authenticators = [
-      passport.authenticate(['loopback-oauth2-bearer', 'loopback-oauth2-mac'],
-        options,
-        verifyMiddleware)];
-    if (options.scopes || options.scope) {
-      authenticators.push(scopeValidator(options));
-    }
-    authenticators.push(oauth2Provider.errorHandler());
-    return authenticators;
-  }
-
-  return authenticate;
 }

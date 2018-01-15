@@ -1,5 +1,7 @@
 'use strict';
 
+import Promise from 'bluebird';
+
 const ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
@@ -47,4 +49,20 @@ export function formatSQLReplacements(sql, values = {}) {
     sql,
     replacements
   };
+}
+
+export function stringifyJson(data, defaultValue = null) {
+  try {
+    return JSON.stringify(data);
+  } catch (e) {
+    return defaultValue;
+  }
+}
+
+export function parseJson(data, defaultValue = null) {
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return defaultValue;
+  }
 }

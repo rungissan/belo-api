@@ -24,7 +24,7 @@ services:
       protocol: http
       LOG_LEVEL: "debug"
       # DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,spiti:boot,loopback:mixin:readonly,spiti:validations,spiti:jobs,spiti:feed:search
-      DEBUG: loopback:connector:postgresql,spiti:boot,spiti:validations,spiti:jobs,spiti:feed:search
+      DEBUG: spiti:boot:socket,socketio-auth,loopback:oauth2,loopback:connector:postgresql,spiti:boot*,spiti:validations,spiti:jobs,spiti:feed:search
     command: npm run development
 
   auth:

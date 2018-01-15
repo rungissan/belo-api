@@ -1,0 +1,86 @@
+{
+  "name": "Chat",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "schema": "spiti",
+      "table": "chat"
+    }
+  },
+  "mixins": {
+    "Timestamp": {},
+    "RelationsValidate": {
+      "image": { "checkOwner": true },
+      "background": { "checkOwner": true }
+    },
+    "ReadOnly" : {
+      "type": true
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "number",
+      "id": true
+    },
+    "title": {
+      "type": "string",
+      "max": 255,
+      "postgresql": {
+        "dataType": "character varying"
+      }
+    },
+    "type": {
+      "type": "string",
+      "postgresql": {
+        "dataType": "character varying",
+        "dataLength": 30
+      }
+    },
+    "imageId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "imageId",
+        "dataType": "integer"
+      }
+    },
+    "backgroundId": {
+      "type": "number",
+      "min": 1,
+      "postgresql": {
+        "columnName": "backgroundId",
+        "dataType": "integer"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "hasMany",
+      "model": "Account",
+      "through": "ChatToAccount",
+      "foreignKey": "chatId",
+      "keyThrough": "userId"
+    },
+    "message": {
+      "type": "hasMany",
+      "model": "ChatMessage",
+      "foreignKey": "chatId"
+    },
+    "image": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "imageId"
+    },
+    "background": {
+      "type": "belongsTo",
+      "model": "Attachment",
+      "foreignKey": "backgroundId"
+    }
+  },
+  "acls": [
+  ],
+  "methods": []
+}

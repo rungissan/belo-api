@@ -1,0 +1,14 @@
+{
+  "type" : "object",
+  "additionalProperties": false,
+  "properties" : {
+    "message": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "chatId": {
+      "type": "integer"
+    }
+  },
+  "required": ["message", "chatId"]
+}

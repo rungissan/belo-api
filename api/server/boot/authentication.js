@@ -3,6 +3,10 @@
 import oauth2 from '../lib/oauth';
 import { errUnauthorized } from '../lib/errors';
 
+const debug = require('debug')('spiti:boot:authentication');
+
+import setupIoHandlers from '../lib/socket';
+
 module.exports = function enableAuthentication(app) {
   const options = {
     dataSource: app.dataSources.postgres,
@@ -56,4 +60,12 @@ module.exports = function enableAuthentication(app) {
   });
 
   app.enableAuth();
+
+  if (!(app.ioHandlers && app.ioHandlers.length)) {
+    return;
+  }
+
+  app.on('started', function() {
+    setupIoHandlers(app, handlers.checkAccessToken);
+  });
 };
