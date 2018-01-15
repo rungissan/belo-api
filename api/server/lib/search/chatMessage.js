@@ -4,7 +4,7 @@ import BaseSearchController from './index';
 const debug = require('debug')('spiti:feed:search');
 
 const FULL_TEXT_SEARCH_FIELDS = ['message'];
-const FIELDS = ['userId', 'type', 'username', 'phone', 'about', 'biography', 'brokerage'];
+const FIELDS = ['userId', 'type', 'userName', 'phone', 'about', 'biography', 'brokerage'];
 
 export default class ChatMessageSearch extends BaseSearchController {
   constructor(connector, app, options = {}) {
@@ -49,9 +49,9 @@ export default class ChatMessageSearch extends BaseSearchController {
   _includeAccountSelect() {
     return `, json_build_object(
       'id', "account"."userId",
-      'firstName', "account"."first_name",
-      'lastName', "account"."last_name",
-      'username', "account"."username",
+      'firstName', "account"."firstName",
+      'lastName', "account"."lastName",
+      'userName', "account"."userName",
       'brokerage', "account"."brokerage",
       'avatar', json_build_object(
         'id', "avatar".id,

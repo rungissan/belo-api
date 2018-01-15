@@ -29,19 +29,19 @@ const account = (DataTypes) => ({
     ...CASCADE_RULES
   },
   type:               { type: DataTypes.STRING(20) },
-  first_name:         { type: DataTypes.STRING(30), defaultValue: '' },
-  last_name:          { type: DataTypes.STRING(30), defaultValue: '' },
+  firstName:         { type: DataTypes.STRING(30), defaultValue: '' },
+  lastName:          { type: DataTypes.STRING(30), defaultValue: '' },
   username:           { type: DataTypes.STRING(30), defaultValue: '' },
   phone:              { type: DataTypes.STRING(30) },
   about:              { type: DataTypes.TEXT },
   biography:          { type: DataTypes.TEXT },
   brokerage:          { type: DataTypes.STRING(100) },
-  license_type:       { type: DataTypes.STRING(50) },
-  license_state:      { type: DataTypes.STRING(4) },
-  license_number:     { type: DataTypes.STRING(50) },
-  license_expiration: { type: DataTypes.DATE },
-  avatar_id:     { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
-  background_id: { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
+  licenseType:       { type: DataTypes.STRING(50) },
+  licenseState:      { type: DataTypes.STRING(4) },
+  licenseNumber:     { type: DataTypes.STRING(50) },
+  licenseExpiration: { type: DataTypes.DATE },
+  avatarId:     { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
+  backgroundId: { type: DataTypes.INTEGER, references: {model: {tableName: 'attachment', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   ...defaultFields(DataTypes)
 });
 

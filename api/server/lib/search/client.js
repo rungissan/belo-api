@@ -3,8 +3,8 @@
 import BaseSearchController from './index';
 const debug = require('debug')('spiti:feed:search');
 
-const FULL_TEXT_SEARCH_FIELDS = ['first_name', 'last_name', 'username'];
-const FIELDS = ['userId', 'type', 'username', 'phone', 'about', 'biography', 'brokerage'];
+const FULL_TEXT_SEARCH_FIELDS = ['firstName', 'lastName', 'userName'];
+const FIELDS = ['userId', 'type', 'userName', 'phone', 'about', 'biography', 'brokerage'];
 
 export default class ClientSearch extends BaseSearchController {
   constructor(connector, app, options = {}) {
@@ -43,9 +43,9 @@ export default class ClientSearch extends BaseSearchController {
 
     return `
       SELECT ${FIELDS.map(f => `"${tableKey}"."${f}"`).join(', ')},
-             "${tableKey}".first_name AS "firstName",
-             "${tableKey}".last_name AS "lastName",
-             "${tableKey}".license_type AS "licenseType",
+             "${tableKey}".firstName AS "firstName",
+             "${tableKey}".lastName AS "lastName",
+             "${tableKey}".licenseType AS "licenseType",
              "${tableKey}".license_state AS "licenseState",
              "${tableKey}".license_number AS "licenseNumber",
              "${tableKey}".license_expiration AS "licenseExpiration",

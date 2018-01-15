@@ -23,9 +23,9 @@ export default class FeedSearch extends BaseSearchController {
     let accountIncludeQuery = `
       , json_build_object(
         'id', "account"."userId",
-        'firstName', "account"."first_name",
-        'lastName', "account"."last_name",
-        'username', "account"."username",
+        'firstName', "account"."firstName",
+        'lastName', "account"."lastName",
+        'userName', "account"."userName",
         'brokerage', "account"."brokerage",
         'avatar', json_build_object(
           'id', "accountAvatar".id,
