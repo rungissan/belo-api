@@ -107,7 +107,7 @@ export default class FeedSearch extends BaseSearchController {
       LEFT JOIN "spiti"."account" AS "account"
         ON "account"."userId" = "${this.baseModel.tableKey}"."userId"
       LEFT JOIN "spiti"."attachment" AS "accountAvatar"
-        ON "accountAvatar"."id" = "account"."avatar_id"
+        ON "accountAvatar"."id" = "account"."avatarId"
     `;
   }
 
