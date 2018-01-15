@@ -180,9 +180,11 @@ module.exports = function(Chat) {
     let accountFrom = await Account.findById(user.id);
     chatData.participants = [accountTo, accountFrom];
 
-    let recipientSocketId = await joinRoomByUserId(Chat.app, accountTo.id, getRoomName(chatData.id));
-    if (recipientSocketId) {
-      Chat.app.io.to(recipientSocketId).emit('chatCreated', chatData);
+    let recipientSocketIds = await joinRoomByUserId(Chat.app, accountTo.id, getRoomName(chatData.id));
+    if (recipientSocketIds && recipientSocketIds.length) {
+      recipientSocketIds.forEach(recipientSocketId => {
+        Chat.app.io.to(recipientSocketId).emit('chatCreated', chatData);
+      });
     }
 
     return createdChat;

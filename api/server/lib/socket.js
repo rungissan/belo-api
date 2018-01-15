@@ -65,6 +65,7 @@ export default function setupIoHandlers(app, checkAccessToken) {
 
       debug(`socket: set user id: ${user.id}, socket id: ${socket.id}`);
       return getRedisJsonAsync(USERID_PREFIX + user.id, [])
+        .then(socketIds => removeOldSocketKeys(app.io, socketIds))
         .then(socketIds => {
           socketIds.push(socket.id);
           return setRedisJsonAsync(USERID_PREFIX + user.id, socketIds, []);
@@ -169,10 +170,26 @@ function setRedisJsonAsync(key, value, defaultValue) {
   return redisCliSocket.setAsync(key, stringifyJson(value, defaultValue));
 }
 
+function removeOldSocketKeys(io, socketIds) {
+  return new Promise((resolve, reject) => {
+    if (!(socketIds && socketIds.length)) {
+      return resolve(socketIds);
+    }
+
+    io.of('/').adapter.clients((err, clients) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(socketIds.filter(socketId => clients.includes(socketId)));
+    });
+  });
+}
+
 export function joinRoomByUserId(app, userId = 0, roomName) {
   return getRedisJsonAsync(USERID_PREFIX + userId, [])
     .then(socketIds => {
-      return Promise.map(socketIds, socketId => joinRemoteRoom(app.io, userId, roomName));
+      socketIds.forEach(socketId => joinRemoteRoom(app.io, socketId, roomName));
+      return socketIds;
     });
 }
 
