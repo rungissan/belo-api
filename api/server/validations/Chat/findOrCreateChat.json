@@ -1,0 +1,17 @@
+{
+  "type" : "object",
+  "additionalProperties": false,
+  "properties" : {
+    "accountToId": {
+      "type": "integer"
+    },
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["personal"]
+    }
+  },
+  "required": ["accountToId"]
+}

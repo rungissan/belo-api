@@ -27,7 +27,21 @@ export default class ChatSearch extends BaseSearchController {
 
     let selectQuery = 'SELECT "chat".*';
     selectQuery += ', COALESCE("chat_to_account_from"."lastReadedMessageId", 0) AS "lastReadedMessageId"';
-    selectQuery += ', array_agg("participant".*) as "participants"';
+    selectQuery += `, jsonb_agg(
+        json_build_object( \
+          'id', "participant"."userId", \
+          'firstName', "participant"."firstName", \
+          'lastName', "participant"."lastName", \
+          'userName', "participant"."userName", \
+          'brokerage', "participant"."brokerage", \
+          'avatar', json_build_object( \
+            'id', "avatar"."id", \
+            'publicUrl', "avatar"."publicUrl", \
+            'name', "avatar"."name", \
+            'sizes', "avatar"."sizes" \
+          ) \
+        ) \
+      ) AS "participants"`;
     selectQuery += ' FROM "spiti"."chat" AS "chat"';
 
     selectQuery += this._joinParticipantFilterQuery(where.fromId, 'chat_to_account_from');
@@ -44,7 +58,7 @@ export default class ChatSearch extends BaseSearchController {
   _getChatSearchSubquery(filter) {
     let where = filter.where || {};
 
-    let selectQuery = 'SELECT "chat".*, json_agg("participant".*) as "participants"';
+    let selectQuery = 'SELECT "chat".*, jsonb_agg("participant".*) as "participants"';
     selectQuery += ' FROM "spiti"."chat" AS "chat"';
 
     selectQuery += this._joinParticipantFilterQuery(where.fromId, 'chat_to_account_from');
@@ -59,7 +73,7 @@ export default class ChatSearch extends BaseSearchController {
   }
 
   _getChatMessagesQuery(subQuery) {
-    let query = 'SELECT "chat"."id", array_to_json("chat"."participants") AS "participants"';
+    let query = 'SELECT "chat"."id", "chat"."participants" AS "participants"';
     query += ', COALESCE(json_agg("message".* ORDER BY "message"."created_at" DESC) FILTER (WHERE message.id IS NOT NULL), \'[]\')';
     query += ' AS "messages"';
 
@@ -81,7 +95,8 @@ export default class ChatSearch extends BaseSearchController {
 
   _joinParticipantsQuery(userId) {
     return `LEFT OUTER JOIN "spiti"."chat_to_account" AS "chat_to_account" ON "chat_to_account"."chatId" = "chat"."id" \n
-      LEFT OUTER JOIN "spiti"."account" AS "participant" ON "chat_to_account"."userId" = "participant"."userId"`;
+      LEFT OUTER JOIN "spiti"."account" AS "participant" ON "chat_to_account"."userId" = "participant"."userId" \n
+      LEFT OUTER JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "participant"."avatarId"`;
   }
 
   _joinMessagesQuery() {

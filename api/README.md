@@ -355,3 +355,374 @@ Response: Array of relevant records of company entity
   }
 ]
 ```
+
+
+## Chat
+
+#### Authorization
+Emit "authentication" event after socket successfully connected. If no authentication, server will disconnect socket client.
+
+Emit: 'authentication'
+Listen to: 'authenticated', 'unauthorized'
+
+Response : authenticated user object
+
+Request body
+```
+token=:string
+```
+
+###### Example:
+
+Emit
+```json
+{
+  "token": "test_token"
+}
+```
+Response
+``` json
+{
+  "realm":null,
+  "username":null,
+  "email":"test@test.tes",
+  "emailVerified":null,
+  "id":2
+}
+```
+Response
+``` json
+{
+  "message":"Access token not found"
+}
+```
+
+#### Get Chats
+```txt
+Emit: 'event'.
+Type: 'chat:getChats'
+Response: callback
+```
+
+Request body
+```jsdoc
+@param {Boolean} [joinRooms=true] automatically join all chatRooms
+```
+
+###### Example:
+
+Response
+``` json
+[{
+  "id": 24145,
+  "participants": [{
+    "userId": 2326,
+    "type": null,
+    "firstName": "test",
+    "lastName": "test",
+    "userName": "test",
+    "phone": null,
+    "about": null,
+    "biography": null,
+    "brokerage": null,
+    "licenseType": null,
+    "licenseState": null,
+    "licenseNumber": null,
+    "licenseExpiration": null,
+    "avatarId": null,
+    "backgroundId": null,
+    "created_at": "2018-01-10T22:12:30.714+00:00",
+    "updated_at": "2018-01-10T22:12:30.714+00:00",
+    "deleted_at": null,
+    "avatar": {
+      "id": 1,
+      "publicUrl": "url",
+      "name": "name",
+      "sizes": {}
+    }
+  }, {
+    "userId": 2,
+    "type": "prof",
+    "firstName": "test2",
+    "lastName": "test2",
+    "userName": "test2",
+    "phone": null,
+    "about": null,
+    "biography": null,
+    "brokerage": null,
+    "licenseType": null,
+    "licenseState": null,
+    "licenseNumber": null,
+    "licenseExpiration": null,
+    "avatarId": null,
+    "backgroundId": null,
+    "created_at": "2017-12-07T19:47:22.464+00:00",
+    "updated_at": "2017-12-07T19:48:00.029+00:00",
+    "deleted_at": null,
+    "avatar": {
+      "id": 1,
+      "publicUrl": "url",
+      "name": "name",
+      "sizes": {}
+    }
+  }],
+  "messages": [{
+    "id": 11209,
+    "chatId": 24145,
+    "userId": 2326,
+    "message": "test msg 0 for chat 24145",
+    "created_at": "2018-01-10T22:12:35.06+00:00",
+    "updated_at": "2018-01-10T22:12:35.06+00:00",
+    "deleted_at": null
+  }, {
+    "id": 11214,
+    "chatId": 24145,
+    "userId": 2,
+    "message": "test msg 0 for chat 24145",
+    "created_at": "2018-01-10T22:12:35.06+00:00",
+    "updated_at": "2018-01-10T22:12:35.06+00:00",
+    "deleted_at": null
+  }]
+}]
+```
+
+
+#### Send Message
+```txt
+Emit: 'event'.
+Type: 'chat:sendMessage'
+Response: callback
+```
+
+Request body
+```jsdoc
+@param {Number} chatId
+@param {String} message
+```
+
+###### Example:
+Emit
+```json
+{
+  "chatId": 24145,
+  "message": "test message"
+}
+```
+
+Response
+``` json
+{
+  "id": 66918,
+  "chatId": 24145,
+  "userId": 2,
+  "message": "test message",
+  "created_at": "2018-01-15T17:25:41.008Z",
+  "updated_at": "2018-01-15T17:25:41.009Z"
+}
+```
+
+Response error: user not connected to chat
+``` json
+{
+  "message":"Authorization Required",
+  "code":"AUTHORIZATION_REQUIRED",
+  "status":401
+}
+```
+
+Response error: validation
+``` json
+{
+  "statusCode": 422,
+  "type": "json-schema",
+  "message": "Validation error",
+  "code": "VALIDATION_ERROR",
+  "details": {
+    "context": "Chat",
+    "codes": {
+      "message": ["required"],
+      "chatId": ["required"]
+    },
+    "messages": {
+      "message": ["is a required property"],
+      "chatId": ["is a required property"]
+    }
+  }
+}
+```
+
+#### Read Chat
+```txt
+Emit: 'event'.
+Type: 'chat:readChat'
+Response: callback
+```
+
+Request body
+```jsdoc
+@param {Number} chatId
+@param {Number} [messageId] - by default last chat message id will be used
+```
+
+###### Example:
+Emit
+```json
+{
+  "chatId": 24145
+}
+```
+
+Response
+``` json
+{
+  "lastReadedMessageId": 66918
+}
+```
+
+
+#### Find or create chat
+Search chat with user and create new if need
+```txt
+Emit: 'event'.
+Type: 'chat:findOrCreateChat'
+Response: callback
+```
+
+Request body
+```jsdoc
+@param {Number} accountToId
+@param {String} title
+@param {String="personal"} [type="personal"] - will be used later for different chat types
+```
+
+###### Example:
+Emit
+```json
+{
+  "accountToId": 26047
+}
+```
+
+Response
+``` json
+{
+  "id": 26047,
+  "type": "personal",
+  "created_at": "2018-01-15T17:36:57.888Z",
+  "updated_at": "2018-01-15T17:36:57.889Z"
+}
+```
+
+
+#### Get Messages
+Get messages for chat
+```txt
+Emit: 'event'.
+Type: 'chat:getMessages'
+Response: callback
+```
+
+Request body
+```jsdoc
+@param {Number} chatId
+@param {Number} [earlierThanId] use instead offset, will return messages before this id
+@param {Number} [limit]
+@param {Number} [offset]
+@param {Number} [order]
+@param {Object} [include] - loopback include props, by default will return user account with avatar
+```
+
+###### Example:
+Emit
+```json
+{
+  "chatId": 26047
+}
+```
+
+Response
+``` json
+[{
+  "id": 66918,
+  "chatId": 24145,
+  "userId": 2,
+  "message": "test message",
+  "created_at": "2018-01-15T17:25:41.008Z",
+  "updated_at": "2018-01-15T17:25:41.009Z",
+  "deleted_at": null,
+  "account": {
+    "userId": 2,
+    "type": "prof",
+    "firstName": null,
+    "lastName": null,
+    "userName": null,
+    "phone": null,
+    "about": null,
+    "biography": null,
+    "brokerage": null,
+    "licenseType": null,
+    "licenseState": null,
+    "licenseNumber": null,
+    "licenseExpiration": null,
+    "avatarId": null,
+    "backgroundId": null,
+    "created_at": "2017-12-07T19:47:22.464Z",
+    "updated_at": "2017-12-07T19:48:00.029Z",
+    "deleted_at": null
+  }
+}]
+```
+
+
+#### Search Messages
+Get messages for chat
+```txt
+Emit: 'event'.
+Type: 'chat:searchMessages'
+Response: callback
+```
+
+Request body
+```jsdoc
+limit, offset where.chatId searchString
+@param {Number} [limit]
+@param {Number} [offset]
+@param {Number} [order]
+@param {Object} [where]
+@param {String} [where.searchString] - full text search string
+@param {Number} [where.chatId] - limit search to specific chat
+```
+
+###### Example:
+Emit
+```json
+{
+  "where": 26047
+}
+```
+
+Response
+``` json
+[{
+  "id": 25375,
+  "chatId": 24624,
+  "userId": 2,
+  "message": "test msg 484 for chat 24624",
+  "created_at": "2018-01-10T22:12:38.500Z",
+  "updated_at": "2018-01-10T22:12:38.500Z",
+  "deleted_at": null,
+  "account": {
+    "id": 2,
+    "firstName": "test",
+    "lastName": "test",
+    "userName": "test",
+    "brokerage": "test",
+    "avatar": {
+      "id": null,
+      "publicUrl": null,
+      "name": null,
+      "sizes": null
+    }
+  }
+}]
+```

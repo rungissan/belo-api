@@ -55,7 +55,7 @@ export default class ChatMessageSearch extends BaseSearchController {
       'brokerage', "account"."brokerage",
       'avatar', json_build_object(
         'id', "avatar".id,
-        'publicUrl', "avatar".publicUrl,
+        'publicUrl', "avatar"."publicUrl",
         'name', "avatar".name,
         'sizes', "avatar".sizes
       )

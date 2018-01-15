@@ -11,7 +11,7 @@ const ROOM_PREFIX = 'chatroom_';
 
 module.exports = function(Chat) {
   async function getChats(socket, data = {}) {
-    let { filter = {}, joinRooms } = data;
+    let { joinRooms } = data;
     let { user } = socket;
 
     const { ChatToAccount } = Chat.app.models;
@@ -65,28 +65,28 @@ module.exports = function(Chat) {
     return {lastReadedMessageId: readedMessage && readedMessage.id || null};
   };
 
-  async function getChat(socket, data = {}) {
-    let { filter = {} } = data;
-    let { user } = socket;
-
-    const { ChatToAccount } = Chat.app.models;
-
-    let chatConnections = await ChatToAccount.find({
-      where: { userId: user.id },
-      include: {
-        relation: 'chat',
-        scope: {
-          include: [{
-            relation: 'image'
-          }, {
-            relation: 'account'
-          }]
-        }
-      }
-    });
-
-    return chatConnections.map(c => c.toJSON().chat);
-  };
+  // async function getChat(socket, data = {}) {
+  //   let { filter = {} } = data;
+  //   let { user } = socket;
+  //
+  //   const { ChatToAccount } = Chat.app.models;
+  //
+  //   let chatConnections = await ChatToAccount.find({
+  //     where: { userId: user.id },
+  //     include: {
+  //       relation: 'chat',
+  //       scope: {
+  //         include: [{
+  //           relation: 'image'
+  //         }, {
+  //           relation: 'account'
+  //         }]
+  //       }
+  //     }
+  //   });
+  //
+  //   return chatConnections.map(c => c.toJSON().chat);
+  // };
 
   async function getMessages(socket, data = {}) {
     let { user } = socket;
@@ -131,7 +131,7 @@ module.exports = function(Chat) {
 
     let query = {
       where: {
-        chatToAccount: { userId: user.id},
+        chatToAccount: { userId: user.id },
         searchString: where.searchString
       },
       include: ['account'],
@@ -223,8 +223,8 @@ module.exports = function(Chat) {
     addSocketHandler(Chat, readChat, {eventName: 'readChat'});
     addSocketHandler(Chat, sendMessage, {eventName: 'sendMessage', validationSchema: 'sendMessage'});
     addSocketHandler(Chat, searchMessages, {eventName: 'searchMessages'});
-    addSocketHandler(Chat, findOrCreateChat, {eventName: 'findOrCreateChat'});
-    addSocketHandler(Chat, getChat, {eventName: 'get'});
+    addSocketHandler(Chat, findOrCreateChat, {eventName: 'findOrCreateChat', validationSchema: 'findOrCreateChat'});
+    // addSocketHandler(Chat, getChat, {eventName: 'get'});
     addSocketHandler(Chat, getMessages, {eventName: 'getMessages', validationSchema: 'getMessages'});
   });
 
