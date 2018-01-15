@@ -102,7 +102,7 @@ const attachment = (DataTypes) => ({
   id:             { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
   userid:         { type: DataTypes.INTEGER, references: {model: {tableName: 'user', ...BASE_SCHEMA}}, ...CASCADE_RULES },
   url:            { type: DataTypes.STRING },
-  public_url:     { type: DataTypes.STRING },
+  publicUrl:      { type: DataTypes.STRING },
   type:           { type: DataTypes.STRING(20) },
   size:           { type: DataTypes.INTEGER },
   name:           { type: DataTypes.STRING },

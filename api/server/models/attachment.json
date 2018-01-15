@@ -44,7 +44,7 @@
     "publicUrl": {
       "type": "string",
       "postgresql": {
-        "columnName": "public_url"
+        "columnName": "publicUrl"
       }
     },
     "sizes": {
