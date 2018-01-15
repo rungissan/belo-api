@@ -1,0 +1,63 @@
+{
+  "name": "ChatToAccount",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "chat_to_account",
+      "schema": "spiti"
+    }
+  },
+  "properties": {
+    "userId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
+    },
+    "chatId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "chatId"
+      }
+    },
+    "lastReadedMessageId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "lastReadedMessageId"
+      }
+    }
+  },
+  "validations": [],
+  "relations": {
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "userId"
+    },
+    "chat": {
+      "type": "belongsTo",
+      "model": "Chat",
+      "foreignKey": "chatId",
+      "keyTo": "userId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "prof",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}
