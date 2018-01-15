@@ -64,7 +64,7 @@ export default class ChatMessageSearch extends BaseSearchController {
 
   _includeAccountJoin() {
     return `LEFT JOIN "spiti"."account" AS "account" ON "account"."userId" = "${this.baseModel.tableKey}"."userId"
-      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "account"."avatar_id"
+      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "account"."avatarId"
     `;
   }
 };

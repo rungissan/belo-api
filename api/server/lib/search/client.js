@@ -49,8 +49,8 @@ export default class ClientSearch extends BaseSearchController {
              "${tableKey}".license_state AS "licenseState",
              "${tableKey}".license_number AS "licenseNumber",
              "${tableKey}".license_expiration AS "licenseExpiration",
-             "${tableKey}".avatar_id AS "avatarId",
-             "${tableKey}".background_id AS "backgroundId",
+             "${tableKey}".avatarId AS "avatarId",
+             "${tableKey}".backgroundId AS "backgroundId",
              "user"."email" AS "email"
              ${include.includes('avatar') ? ', row_to_json("avatar".*) AS "avatar"' : ''}
              ${include.includes('followed') && this.userOptions.userId ? isFollowedIncludeQuery : ''}
@@ -63,7 +63,7 @@ export default class ClientSearch extends BaseSearchController {
 
   _includeAvatar() {
     return `
-      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "${this.baseModel.tableKey}"."avatar_id"
+      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "${this.baseModel.tableKey}"."avatarId"
     `;
   }
 
