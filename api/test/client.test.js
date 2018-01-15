@@ -41,7 +41,6 @@ describe('Client', function() {
     return api.get('/api/clients')
       .expect(401)
       .then((res) => {
-        console.log('res.......................................', res.body)
         expect(res.body.error).to.be.a('object');
         expect(res.body.error.code).to.equal('AUTHORIZATION_REQUIRED');
       });
