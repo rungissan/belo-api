@@ -9,7 +9,10 @@ import Promise  from 'bluebird';
 
 import config from '../config/index';
 import validate from '../lib/validate';
-
+import {
+  stringifyJson,
+  parseJson
+} from './util';
 // loopback-connector-kv-redis not support key delete and looks like not production ready.
 // so use redis client lib.
 const redisCliSocket = redis.createClient(config.redisSocketKeys);
@@ -61,7 +64,11 @@ export default function setupIoHandlers(app, checkAccessToken) {
       socket.user = user;
 
       debug(`socket: set user id: ${user.id}, socket id: ${socket.id}`);
-      redisCliSocket.setAsync(USERID_PREFIX + user.id, socket.id);
+      return getRedisJsonAsync(USERID_PREFIX + user.id, [])
+        .then(socketIds => {
+          socketIds.push(socket.id);
+          return setRedisJsonAsync(USERID_PREFIX + user.id, socketIds, []);
+        });
     } else {
       socket.user = null;
     }
@@ -94,7 +101,11 @@ export default function setupIoHandlers(app, checkAccessToken) {
 
       if (socket.user && socket.user.id) {
         debug(`socket: delete user id: ${socket.user.id}, socket id: ${socket.id}`);
-        redisCliSocket.delAsync(USERID_PREFIX + socket.user.id);
+        return getRedisJsonAsync(USERID_PREFIX + socket.user.id, [])
+          .then(socketIds => {
+            socketIds = socketIds.filter(s => s != socket.id);
+            return setRedisJsonAsync(USERID_PREFIX + socket.user.id, socketIds, []);
+          });
       }
     });
 
@@ -143,33 +154,45 @@ export default function setupIoHandlers(app, checkAccessToken) {
   });
 };
 
-export function joinRoomByUserId(app, userId = 0, roomName) {
-  return redisCliSocket.getAsync(USERID_PREFIX + userId)
-    .then(recipientSocketId => {
-      debug(`join room user: ${userId}, socket: ${recipientSocketId}`);
-      if (!recipientSocketId) {
-        return null;
+function getRedisJsonAsync(key, defaultValue) {
+  return redisCliSocket.getAsync(key)
+    .then(data => {
+      let parsedData = defaultValue;
+      if (data) {
+        parsedData = parseJson(data, defaultValue);
       }
-
-      return new Promise((resolve) => {
-        app.io.of('/').adapter.remoteJoin(recipientSocketId, roomName, (err, data) => {
-          if (err) {
-            resolve(null);
-          }
-          resolve(recipientSocketId);
-        });
-      });
+      return parsedData;
     });
 }
 
-export function sendToSocketByUserId(app, userId = 0, eventName, payload) {
-  return redisCliSocket.getAsync(USERID_PREFIX + userId)
-    .then(recipientSocketId => {
-      if (recipientSocketId) {
-        debug(`send message to user: ${userId}, socket: ${recipientSocketId}`, payload);
-        app.io.to(recipientSocketId).emit(eventName, payload);
-        return true;
+function setRedisJsonAsync(key, value, defaultValue) {
+  return redisCliSocket.setAsync(key, stringifyJson(value, defaultValue));
+}
+
+export function joinRoomByUserId(app, userId = 0, roomName) {
+  return getRedisJsonAsync(USERID_PREFIX + userId, [])
+    .then(socketIds => {
+      return Promise.map(socketIds, socketId => joinRemoteRoom(app.io, userId, roomName));
+    });
+}
+
+function joinRemoteRoom(io, socketId, roomName) {
+  return new Promise((resolve) => {
+    io.of('/').adapter.remoteJoin(socketId, roomName, (err, data) => {
+      if (err) {
+        resolve(null);
       }
-      return false;
+      resolve(socketId);
+    });
+  });
+}
+
+export function sendToSocketByUserId(app, userId = 0, eventName, payload) {
+  return getRedisJsonAsync(USERID_PREFIX + userId, [])
+    .then(recipientSocketIds => {
+      debug(`send message to user: ${userId}, socket: ${recipientSocketIds}`, payload);
+      recipientSocketIds.forEach(recipientSocketId => {
+        app.io.to(recipientSocketIds).emit(eventName, payload);
+      });
     });
 }
