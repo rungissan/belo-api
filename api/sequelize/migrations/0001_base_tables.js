@@ -31,7 +31,7 @@ const account = (DataTypes) => ({
   type:               { type: DataTypes.STRING(20) },
   firstName:         { type: DataTypes.STRING(30), defaultValue: '' },
   lastName:          { type: DataTypes.STRING(30), defaultValue: '' },
-  username:           { type: DataTypes.STRING(30), defaultValue: '' },
+  userName:           { type: DataTypes.STRING(30), defaultValue: '' },
   phone:              { type: DataTypes.STRING(30) },
   about:              { type: DataTypes.TEXT },
   biography:          { type: DataTypes.TEXT },
