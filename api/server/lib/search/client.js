@@ -43,14 +43,14 @@ export default class ClientSearch extends BaseSearchController {
 
     return `
       SELECT ${FIELDS.map(f => `"${tableKey}"."${f}"`).join(', ')},
-             "${tableKey}".firstName AS "firstName",
-             "${tableKey}".lastName AS "lastName",
-             "${tableKey}".licenseType AS "licenseType",
-             "${tableKey}".license_state AS "licenseState",
-             "${tableKey}".license_number AS "licenseNumber",
-             "${tableKey}".license_expiration AS "licenseExpiration",
-             "${tableKey}".avatarId AS "avatarId",
-             "${tableKey}".backgroundId AS "backgroundId",
+             "${tableKey}"."firstName" AS "firstName",
+             "${tableKey}"."lastName" AS "lastName",
+             "${tableKey}"."licenseType" AS "licenseType",
+             "${tableKey}"."licenseState" AS "licenseState",
+             "${tableKey}"."licenseNumber" AS "licenseNumber",
+             "${tableKey}"."licenseExpiration" AS "licenseExpiration",
+             "${tableKey}"."avatarId" AS "avatarId",
+             "${tableKey}"."backgroundId" AS "backgroundId",
              "user"."email" AS "email"
              ${include.includes('avatar') ? ', row_to_json("avatar".*) AS "avatar"' : ''}
              ${include.includes('followed') && this.userOptions.userId ? isFollowedIncludeQuery : ''}
