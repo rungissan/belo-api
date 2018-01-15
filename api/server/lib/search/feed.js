@@ -29,7 +29,7 @@ export default class FeedSearch extends BaseSearchController {
         'brokerage', "account"."brokerage",
         'avatar', json_build_object(
           'id', "accountAvatar".id,
-          'publicUrl', "accountAvatar".publicUrl,
+          'publicUrl', "accountAvatar"."publicUrl",
           'name', "accountAvatar".name,
           'sizes', "accountAvatar".sizes
         )
