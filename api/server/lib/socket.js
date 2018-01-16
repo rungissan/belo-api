@@ -111,6 +111,11 @@ export default function setupIoHandlers(app, checkAccessToken) {
     });
 
     socket.on('event', async function(eventName, data, cb) {
+      if (!cb && typeof data === 'function') {
+        cb = data;
+        data = {};
+      }
+
       if (!socket.auth) {
         let err = new Error('unauthorized');
         err.code = 'unauthorized';

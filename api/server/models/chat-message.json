@@ -59,7 +59,8 @@
     "chatToAccount": {
       "type": "belongsTo",
       "model": "ChatToAccount",
-      "foreignKey": "chatId"
+      "foreignKey": "chatId",
+      "primaryKey": "chatId"
     }
   },
   "acls": [
