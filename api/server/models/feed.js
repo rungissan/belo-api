@@ -31,18 +31,30 @@ const FEATURES_OPTIONS = {
       type: 'number'
     },
     propertyType: {
-      type: 'string'
+      type: 'string',
+      enum: [
+        'singleFamily',
+        'condo',
+        'coop',
+        'townhome',
+        'multiFamily',
+        'landLot',
+        'apartmentInBuilding'
+      ]
     },
     propertyFeatures: {
       type: 'object'
     },
-    buildingFeatures: {
+    keyDetails: {
       type: 'object'
     },
     utilitiesIncluded: {
       type: 'object'
     },
     moveInFees: {
+      type: 'object'
+    },
+    feesAndCharges: {
       type: 'object'
     },
     schoolInformation: {
@@ -55,7 +67,7 @@ const FEATURES_OPTIONS = {
       type: 'object'
     }
   },
-  required: ['rentType', 'bedrooms', 'bathrooms', 'price', 'square']
+  required: ['rentType', 'propertyType', 'bedrooms', 'bathrooms', 'price', 'square']
 };
 
 const FEATURES_VALIDATIONS = {
@@ -63,118 +75,151 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      laundry: {
-        name: 'Laundry',
-        type: 'boolean'
+      style: {
+        type: 'string',
+        enum: [
+          'Antique/Historic',
+          '2 Family',
+          '2 Story',
+          '3 Family',
+          '4 Family',
+          '5+ Family',
+          'Apartment Building',
+          'Barn',
+          'Bungalow',
+          'Cape',
+          'Co-op',
+          'Colonial',
+          'Commercial',
+          'Condo',
+          'Contemporary',
+          'Coop',
+          'Cottage',
+          'Duplex',
+          'Estate',
+          'Exp Cape',
+          'Exp Ranch',
+          'Farm House',
+          'Farm Ranch',
+          'Hi Ranch',
+          'House Boat',
+          'Mediterranean',
+          'Mixed',
+          'Modern',
+          'Multi Family',
+          'Other',
+          'Raised Ranch',
+          'Ranch',
+          'Residential',
+          'Splanch',
+          'Split',
+          'Split Ranch ',
+          'Townhome',
+          'Townhouse',
+          'Traditional',
+          'Tudor',
+          'Victorian'
+        ]
       },
-      dogs: {
-        name: 'Dogs OK',
-        type: 'boolean'
-      },
-      cats: {
-        name: 'Cats OK',
-        type: 'boolean'
-      },
-      parking: {
-        name: 'Parking',
-        type: 'boolean'
-      },
-      fireplace: {
-        name: 'Fireplace',
-        type: 'boolean'
-      },
-      outdoorSpace: {
-        name: 'Outdoor Space',
-        type: 'boolean'
-      }
+      yearBuilt:         {type: 'number'},
+      interiorSqFt:      {type: 'number'},
+      acres:             {type: 'number'},
+      totalNuberOfUnits: {type: 'number'},
+      garage:            {type: 'boolean'},
+      garageParking:     {type: 'boolean'},
+      driveway:          {type: 'boolean'},
+      energyEfficient:   {type: 'boolean'},
+      reo:               {type: 'boolean'},
+      shortSale:         {type: 'boolean'},
+      yearlyOrSeasonal:  {type: 'string', enum: ['Yearly', 'Seasonal']},
+      lotSize:           {type: 'string'} // object?
     }
   },
-  buildingFeatures: {
+
+  keyDetails: {
     type: 'object',
     additionalProperties: false,
     properties: {
-      fitness: {
-        name: 'Fitness',
-        type: 'boolean'
-      },
-      pool: {
-        name: 'Pool',
-        type: 'boolean'
-      },
-      elevator: {
-        name: 'Elevator',
-        type: 'boolean'
-      },
-      bikeRoom: {
-        name: 'Bike Room',
-        type: 'boolean'
-      },
-      storage: {
-        name: 'Storage',
-        type: 'boolean'
-      },
-      doorman: {
-        name: 'Doorman',
-        type: 'boolean'
-      }
+      laundry:              {type: 'boolean'},
+      waterfront:           {type: 'boolean'},
+      fireplace:            {type: 'boolean'},
+      woodFloors:           {type: 'boolean'},
+      centralAir:           {type: 'boolean'},
+      outdoorSpace:         {type: 'boolean'},
+      skylight:             {type: 'boolean'},
+      basement:             {type: 'boolean'},
+      finishedBasement:     {type: 'boolean'},
+      attic:                {type: 'boolean'},
+      yard:                 {type: 'boolean'},
+      pool:                 {type: 'boolean'},
+      sportsCourt:          {type: 'boolean'},
+      elevator:             {type: 'boolean'},
+      dogOK:                {type: 'boolean'},
+      catOK:                {type: 'boolean'},
+      furnished:            {type: 'boolean'},
+      inUnitLaundry:        {type: 'boolean'},
+      sharedLaundry:        {type: 'boolean'},
+      waterview:            {type: 'boolean'},
+      pvtOutdoorSpace:      {type: 'boolean'},
+      communalOutdoorSpace: {type: 'boolean'},
+      conciergeDoorman:     {type: 'boolean'},
+      onSiteSuper:          {type: 'boolean'},
+      communalOutdoorArea:  {type: 'boolean'},
+      fitnessCenter:        {type: 'boolean'},
+      storageAvailable:     {type: 'boolean'},
+      bikeRoom:             {type: 'boolean'},
+      publicWater:          {type: 'boolean'},
+      wellWater:            {type: 'boolean'},
+      sewer:                {type: 'boolean'},
+      electric:             {type: 'boolean'},
+      gas:                  {type: 'boolean'},
+      cleared:              {type: 'boolean'},
+      varianceNeeded:       {type: 'boolean'}
     }
   },
-  utilitiesIncluded: {
+
+  feesAndCharges: {
     type: 'object',
     additionalProperties: false,
     properties: {
-      electric: {
-        name: 'Electric',
-        type: 'boolean'
-      },
-      heat: {
-        name: 'Heat',
-        type: 'boolean'
-      },
-      gas: {
-        name: 'Gas',
-        type: 'boolean'
-      },
-      sewer: {
-        name: 'Sewer',
-        type: 'boolean'
-      },
-      water: {
-        name: 'Water',
-        type: 'boolean'
-      },
-      garbage: {
-        name: 'Garbage',
-        type: 'boolean'
-      }
+      totalTaxes:     {type: 'number'},
+      maintenance:    {type: 'number'},
+      commonCharge:   {type: 'number'},
+      amenities:      {type: 'number'},
+      parking:        {type: 'number'},
+      utilities:      {type: 'number'},
+      insurance:      {type: 'number'},
+      miscExpenses:   {type: 'number'},
+      annualRentRoll: {type: 'number'},
+      netIncome:      {type: 'number'}
     }
   },
+
   moveInFees: {
     type: 'object',
     additionalProperties: false,
     properties: {
-      firstMonthRent: {
-        name: 'First Month Rent',
-        type: 'boolean'
-      },
-      lastMonthRent: {
-        name: 'Last Month Rent',
-        type: 'boolean'
-      },
-      securityDeposit: {
-        name: 'Sequrity Deposit',
-        type: 'number'
-      },
-      applicationFee: {
-        name: 'Application Fee',
-        type: 'number'
-      },
-      brokerFee: {
-        name: 'Broker Fee',
-        type: 'number'
-      }
+      firstMonthRent:  {type: 'boolean'},
+      lastMonthRent:   {type: 'boolean'},
+      securityDeposit: {type: 'number'},
+      applicationFee:  {type: 'number'},
+      brokerFee:       {type: 'number'}
     }
   },
+
+  utilitiesIncluded: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      electric:   {type: 'boolean'},
+      water:      {type: 'boolean'},
+      cookingGas: {type: 'boolean'},
+      heat:       {type: 'boolean'},
+      sewer:      {type: 'boolean'},
+      garbage:    {type: 'boolean'}
+    }
+  },
+
   schoolInformation: {
     type: 'object',
     additionalProperties: false,
@@ -184,6 +229,7 @@ const FEATURES_VALIDATIONS = {
       }
     }
   },
+
   transportation: {
     type: 'object',
     additionalProperties: false,
