@@ -6,8 +6,12 @@ import FeedSearch from '../lib/search/feed';
 
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(filter) {
+    console.log('filter.where.......1', filter.where);
+
     filter.where = formatFeedQuery(filter.where);
     filter.queryOptions = {distinct: true};
+    console.log('filter.where.......2', filter.where);
+
     return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
   };
 
@@ -111,8 +115,8 @@ module.exports = function(SavedFeed) {
         } else {
           aggQuery = {or: [{feedOptions: where.feedOptions}, { type: 'post'}] };
         }
+        delete where.feedOptions;
       }
-      delete where.feedOptions;
     }
 
     if (aggQuery) {

@@ -192,6 +192,37 @@ describe('Search', function() {
       expect(conditionsList[0].operator).to.equal('=');
       expect(conditionsList[0].value).to.equal(10);
     });
+
+    it('_buildWhereQueryForProp should add "IN" condition', () => {
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {in: ['test', 'values']});
+
+      expect(conditionsList[0].operator).to.equal('IN');
+      expect(conditionsList[0].value).to.deep.equal(['test', 'values']);
+    });
+
+    it('_buildWhereQueryForProp should skip not string values in "IN" condition', () => {
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {in: ['test', 'values', {val: 'test'}]});
+
+      expect(conditionsList[0].operator).to.equal('IN');
+      expect(conditionsList[0].value).to.deep.equal(['test', 'values']);
+    });
+
+    it('_buildWhereQueryForProp should skip "IN" condition with no suitable values', () => {
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {in: [{val: 'test'}]});
+
+      expect(conditionsList.length).to.equal(0);
+    });
+
+    it('_buildWhereQueryForProp should skip "IN" condition if no array', () => {
+      let conditionsList = [];
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName"', {in: 'values'});
+      searchCtrl._buildWhereQueryForProp(conditionsList, 'tableKey', '"columnName2"', {in: {val: 'val'}});
+
+      expect(conditionsList.length).to.equal(0);
+    });
   });
 
   describe('builders: models options', function() {
@@ -297,6 +328,29 @@ describe('Search', function() {
 
       expect(sql).to.be.a('string');
       expect(sql).to.equal(' AND "columnName" = $1');
+    });
+
+    it('_buildWhereStrings should add IN () query', () => {
+      let whereValue = {
+        column: '"columnName"',
+        operator: 'IN',
+        value: ['Test', 'Values']
+      };
+      let sql = searchCtrl._buildWhereStrings(whereValue, 1);
+
+      expect(sql).to.be.a('string');
+      expect(sql).to.equal(' WHERE "columnName" IN ($1, $2)');
+    });
+
+    it('_buildWhereStrings should add replacements for IN () query', () => {
+      let whereValue = {
+        column: '"columnName"',
+        operator: 'IN',
+        value: ['Test', 'Values']
+      };
+      let sql = searchCtrl._buildWhereStrings(whereValue, 1);
+
+      expect(searchCtrl.replacements).to.deep.equal(['Test', 'Values']);
     });
 
     it('_buildWhereStrings should set "AND" keyword for other conditions', () => {

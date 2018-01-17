@@ -296,6 +296,7 @@ gte: '>=',
 lt: '<',
 lte: '<=',
 is: '='
+in: 'IN'
 ```
 
 ###### Example:
@@ -310,7 +311,10 @@ http://localhost/api/savedfeeds/search?filter={
         "gt": 10
       },
       "bedrooms": 2,
-      "buildingFeatures.dogs": true
+      "buildingFeatures.dogs": true,
+      "propertyFeatures.style": {
+        "in": ["Some", "Style", "Values"]
+      }
     }
   },
   "include":["feedOptions"]
