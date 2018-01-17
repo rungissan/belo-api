@@ -181,6 +181,7 @@ describe('Feed', function() {
       description: 'test description',
       options: {
         rentType: 'sale',
+        propertyType: 'singleFamily',
         bedrooms: 1,
         bathrooms: 1,
         price: 20,
@@ -188,6 +189,44 @@ describe('Feed', function() {
         propertyFeatures: {
           laundry: true,
           dogs: true
+        }
+      }
+    };
+
+    const testListingWithOptions = {
+      type: 'listing',
+      title: 'test listing',
+      description: 'test description',
+      options: {
+        rentType: 'sale',
+        propertyType: 'singleFamily',
+        bedrooms: 1,
+        bathrooms: 1,
+        price: 20,
+        square: 2,
+        propertyFeatures: {
+          style: 'Bungalow',
+          yearBuilt: 42,
+          shortSale: true
+        },
+        keyDetails: {
+          laundry: true
+        },
+        feesAndCharges: {
+          totalTaxes: 322
+        },
+        moveInFees: {
+          applicationFee: 322,
+          firstMonthRent: true
+        },
+        utilitiesIncluded: {
+          electric: true
+        },
+        schoolInformation: {
+          custom: [{
+            name: 'Test school',
+            value: 'test'
+          }]
         }
       }
     };
@@ -232,7 +271,7 @@ describe('Feed', function() {
           expect(res.body.error.details).to.be.a('object');
           expect(res.body.error.details.codes).to.be.a('object');
 
-          ['rentType', 'bedrooms', 'bathrooms', 'price', 'square'].forEach(key => {
+          ['rentType', 'bedrooms', 'bathrooms', 'price', 'square', 'propertyType'].forEach(key => {
             expect(res.body.error.details.codes[key]).to.be.a('array').to.include('required');
           });
         });
@@ -248,6 +287,78 @@ describe('Feed', function() {
           expect(res.body.type).to.equal('listing');
           expect(res.body.title).to.equal('test listing');
           expect(res.body.description).to.equal('test description');
+        });
+    });
+
+    it('created listing should have feedOptions propertyFeatures', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.propertyFeatures).to.be.a('object');
+          expect(res.body.options.propertyFeatures.style).to.equal('Bungalow');
+          expect(res.body.options.propertyFeatures.yearBuilt).to.equal(42);
+        });
+    });
+
+    it('created listing should have feedOptions keyDetails', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.keyDetails).to.be.a('object');
+          expect(res.body.options.keyDetails.laundry).to.equal(true);
+        });
+    });
+
+    it('created listing should have feedOptions feesAndCharges', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.feesAndCharges).to.be.a('object');
+          expect(res.body.options.feesAndCharges.totalTaxes).to.equal(322);
+        });
+    });
+
+    it('created listing should have feedOptions moveInFees', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.moveInFees).to.be.a('object');
+          expect(res.body.options.moveInFees.applicationFee).to.equal(322);
+          expect(res.body.options.moveInFees.firstMonthRent).to.equal(true);
+        });
+    });
+
+    it('created listing should have feedOptions utilitiesIncluded', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.utilitiesIncluded).to.be.a('object');
+          expect(res.body.options.utilitiesIncluded.electric).to.equal(true);
+        });
+    });
+
+    it('created listing should have feedOptions schoolInformation', () => {
+      return apiCall('post', '/api/feeds', tokenProf)
+        .send(testListingWithOptions)
+        .expect(200)
+        .then((res) => {
+          expect(res.body.options).to.be.a('object');
+          expect(res.body.options.schoolInformation).to.be.a('object');
+          expect(res.body.options.schoolInformation.custom).to.be.a('array');
+          expect(res.body.options.schoolInformation.custom).to.deep.equal([{
+            name: 'Test school',
+            value: 'test'
+          }]);
         });
     });
 

@@ -74,6 +74,20 @@
         "dataType": "jsonb"
       }
     },
+    "keyDetails": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "keyDetails",
+        "dataType": "jsonb"
+      }
+    },
+    "feesAndCharges": {
+      "type": "object",
+      "postgresql": {
+        "columnName": "buildingFeatures",
+        "dataType": "jsonb"
+      }
+    },
     "buildingFeatures": {
       "type": "object",
       "postgresql": {
