@@ -468,6 +468,17 @@ describe('Search', function() {
         .to.include('$2')
         .to.include('$3');
     });
+
+    it('_buildQueryForModel should add deleted_at condition to baseModel if model have this column', () => {
+      let searchCtrlTime = new Search(app.dataSources.postgres.connector, app, {baseModelName: 'TestModelWithTimestamps'});
+      searchCtrlTime._buildQueryForModel(searchCtrlTime.baseModel, {});
+
+      let expected = [{
+        column: '"TestModelWithTimestamps".deleted_at',
+        operator: 'IS NULL'
+      }];
+      expect(searchCtrlTime.whereValues.TestModelWithTimestamps).to.deep.equal(expected);
+    });
   });
 
   describe('builders: joins', function() {

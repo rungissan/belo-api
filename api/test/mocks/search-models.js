@@ -153,10 +153,35 @@ const TestLocationToProduct = {
   }
 };
 
+const TestModelWithTimestamps = {
+  'name': 'TestModelWithTimestamps',
+  'base': 'PersistedModel',
+  'idInjection': true,
+  'options': {
+    'validateUpsert': true,
+    'postgresql': {
+      'schema': 'test',
+      'table': 'test_model_with_timestamps'
+    }
+  },
+  'properties': {
+    'id': {
+      'type': 'number',
+      'id': true
+    },
+    'type': 'string',
+    'quantity': 'number',
+    'created_at': 'Date',
+    'updated_at': 'Date',
+    'deleted_at': 'Date'
+  }
+};
+
 export default {
   TestLocationToProduct,
   TestLocation,
   TestProduct,
   TestCategory,
-  TestProductOptions
+  TestProductOptions,
+  TestModelWithTimestamps
 };

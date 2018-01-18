@@ -1,11 +1,12 @@
 'use strict';
 
-import kue from 'kue';
+// import kue from 'kue';
+import kue from 'kue-scheduler';
 
-import config from '../../config/index';
+import appConfig from '../../config/index';
 const debug = require('debug')('spiti:jobs');
 
-const redisKueConfig = config.redisKue;
+const redisKueConfig = appConfig.redisKue;
 
 import jobsHandlers from './handlers';
 
@@ -19,6 +20,10 @@ export default class KueJobs {
 
     this.setupQueue();
     this.setupJobs();
+
+    if (appConfig.nodeEnv !== 'test') {
+      this.createInitialJobs();
+    }
   }
 
   setupQueue() {
@@ -50,6 +55,17 @@ export default class KueJobs {
     });
   }
 
+  createInitialJobs() {
+    Object.keys(jobsHandlers).forEach(hadlerName => {
+      let handlerOptions = jobsHandlers[hadlerName];
+
+      if (handlerOptions.runOnStart) {
+        debug('run initial job: ', hadlerName);
+        this.createJob(hadlerName, handlerOptions.runOnStartData || {});
+      }
+    });
+  }
+
   createJob(jobName, data, options = {}) {
     if (!jobsHandlers[jobName]) {
       throw new Error('Incorrect job handler');
@@ -64,6 +80,14 @@ export default class KueJobs {
     job.delay(jobOptions.delay);
     job.attempts(jobOptions.attempts).backoff(jobOptions.backoff);
     job.removeOnComplete(jobOptions.removeOnComplete);
+
+    if (jobOptions.schedule) {
+      let { every, unique } = jobOptions.schedule;
+
+      unique && job.unique(jobName);
+      every && this.queue.every(every, job);
+    }
+
     job.save();
 
     debug(`Job ${jobName} created `);
