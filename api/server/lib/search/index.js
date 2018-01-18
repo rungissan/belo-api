@@ -18,7 +18,8 @@ const OPERATORS = {
   lt: '<',
   lte: '<=',
   is: '=',
-  neq: '!='
+  neq: '!=',
+  in: 'IN'
 };
 const NULL_OPERATORS = {
   is: 'IS NULL',
@@ -245,6 +246,18 @@ export default class FeedSearch {
     } else if (typeof expression == 'object') {
       Object.keys(expression).map(key => {
         if (OPERATORS[key]) {
+          if (key === 'in') {
+            let inArrayValues = Array.isArray(expression[key]) && expression[key].filter(k => typeof k === 'string');
+            if (inArrayValues && inArrayValues.length) {
+              conditionsList.push({
+                column: `"${tableKey}".${columnName}`,
+                operator: OPERATORS[key],
+                value: inArrayValues
+              });
+            }
+            return;
+          }
+
           if (expression[key] === null) {
             let nullOperator = NULL_OPERATORS[key];
 
@@ -366,8 +379,20 @@ export default class FeedSearch {
     query += ` ${where.column} ${where.operator || ''}`;
 
     if (typeof where.value != 'undefined' && where.value !== null) {
-      query += ` $${replacements.length + 1}`;
-      replacements.push(where.value);
+      if (where.operator === 'IN') {
+        query += ' (';
+        where.value.forEach((val, arrIndex) => {
+          if (arrIndex !== 0) {
+            query += ', ';
+          }
+          query += `$${replacements.length + 1}`;
+          replacements.push(val);
+        });
+        query += ')';
+      } else {
+        query += ` $${replacements.length + 1}`;
+        replacements.push(where.value);
+      }
     }
 
     return query;

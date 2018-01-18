@@ -111,8 +111,8 @@ module.exports = function(SavedFeed) {
         } else {
           aggQuery = {or: [{feedOptions: where.feedOptions}, { type: 'post'}] };
         }
+        delete where.feedOptions;
       }
-      delete where.feedOptions;
     }
 
     if (aggQuery) {
