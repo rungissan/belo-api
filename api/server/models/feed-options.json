@@ -84,7 +84,7 @@
     "feesAndCharges": {
       "type": "object",
       "postgresql": {
-        "columnName": "buildingFeatures",
+        "columnName": "feesAndCharges",
         "dataType": "jsonb"
       }
     },

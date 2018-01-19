@@ -253,6 +253,22 @@ module.exports = function(Feed) {
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
 
+  Feed.prototype.createOpenHouse = async function(ctx, openHouseData) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    let feed = this;
+
+    if (!(feed && feed.id) || !userId) {
+      return;
+    }
+
+    if (feed.type !== 'listing') {
+      throw errValidation('Open house can be created only for listing');
+    }
+
+    return await createOpenHouseWithListing(feed, openHouseData, token, userId);
+  };
+
   Feed.prototype.setOpenHouse = async function(ctx, openHouseData) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
@@ -269,13 +285,12 @@ module.exports = function(Feed) {
     const { OpenHouse, Attachment, AttachmentToOpenHouse } = Feed.app.models;
     let openHouse;
 
-    if (feed.openHouseId) {
-      await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
-    } else {
-      openHouseData.userId = userId;
-      openHouse = await OpenHouse.create(openHouseData);
-      await feed.updateAttributes({openHouseId: openHouse.id});
+    if (!feed.openHouseId) {
+      let copiedFeed = await createOpenHouseWithListing(feed, openHouseData, token, userId);
+      return copiedFeed.openHouse;
     }
+
+    await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
 
     if (openHouseData.images && openHouseData.images.length) {
       if (!openHouse) {
@@ -324,13 +339,24 @@ module.exports = function(Feed) {
   ];
   const OPEN_HOUSE_RETURNS = { arg: 'data', type: 'OpenHouse', root: true};
 
+  // TODO: remove method after app updated
   Feed.remoteMethod(
     'prototype.setOpenHouse',
     {
-      description: 'Create/update open house for listing.',
+      description: 'Create/update open house for listing. (deprecated)',
       accepts: OPEN_HOUSE_ACCEPTS,
       returns: OPEN_HOUSE_RETURNS,
       http: {verb: 'post', path: '/open-house'}
+    }
+  );
+
+  Feed.remoteMethod(
+    'prototype.createOpenHouse',
+    {
+      description: 'Create open house from listing.',
+      accepts: OPEN_HOUSE_ACCEPTS,
+      returns: OPEN_HOUSE_RETURNS,
+      http: {verb: 'post', path: '/create-open-house'}
     }
   );
 
@@ -410,5 +436,120 @@ module.exports = function(Feed) {
         }
       });
     });
+  }
+
+  async function createOpenHouseWithListing(feed, openHouseData, token, userId) {
+    const {
+      OpenHouse,
+      FeedOptions,
+      AttachmentToFeed,
+      Attachment,
+      AttachmentToOpenHouse
+    } = Feed.app.models;
+
+    let listingCopyData = feed.toJSON();
+    listingCopyData.type = 'openHouse';
+    delete listingCopyData.id;
+    delete listingCopyData.openHouseId;
+
+    let [
+      listingFeedOptionsCopyData,
+      listingRelatedImagesData
+    ] = await Promise.all([
+      FeedOptions.findById(feed.id),
+      AttachmentToFeed.find({where: {feedId: feed.id}})
+    ]);
+
+    openHouseData.userId = userId;
+
+    let copiedFeed = {};
+    let createdFeed;
+    let createdFeedOptions;
+    let createdOpenHouse;
+    let createdAttachmentToFeed = [];
+    let openHouseImages = [];
+    let createdFeedAdditionalImages = [];
+    let relatedImagesData = [];
+
+    await Feed.app.dataSources.postgres.transaction(async models => {
+      const {
+        Feed: tFeed,
+        FeedOptions: tFeedOptions,
+        OpenHouse: tOpenHouse,
+        AttachmentToFeed: tAttachmentToFeed
+      } = models;
+
+      createdFeed = await tFeed.create(listingCopyData, {accessToken: token});
+
+      if (listingFeedOptionsCopyData) {
+        listingFeedOptionsCopyData.feedId = createdFeed.id;
+      }
+      openHouseData.feedId = createdFeed.id;
+      relatedImagesData = listingRelatedImagesData.map(imageRelation => {
+        return {
+          feedId: createdFeed.id,
+          attachmentId: imageRelation.attachmentId
+        };
+      });
+
+      [
+        createdFeedOptions,
+        createdOpenHouse,
+        createdAttachmentToFeed
+      ] = await Promise.all([
+        listingFeedOptionsCopyData ? tFeedOptions.create(listingFeedOptionsCopyData) : Promise.resolve(null),
+        tOpenHouse.create(openHouseData),
+        tAttachmentToFeed.create(relatedImagesData, {accessToken: token})
+      ]);
+
+      await createdFeed.updateAttributes({openHouseId: createdOpenHouse.id});
+    });
+
+    if (openHouseData.images && openHouseData.images.length) {
+      await Promise.map(openHouseData.images, async imageId => {
+        imageId = Number(imageId);
+        if (!imageId) {
+          return false;
+        }
+
+        let relationInstance =  await Attachment.findById(imageId);
+        if (!relationInstance) {
+          return false;
+        }
+
+        if (!(relationInstance.userId && relationInstance.userId == userId)) {
+          return false;
+        }
+        openHouseImages.push(relationInstance.toJSON());
+
+        let attachmentLinkData = {
+          attachmentId: imageId,
+          openHouseId: createdOpenHouse.id
+        };
+
+        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({where: attachmentLinkData});
+        if (!attachmentToOpenHouse) {
+          AttachmentToOpenHouse.create({attachmentId: imageId, openHouseId: createdOpenHouse.id}, {accessToken: token});
+        }
+        return;
+      });
+    }
+
+    copiedFeed = createdFeed.toJSON();
+    copiedFeed.feedOptions = createdFeedOptions && createdFeedOptions.toJSON();
+    copiedFeed.openHouse = createdOpenHouse.toJSON();
+    copiedFeed.openHouse.images = openHouseImages;
+
+    let relatedImagesIds = relatedImagesData.map(relation => relation.attachmentId);
+    if (relatedImagesIds.length) {
+      createdFeedAdditionalImages = await Attachment.find({ where: { id: { inq: relatedImagesIds } } });
+    }
+    if (feed.imageId) {
+      copiedFeed.image = await Attachment.findById(feed.imageId);
+    }
+
+    copiedFeed.additionalImages = createdFeedAdditionalImages;
+
+    return copiedFeed;
   }
 };

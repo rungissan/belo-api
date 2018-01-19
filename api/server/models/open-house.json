@@ -21,7 +21,7 @@
     },
     "ReadOnly" : {
       "userId": true,
-      "openHouseId" : true
+      "feedId" : true
     }
   },
   "properties": {
@@ -33,6 +33,13 @@
       "type": "number",
       "postgresql": {
         "columnName": "userId",
+        "dataType": "integer"
+      }
+    },
+    "feedId": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "feedId",
         "dataType": "integer"
       }
     },
@@ -72,9 +79,9 @@
   "validations": [],
   "relations": {
     "feed": {
-      "type": "hasOne",
+      "type": "belongsTo",
       "model": "Feed",
-      "foreignKey": "openHouseId"
+      "foreignKey": "feedId"
     },
     "account": {
       "type": "belongsTo",

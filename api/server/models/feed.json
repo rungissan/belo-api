@@ -149,9 +149,9 @@
       "keyThrough": "geolocationId"
     },
     "openHouse": {
-      "type": "belongsTo",
+      "type": "hasOne",
       "model": "OpenHouse",
-      "foreignKey": "openHouseId"
+      "foreignKey": "feedId"
     }
   },
   "acls": [
