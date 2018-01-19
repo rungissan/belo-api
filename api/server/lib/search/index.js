@@ -187,7 +187,7 @@ export default class FeedSearch {
     });
 
     if (isBase && properties.deleted_at) {
-      this._buildWhereQueryForProp(conditions, tableKey, 'deleted_at', {not: null});
+      this._buildWhereQueryForProp(conditions, tableKey, 'deleted_at', {is: null});
     }
 
     if (conditions.length) {

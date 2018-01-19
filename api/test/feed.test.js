@@ -426,7 +426,7 @@ describe('Feed', function() {
       timeEnd: new Date()
     };
 
-    after(() => clearModels(app, ['Feed', 'FeedOptions', 'OpenHouse']));
+    after(() => clearModels(app, ['Feed']));
 
     it('should allow to link OpenHouse to Listing', () => {
       return Feed.create({...testListing, userId: prof.id})

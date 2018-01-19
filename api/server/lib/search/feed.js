@@ -98,7 +98,7 @@ export default class FeedSearch extends BaseSearchController {
   _includeOpenHouse() {
     return `
       LEFT JOIN "spiti"."open_house" AS "openHouse"
-        ON "openHouse"."id" = "${this.baseModel.tableKey}"."openHouseId"
+        ON "openHouse"."feedId" = "${this.baseModel.tableKey}"."id"
     `;
   }
 

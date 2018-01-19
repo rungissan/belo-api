@@ -23,5 +23,6 @@ export default {
   postgresql: {
     baseSchema: 'spiti',
     authSchems: 'auth'
-  }
+  },
+  nodeEnv: process.env.NODE_ENV
 };
