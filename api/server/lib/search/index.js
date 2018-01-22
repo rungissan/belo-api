@@ -104,7 +104,10 @@ export default class FeedSearch {
 
     let orderQuery = this._buildOrderQuery(baseModel, filter.order);
     let query = this._buildSelectQuery(baseModel);
+
+    this.buildAdditionalJoinQuery && (this.sqlJoin += this.buildAdditionalJoinQuery());
     query += this.sqlJoin;
+
     query += this._buildWhereQuery();
     query += this._buildGroupByQuery();
     query += orderQuery;

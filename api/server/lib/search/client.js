@@ -3,7 +3,7 @@
 import BaseSearchController from './index';
 const debug = require('debug')('spiti:feed:search');
 
-const FULL_TEXT_SEARCH_FIELDS = ['firstName', 'lastName', 'userName'];
+const FULL_TEXT_SEARCH_FIELDS = ['firstName', 'lastName', 'userName', 'brokerage', 'phone', 'email'];
 const FIELDS = ['userId', 'type', 'userName', 'phone', 'about', 'biography', 'brokerage'];
 
 export default class ClientSearch extends BaseSearchController {
@@ -27,6 +27,19 @@ export default class ClientSearch extends BaseSearchController {
     }
 
     return query;
+  }
+
+  buildAdditionalJoinQuery() {
+    let additionalJoinQuery = '';
+    let { where } = this.filter;
+
+    if (where && where.searchString) {
+      let userModel = this._getOptionsForModel(this.app.models, 'client', this.baseModel);
+
+      additionalJoinQuery += this._buildJoinQuery(userModel);
+    }
+
+    return additionalJoinQuery;
   }
 
   _buildIncludesQuery(query) {
