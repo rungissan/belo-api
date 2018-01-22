@@ -183,7 +183,7 @@ module.exports = function(Chat) {
     let recipientSocketIds = await joinRoomByUserId(Chat.app, accountTo.id, getRoomName(chatData.id));
     if (recipientSocketIds && recipientSocketIds.length) {
       recipientSocketIds.forEach(recipientSocketId => {
-        Chat.app.io.to(recipientSocketId).emit('chatCreated', chatData);
+        Chat.app.io.to(recipientSocketId).emit('message', 'chatCreated', chatData);
       });
     }
 
@@ -213,7 +213,7 @@ module.exports = function(Chat) {
     });
     await linkedAccount.updateAttributes({lastReadedMessageId: createdMessage.id});
 
-    socket.to(getRoomName(chatId)).emit('messageCreated', createdMessage);
+    socket.to(getRoomName(chatId)).emit('message', 'messageCreated', createdMessage);
 
     return createdMessage;
   };
