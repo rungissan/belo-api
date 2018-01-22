@@ -34,7 +34,7 @@ describe('ClientSearch', function() {
 
     beforeEach(() => {
       searchCtrl = new ClientSearch(app.dataSources.postgres.connector, app, {
-        baseModelName: 'TestProduct',
+        baseModelName: 'Account',
         fulltextSearchFields: ['description', 'quantity']
       });
     });
@@ -43,6 +43,24 @@ describe('ClientSearch', function() {
       let spy = sinon.spy(searchCtrl, 'buildAdditionalWhereQuery');
       searchCtrl.buildQuery(query);
       sinon.assert.calledOnce(spy);
+    });
+
+    it('buildAdditionalJoinQuery should be called once', () => {
+      let spy = sinon.spy(searchCtrl, 'buildAdditionalJoinQuery');
+      searchCtrl.buildQuery(query);
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildJoinQuery should be called once if searchString provided', () => {
+      let spy = sinon.spy(searchCtrl, '_buildJoinQuery');
+      searchCtrl.buildQuery(query);
+      sinon.assert.calledOnce(spy);
+    });
+
+    it('_buildJoinQuery should be skipped if searchString not provided', () => {
+      let spy = sinon.spy(searchCtrl, '_buildJoinQuery');
+      searchCtrl.buildQuery({where: {}});
+      sinon.assert.notCalled(spy);
     });
 
     it('buildAdditionalWhereQuery should be add full text search qeury', () => {

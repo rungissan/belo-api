@@ -121,6 +121,7 @@ module.exports = function(Account) {
       limit: filter.limit,
       offset: filter.offset
     };
+    where.geolocations && (query.where.geolocations = where.geolocations);
 
     return await clientSearch.query(query, {userId: userId});
   };
