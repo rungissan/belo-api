@@ -9,5 +9,5 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app
 COPY yarn.lock /usr/src/app
 
-RUN yarn global add nodemon loopback-cli sequelize-cli babel-cli mocha
+RUN yarn global add nodemon sequelize-cli babel-cli mocha
 RUN yarn install
