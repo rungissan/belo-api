@@ -61,26 +61,27 @@ function setRelations(options, Model) {
       return;
     }
 
-    const token = ctx.options && ctx.options.accessToken;
-    const userId = token && token.userId;
+    const token = ctx.args.options && ctx.args.options.accessToken;
     let requestData = ctx.req.body || {};
 
-    options.forEach(relationOptions => {
-
-    });
+    if (!(token && token.userId)) {
+      return false;
+    }
 
     return await Promise.map(options, relationOptions => {
       let relationsData = requestData[relationOptions.relationName];
       if (typeof relationsData != 'undefined') {
         let RelationModel = Model.app.models[relationOptions.relation.model];
         const handler = RELATION_LINK_HANDLERS[relationOptions.relation.type];
-        return handler(userId, instance, relationsData, RelationModel, relationOptions);
+        return handler(token, instance, relationsData, RelationModel, relationOptions);
       }
     });
   };
 }
 
-async function linkHasMany(userId, instance, relationIds, RelationModel, relationOptions) {
+async function linkHasMany(token, instance, relationIds, RelationModel, relationOptions) {
+  let userId = token.userId;
+
   if (!relationIds) return Promise.resolve(true);
 
   if (!Array.isArray(relationIds)) {
@@ -103,6 +104,6 @@ async function linkHasMany(userId, instance, relationIds, RelationModel, relatio
       return false;
     }
 
-    return await instance[relationOptions.relationName].add(relationId);
+    return await instance[relationOptions.relationName].add(relationId, null, {accessToken: token});
   });
 }
