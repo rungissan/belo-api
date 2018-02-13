@@ -17,9 +17,12 @@
       }
     },
     "CreateWithRelationsLink": {
-      "geolocations": {},
+      "geolocations": {
+        "removeOldRelations": true
+      },
       "additionalImages": {
-        "checkOwner": true
+        "checkOwner": true,
+        "removeOldRelations": true
       }
     },
     "ReadOnly" : {
