@@ -19,6 +19,12 @@
         "__unlink__images"
       ]
     },
+    "CreateWithRelationsLink": {
+      "images": {
+        "checkOwner": true,
+        "removeOldRelations": true 
+      }
+    },
     "ReadOnly" : {
       "userId": true,
       "feedId" : true

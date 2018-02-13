@@ -11,7 +11,6 @@ const RELATION_LINK_HANDLERS = {
   'hasMany': linkHasMany
 };
 
-// TODO: implement update hooks hanlde
 /**
  * @desc Mixin that add relations into database after model create.
  * @param {Object} Model loopback model.
@@ -33,6 +32,7 @@ export default function(Model, minixOptions = {}) {
 
   options = options.map(linkOptions => getRelationLinkSettings(linkOptions, Model));
   Model.afterRemote('create', setRelations(options, Model));
+  Model.afterRemote('prototype.patchAttributes', setRelations(options, Model));
 };
 
 function getRelationLinkSettings(validationSettings, Model) {
@@ -88,7 +88,17 @@ async function linkHasMany(token, instance, relationIds, RelationModel, relation
     relationIds = [relationIds];
   }
 
-  return await Promise.map(relationIds, async relationId => {
+  let relationToRemoveList = [];
+  if (relationOptions.removeOldRelations) {
+    let currentRelations = await instance[relationOptions.relationName]({});
+    currentRelations.forEach(currentRelation => {
+      if (!relationIds.includes(currentRelation.id)) {
+        relationToRemoveList.push(currentRelation);
+      }
+    });
+  }
+
+  await Promise.map(relationIds, async relationId => {
     relationId = Number(relationId);
     if (!relationId) {
       return false;
@@ -106,4 +116,12 @@ async function linkHasMany(token, instance, relationIds, RelationModel, relation
 
     return await instance[relationOptions.relationName].add(relationId, null, {accessToken: token});
   });
+
+  if (relationToRemoveList.length) {
+    await Promise.map(relationToRemoveList, async relationToRemove => {
+      return await instance[relationOptions.relationName].remove(relationToRemove, {accessToken: token});
+    });
+  }
+
+  return instance;
 }
