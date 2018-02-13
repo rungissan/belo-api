@@ -1,0 +1,61 @@
+{
+  "name": "Connection",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true,
+    "postgresql": {
+      "table": "connection",
+      "schema": "spiti"
+    }
+  },
+  "mixins": {
+    "RemoteRouting" : {
+      "only": [
+        "@find",
+        "@findById"
+      ]
+    }
+  },
+  "properties": {
+    "userId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "userId"
+      }
+    },
+    "connectedId": {
+      "type": "number",
+      "required": true,
+      "postgresql": {
+        "columnName": "connectedId"
+      }
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "followerAccount": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "userId"
+    },
+    "account": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "connectedId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}

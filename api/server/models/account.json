@@ -30,7 +30,8 @@
         "__get__savedFeeds",
         "__get__followed",
         "__create__followed",
-        "__destroyById__followed"
+        "__destroyById__followed",
+        "__get__connection"
       ]
     },
     "AjvValidation": {
@@ -209,6 +210,11 @@
     "followed": {
       "type": "hasMany",
       "model": "Followed",
+      "foreignKey": "userId"
+    },
+    "connection": {
+      "type": "hasMany",
+      "model": "Connection",
       "foreignKey": "userId"
     }
   },
