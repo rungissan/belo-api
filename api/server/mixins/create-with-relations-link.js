@@ -11,7 +11,6 @@ const RELATION_LINK_HANDLERS = {
   'hasMany': linkHasMany
 };
 
-// TODO: implement update hooks hanlde
 /**
  * @desc Mixin that add relations into database after model create.
  * @param {Object} Model loopback model.
@@ -33,6 +32,7 @@ export default function(Model, minixOptions = {}) {
 
   options = options.map(linkOptions => getRelationLinkSettings(linkOptions, Model));
   Model.afterRemote('create', setRelations(options, Model));
+  Model.afterRemote('prototype.patchAttributes', setRelations(options, Model));
 };
 
 function getRelationLinkSettings(validationSettings, Model) {
