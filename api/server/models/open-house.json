@@ -21,7 +21,8 @@
     },
     "CreateWithRelationsLink": {
       "images": {
-        "checkOwner": true
+        "checkOwner": true,
+        "removeOldRelations": true 
       }
     },
     "ReadOnly" : {
