@@ -4,6 +4,7 @@ import Promise from 'bluebird';
 
 import Search from '../lib/search';
 import ClientSearch from '../lib/search/client';
+import { errAccessDenied } from '../lib/errors';
 
 module.exports = function(Account) {
   Account.validatesLengthOf('licenseState',  {max: 4,   allowBlank: true, allowNull: true});
@@ -136,6 +137,56 @@ module.exports = function(Account) {
       ],
       returns: { arg: 'filters', type: 'Array', root: true},
       http: {verb: 'get', path: '/search'}
+    }
+  );
+
+  Account.preview = async function(ctx, accountId) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    if (!userId) {
+      throw errAccessDenied();
+    }
+
+    let account = await Account.findById(accountId);
+
+    if (!(account && account.type === 'prof')) {
+      throw errAccessDenied();
+    }
+
+    let { Attachment, Connection, Followed } = Account.app.models;
+
+    let props = {
+      followersCount: Followed.count({ followedId: account.userId }),
+      followedCount: Followed.count({ userId: account.userId }),
+      connection: Connection.findOne({
+        where: {
+          userId,
+          connectedId: account.userId
+        }
+      })
+    };
+
+    account.avatarId && (props.avatar = Attachment.findById(account.avatarId));
+    account.backgroundId && (props.background = Attachment.findById(account.backgroundId));
+
+    let accountProps = await Promise.props(props);
+
+    account = account.toJSON();
+    account = Object.assign(account, accountProps);
+
+    return account;
+  };
+
+  Account.remoteMethod(
+    'preview',
+    {
+      description: 'Get public account info.',
+      accepts: [
+        {arg: 'ctx', type: 'object', http: { source: 'context' }},
+        {arg: 'id', type: 'number', required: true}
+      ],
+      returns: { arg: 'account', type: 'Account', root: true},
+      http: {verb: 'get', path: '/preview/:id'}
     }
   );
 };
