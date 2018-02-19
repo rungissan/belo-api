@@ -21,7 +21,9 @@ const connection = (DataTypes) => ({
     ...CASCADE_RULES
   },
   status: {
-    type: DataTypes.ENUM('new', 'connected', 'rejected')
+    // looks like bug in sequelize https://github.com/sequelize/sequelize/issues/8078, temporary use simple varchar
+    // type: DataTypes.ENUM('new', 'connected', 'rejected')
+    type: DataTypes.STRING(20)
   }
 });
 
@@ -34,10 +36,7 @@ module.exports = {
         {
           indicesType: 'UNIQUE'
         }
-      ))
-      .catch(err => {
-        console.log('errrrrr.', err);
-      });
+      ));
   },
   down: (queryInterface) => {
     return queryInterface.dropTable({

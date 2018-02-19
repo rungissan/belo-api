@@ -6,6 +6,8 @@ import { validateBySchema } from '../lib/validate';
 import { errValidation } from '../lib/errors';
 
 module.exports = function(Connection) {
+  Connection.validatesInclusionOf('status', {in: ['new', 'connected', 'rejected']});
+
   Connection.createConnection = async function(ctx, connectedId) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
