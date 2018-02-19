@@ -84,7 +84,7 @@ export const errUnsupportedContainer = (containerName) => {
 
 export const errAccessDenied = (message = 'Access denied') => {
   let error = new Error(message);
-  error.statusCode = 401;
+  error.statusCode = 403;
   error.code = 'ACCESS_DENIED';
 
   return error;

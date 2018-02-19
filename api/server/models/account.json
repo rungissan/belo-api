@@ -248,6 +248,12 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "search"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "preview"
     }
   ],
   "methods": []
