@@ -34,7 +34,10 @@ module.exports = {
         {
           indicesType: 'UNIQUE'
         }
-      ));
+      ))
+      .catch(err => {
+        console.log('errrrrr.', err);
+      });
   },
   down: (queryInterface) => {
     return queryInterface.dropTable({
