@@ -20,6 +20,7 @@ export default class ConnectionSearch extends BaseSearchController {
     if (where && where.account && where.account.searchString) {
       query +=  ` ${this._getJoinKey()}`;
       query += ` ("account"."userName" iLike $${this.replacements.length + 1}`;
+      query += ` OR "account"."firstName" iLike $${this.replacements.length + 1}`;
       query += ` OR "account"."brokerage" iLike $${this.replacements.length + 1})`;
 
       this.replacements.push(`%${where.account.searchString}%`);
