@@ -41,7 +41,7 @@ export default class ConnectionSearch extends BaseSearchController {
 
     let accountIncludeQuery = `
       json_build_object( \
-        'id', "account"."userId", \
+        'userId', "account"."userId", \
         'firstName', "account"."firstName", \
         'lastName', "account"."lastName", \
         'userName', "account"."userName", \
