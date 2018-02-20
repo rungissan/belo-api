@@ -6,7 +6,7 @@ import { validateBySchema } from '../lib/validate';
 import { errValidation } from '../lib/errors';
 
 module.exports = function(Connection) {
-  Connection.validatesInclusionOf('status', {in: ['new', 'connected', 'rejected']});
+  Connection.validatesInclusionOf('status', {in: ['new', 'waitingApprove', 'connected', 'rejected']});
 
   Connection.createConnection = async function(ctx, connectedId) {
     const token = ctx.req.accessToken;
@@ -14,8 +14,8 @@ module.exports = function(Connection) {
 
     let { Account } = Connection.app.models;
 
-    let { connetcionTo, connectionFrom, accountTo } = await Promise.props({
-      connetcionTo: Connection.findOne({where: { userId, connectedId }}),
+    let { connectionTo, connectionFrom, accountTo } = await Promise.props({
+      connectionTo: Connection.findOne({where: { userId, connectedId }}),
       connectionFrom: Connection.findOne({where: { userId: connectedId, connectedId: userId }}),
       accountTo: Account.findById(connectedId)
     });
@@ -24,38 +24,57 @@ module.exports = function(Connection) {
       throw errValidation('User can not be connected');
     }
 
-    if (connetcionTo) {
-      return connetcionTo;
+    if (connectionTo  && ['connected', 'rejected'].includes(connectionTo.status)) {
+      return connectionTo;
     }
 
     let updated = {};
 
-    let connectionToData = {
-      userId,
-      connectedId,
-      status: connectionFrom ? 'connected' : 'new'
-    };
-
     await Connection.app.dataSources.postgres.transaction(async models => {
       const { Connection: TConnection } = models;
+      let props = {};
+      let connectionToStatus = (connectionTo && connectionTo.status === 'waitingApprove') ? 'connected' : 'new';
 
-      let props = {
-        createdConnetcionTo: TConnection.create(connectionToData)
-      };
+      if (!connectionTo) {
+        props.createdconnectionTo = TConnection.create(
+          {
+            userId,
+            connectedId,
+            status: connectionToStatus
+          }
+        );
+      } else if (connectionTo.status !== connectionToStatus) {
+        props.createdconnectionTo = TConnection.updateAll(
+          {
+            userId,
+            connectedId
+          },
+          { status: connectionToStatus }
+        );
+      }
 
-      if (connectionFrom) {
-        props.connectionFromUpdated = TConnection.updateAll(
+      if (!connectionFrom) {
+        props.createdConnetcionFrom = TConnection.create(
+          {
+            userId: connectedId,
+            connectedId: userId,
+            status: 'waitingApprove'
+          }
+        );
+      } else if (connectionToStatus === 'connected') {
+        props.createdConnetcionFrom = TConnection.updateAll(
           {
             userId: connectedId,
             connectedId: userId
           },
-          { status: 'connected' });
+          { status: 'connected' }
+        );
       }
 
       updated = await Promise.props(props);
     });
 
-    return updated.createdConnetcionTo;
+    return updated.createdconnectionTo || connectionTo;
   };
 
   Connection.remoteMethod(
@@ -77,8 +96,8 @@ module.exports = function(Connection) {
 
     let { Account } = Connection.app.models;
 
-    let { connetcionTo, connectionFrom } = await Promise.props({
-      connetcionTo: Connection.findOne({where: { userId, connectedId }}),
+    let { connectionTo, connectionFrom } = await Promise.props({
+      connectionTo: Connection.findOne({where: { userId, connectedId }}),
       connectionFrom: Connection.findOne({where: { userId: connectedId, connectedId: userId }}),
       accountTo: Account.findById(connectedId)
     });
@@ -89,19 +108,13 @@ module.exports = function(Connection) {
 
     let updated = {};
 
-    let connectionToData = {
-      userId,
-      connectedId,
-      status: 'rejected'
-    };
-
     await Connection.app.dataSources.postgres.transaction(async models => {
       const { Connection: TConnection } = models;
 
       let props = {};
 
-      if (connetcionTo) {
-        props.rejectedConnetcionTo = TConnection.updateAll(
+      if (connectionTo) {
+        props.rejectedconnectionTo = TConnection.updateAll(
           {
             userId,
             connectedId
@@ -109,7 +122,7 @@ module.exports = function(Connection) {
           { status: 'rejected' }
         );
       } else {
-        props.rejectedConnetcionTo = TConnection.create({
+        props.rejectedconnectionTo = TConnection.create({
           userId,
           connectedId,
           status: 'rejected'
@@ -127,7 +140,7 @@ module.exports = function(Connection) {
       updated = await Promise.props(props);
     });
 
-    return updated.rejectedConnetcionTo;
+    return updated.rejectedconnectionTo;
   };
 
   Connection.remoteMethod(
