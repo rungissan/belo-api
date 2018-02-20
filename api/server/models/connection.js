@@ -4,6 +4,7 @@ import Promise from 'bluebird';
 
 import { validateBySchema } from '../lib/validate';
 import { errValidation } from '../lib/errors';
+import ConnectionSearch from '../lib/search/connection';
 
 module.exports = function(Connection) {
   Connection.validatesInclusionOf('status', {in: ['new', 'waitingApprove', 'connected', 'rejected']});
@@ -153,6 +154,46 @@ module.exports = function(Connection) {
       ],
       returns: { arg: 'data', type: 'Connection', root: true},
       http:  {verb: 'post', path: '/reject-connection' }
+    }
+  );
+
+  Connection.search = async function(ctx, filter = {}) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    let where = filter.where || {};
+
+    const connectionSearch = new ConnectionSearch(
+      Connection.app.dataSources.postgres.connector,
+      Connection.app,
+      {baseModelName: 'Connection'}
+    );
+
+    let query = {
+      where: {
+        userId,
+        account: {
+          searchString: where.searchString
+        }
+      },
+      include: ['account'],
+      limit: filter.limit,
+      offset: filter.offset
+    };
+    where.geolocations && (query.where.geolocations = where.geolocations);
+
+    return await connectionSearch.query(query, {userId: userId});
+  };
+
+  Connection.remoteMethod(
+    'search',
+    {
+      description: 'Search by criterion.',
+      accepts: [
+        {arg: 'ctx',    type: 'object', http: { source: 'context' }},
+        {arg: 'filter', type: 'object', required: true}
+      ],
+      returns: { arg: 'filters', type: 'Array', root: true},
+      http: {verb: 'get', path: '/search'}
     }
   );
 };
