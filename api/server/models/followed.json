@@ -24,6 +24,9 @@
           }
         }
       }
+    },
+    "RemoteRouting" : {
+      "only": []
     }
   },
   "properties": {
