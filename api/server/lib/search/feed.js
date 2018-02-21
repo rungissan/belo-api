@@ -20,9 +20,6 @@ export default class FeedSearch extends BaseSearchController {
 
     let tableKey = this.baseModel.tableKey;
 
-
-
-
     let favoriteIncludeQuery = ', "favoriteFeed"."id" IS NOT NULL AS "isFavorite"';
     let isFollowedIncludeQuery = include.includes('followed') ? ", 'isFollowed', \"followed\".\"id\" IS NOT NULL" : '';
     let accountIncludeQuery = `
