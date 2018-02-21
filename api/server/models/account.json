@@ -29,8 +29,8 @@
         "__unlink__favoriteFeeds",
         "__get__savedFeeds",
         "__get__followed",
-        "__create__followed",
-        "__destroyById__followed",
+        "__link__followedAccount",
+        "__unlink__followedAccount",
         "__get__connection"
       ]
     },
