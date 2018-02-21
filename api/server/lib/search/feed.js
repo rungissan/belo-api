@@ -20,6 +20,8 @@ export default class FeedSearch extends BaseSearchController {
 
     let tableKey = this.baseModel.tableKey;
 
+    let favoriteIncludeQuery = ', "favoriteFeed"."id" IS NOT NULL AS "isFavorite"';
+    let isFollowedIncludeQuery = include.includes('followed') ? ", 'isFollowed', \"followed\".\"id\" IS NOT NULL" : '';
     let accountIncludeQuery = `
       , json_build_object(
         'id', "account"."userId",
@@ -33,11 +35,9 @@ export default class FeedSearch extends BaseSearchController {
           'name', "accountAvatar".name,
           'sizes', "accountAvatar".sizes
         )
+        ${isFollowedIncludeQuery}
       ) AS "account"
     `;
-
-    let favoriteIncludeQuery = ', "favoriteFeed"."id" IS NOT NULL AS "isFavorite"';
-    let isFollowedIncludeQuery = ', "followed"."id" IS NOT NULL AS "isFollowed"';
 
     return `
       SELECT "${tableKey}".*
@@ -48,7 +48,6 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
              ${include.includes('account') ? accountIncludeQuery : ''}
              ${include.includes('isFavorite') && this.userOptions.userId ? favoriteIncludeQuery : ''}
-             ${include.includes('followed') && this.userOptions.userId ? isFollowedIncludeQuery : ''}
       FROM (${query}) AS "${tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
