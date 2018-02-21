@@ -252,6 +252,7 @@ module.exports = function(Feed) {
 
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
+  Feed.afterRemote('find', includePopulates);
 
   Feed.prototype.createOpenHouse = async function(ctx, openHouseData) {
     const token = ctx.req.accessToken;
@@ -552,4 +553,50 @@ module.exports = function(Feed) {
 
     return copiedFeed;
   }
+
+  async function includePopulates(ctx) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    let results = ctx.result;
+
+    if (!(userId && results && results.length)) {
+      return;
+    }
+
+    let filter = ctx.args && ctx.args.filter || {};
+    let populate = filter.populate;
+    if (!Array.isArray(populate)) {
+      return;
+    }
+
+    let queries = {};
+    const FavoriteFeed = Feed.app.models.FavoriteFeed;
+
+    if (populate.includes('isFavorite')) {
+      let feedIds = results.map(f => f.id);
+
+      queries.favorites = FavoriteFeed.find({
+        where: {
+          userId,
+          feedId: { inq: feedIds }
+        }
+      });
+    }
+
+    if (Object.keys(queries).length === 0) {
+      return;
+    }
+
+    let props = await Promise.props(queries);
+
+    if (props.favorites) {
+      results.forEach(feed =>  {
+        let isFavorite = props.favorites.find(f => f.feedId === feed.id);
+        feed.isFavorite = !!isFavorite;
+      });
+    }
+
+    ctx.result = results;
+    return;
+  };
 };
