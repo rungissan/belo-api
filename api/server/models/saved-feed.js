@@ -5,10 +5,14 @@ import Promise from 'bluebird';
 import FeedSearch from '../lib/search/feed';
 
 module.exports = function(SavedFeed) {
-  SavedFeed.search = async function(filter) {
+  SavedFeed.search = async function(ctx, filter) {
     filter.where = formatFeedQuery(filter.where);
     filter.queryOptions = {distinct: true};
-    return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter);
+
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+
+    return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter, userId);
   };
 
   SavedFeed.remoteMethod(
@@ -16,6 +20,7 @@ module.exports = function(SavedFeed) {
     {
       description: 'Search by feed criterion.',
       accepts: [
+        {arg: 'ctx',    type: 'object', http: { source: 'context' } },
         {arg: 'filter', type: 'object', required: true}
       ],
       returns: { arg: 'filters', type: 'Array', root: true},
