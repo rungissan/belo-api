@@ -141,7 +141,8 @@
     "dataSource": "postgres"
   },
   "Followed": {
-    "dataSource": "postgres"
+    "dataSource": "postgres",
+    "public": false
   },
   "Connection": {
     "dataSource": "postgres"

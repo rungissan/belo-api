@@ -37,6 +37,7 @@ export default class FeedSearch extends BaseSearchController {
     `;
 
     let favoriteIncludeQuery = ', "favoriteFeed"."id" IS NOT NULL AS "isFavorite"';
+    let isFollowedIncludeQuery = ', "followed"."id" IS NOT NULL AS "isFollowed"';
 
     return `
       SELECT "${tableKey}".*
@@ -47,6 +48,7 @@ export default class FeedSearch extends BaseSearchController {
              ${include.includes('openHouse') ? ', row_to_json("openHouse".*) AS "openHouse"' : ''}
              ${include.includes('account') ? accountIncludeQuery : ''}
              ${include.includes('isFavorite') && this.userOptions.userId ? favoriteIncludeQuery : ''}
+             ${include.includes('followed') && this.userOptions.userId ? isFollowedIncludeQuery : ''}
       FROM (${query}) AS "${tableKey}"
       ${include.includes('image') ? this._includeImage() : ''}
       ${include.includes('additionalImages') ? this._includeAdditionalImages() : ''}
@@ -55,6 +57,7 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('openHouse') ? this._includeOpenHouse() : ''}
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
+      ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
     `;
   }
 
@@ -116,6 +119,14 @@ export default class FeedSearch extends BaseSearchController {
       LEFT JOIN "spiti"."favorite_feed" AS "favoriteFeed"
         ON "favoriteFeed"."userId" = ${this.userOptions.userId}
         AND "favoriteFeed"."feedId" = "${this.baseModel.tableKey}"."id"
+    `;
+  }
+
+  _includeIsFollowed() {
+    return `
+      LEFT JOIN "spiti"."followed" AS "followed"
+        ON "followed"."userId" = ${this.userOptions.userId}
+        AND "followed"."followedId" = "${this.baseModel.tableKey}"."userId"
     `;
   }
 };
