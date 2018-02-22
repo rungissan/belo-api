@@ -6,6 +6,12 @@ import Search from '../lib/search';
 import ClientSearch from '../lib/search/client';
 import { errAccessDenied } from '../lib/errors';
 
+const FEED_COUNT_TYPES = {
+  post: 'posts',
+  listing: 'listings',
+  openHouse: 'openHouses'
+};
+
 module.exports = function(Account) {
   Account.validatesLengthOf('licenseState',  {max: 4,   allowBlank: true, allowNull: true});
   Account.validatesLengthOf('licenseNumber', {max: 50,  allowBlank: true, allowNull: true});
@@ -23,9 +29,9 @@ module.exports = function(Account) {
 
   function formatFeedCounts(rows) {
     let counts = {
-      post: 0,
-      listing: 0,
-      openHouse: 0
+      posts: 0,
+      listings: 0,
+      openHouses: 0
     };
 
     if (!(rows && rows.length)) {
@@ -33,8 +39,8 @@ module.exports = function(Account) {
     }
 
     rows.forEach(row => {
-      if (row && row.count && row.type) {
-        counts[row.type] = Number(row.count) || 0;
+      if (row && row.count && FEED_COUNT_TYPES[row.type]) {
+        counts[FEED_COUNT_TYPES[row.type]] = Number(row.count) || 0;
       }
     });
 
