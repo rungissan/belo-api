@@ -373,13 +373,13 @@ module.exports = function(Feed) {
     return await OpenHouse.destroyById(feed.openHouseId);
   };
 
-  Feed.remoteMethod(
-    'prototype.deleteOpenHouse',
-    {
-      description: 'Delete open house for listing.',
-      http: {verb: 'delete', path: '/open-house'}
-    }
-  );
+  // Feed.remoteMethod(
+  //   'prototype.deleteOpenHouse',
+  //   {
+  //     description: 'Delete open house for listing.',
+  //     http: {verb: 'delete', path: '/open-house'}
+  //   }
+  // );
 
   function getBeforeSaveHook(options = {}) {
     return async function beforeSaveHook(ctx, modelInstance) {
