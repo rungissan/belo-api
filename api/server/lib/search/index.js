@@ -47,7 +47,7 @@ export default class FeedSearch {
       throw new Error('app is required');
     }
 
-    if (!options.baseModelName) {
+    if (!options.baseModelName && !options.raw) {
       throw new Error('baseModelName is required');
     }
 
@@ -74,7 +74,9 @@ export default class FeedSearch {
       arrayAgg: this._addArrayAggQuery.bind(this)
     };
 
-    this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
+    if (!options.raw) {
+      this.baseModel = this._getBaseModelOptions(app.models, options.baseModelName);
+    }
   }
 
   query(filter, userOptions = {}) {
@@ -86,6 +88,10 @@ export default class FeedSearch {
     } catch (e) {
       return Promise.reject(e);
     }
+  }
+
+  rawQuery(sql, replacements = []) {
+    return this._query(sql, replacements);
   }
 
   buildQuery(filter = {}) {
