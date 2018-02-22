@@ -373,6 +373,7 @@ module.exports = function(Feed) {
     return await OpenHouse.destroyById(feed.openHouseId);
   };
 
+  // NOTE: openHouse now is a separate feed instance, should be deleted same way as listings
   // Feed.remoteMethod(
   //   'prototype.deleteOpenHouse',
   //   {
