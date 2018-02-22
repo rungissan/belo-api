@@ -21,7 +21,7 @@ module.exports = function(Account) {
 
   Account.afterRemote('findById', includeCounts);
 
-  function formatFedCounts(rows) {
+  function formatFeedCounts(rows) {
     let counts = {
       post: 0,
       listing: 0,
@@ -79,8 +79,8 @@ module.exports = function(Account) {
 
       const search = new Search(Feed.app.dataSources.postgres.connector, Feed.app, {raw: true});
 
-      queries.ownFeedCounters = search.rawQuery(ownQuery, [instance.userId]).then(formatFedCounts);
-      queries.favoriteFeedCounters = search.rawQuery(favoriteQuery, [instance.userId]).then(formatFedCounts);
+      queries.ownFeedCounters = search.rawQuery(ownQuery, [instance.userId]).then(formatFeedCounts);
+      queries.favoriteFeedCounters = search.rawQuery(favoriteQuery, [instance.userId]).then(formatFeedCounts);
     }
 
     if (Object.keys(queries).length === 0) {
