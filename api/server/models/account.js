@@ -66,6 +66,7 @@ module.exports = function(Account) {
         SELECT "feed"."type", count(*)
         FROM "spiti"."feed" AS "feed"
         WHERE "feed"."userId" = $1
+          AND "feed"."deleted_at" IS NULL
         GROUP BY "feed"."type";
       `;
 
@@ -73,7 +74,8 @@ module.exports = function(Account) {
         SELECT "feed"."type", count(*)
         FROM "spiti"."favorite_feed" AS "FavoriteFeed"
         INNER JOIN "spiti"."feed" AS "feed" ON "feed"."id" = "FavoriteFeed"."feedId"
-          AND "feed"."deleted_at" IS NULL WHERE "FavoriteFeed"."userId" = $1
+          AND "feed"."deleted_at" IS NULL
+        WHERE "FavoriteFeed"."userId" = $1
         GROUP BY "feed"."type";
       `;
 
