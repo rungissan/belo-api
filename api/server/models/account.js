@@ -21,6 +21,26 @@ module.exports = function(Account) {
 
   Account.afterRemote('findById', includeCounts);
 
+  function formatFedCounts(rows) {
+    let counts = {
+      post: 0,
+      listing: 0,
+      openHouse: 0
+    };
+
+    if (!(rows && rows.length)) {
+      return counts;
+    }
+
+    rows.forEach(row => {
+      if (row && row.count && row.type) {
+        counts[row.type] = Number(row.count) || 0;
+      }
+    });
+
+    return counts;
+  }
+
   async function includeCounts(ctx, instance) {
     if (!(instance && instance.userId)) {
       return;
@@ -33,13 +53,34 @@ module.exports = function(Account) {
     }
 
     let queries = {};
-    const Followed = Account.app.models.Followed;
+    const { Followed, Feed } = Account.app.models;
 
     if (populate.includes('followersCount')) {
       queries.followersCount = Followed.count({ followedId: instance.userId });
     }
     if (populate.includes('followedCount')) {
       queries.followedCount = Followed.count({ userId: instance.userId });
+    }
+    if (populate.includes('feedCounts')) {
+      let ownQuery = `
+        SELECT "feed"."type", count(*)
+        FROM "spiti"."feed" AS "feed"
+        WHERE "feed"."userId" = $1
+        GROUP BY "feed"."type";
+      `;
+
+      let favoriteQuery = `
+        SELECT "feed"."type", count(*)
+        FROM "spiti"."favorite_feed" AS "FavoriteFeed"
+        INNER JOIN "spiti"."feed" AS "feed" ON "feed"."id" = "FavoriteFeed"."feedId"
+          AND "feed"."deleted_at" IS NULL WHERE "FavoriteFeed"."userId" = $1
+        GROUP BY "feed"."type";
+      `;
+
+      const search = new Search(Feed.app.dataSources.postgres.connector, Feed.app, {raw: true});
+
+      queries.ownFeedCounters = search.rawQuery(ownQuery, [instance.userId]).then(formatFedCounts);
+      queries.favoriteFeedCounters = search.rawQuery(favoriteQuery, [instance.userId]).then(formatFedCounts);
     }
 
     if (Object.keys(queries).length === 0) {
@@ -48,8 +89,9 @@ module.exports = function(Account) {
 
     let props = await Promise.props(queries);
 
-    ctx.result.followersCount = props.followersCount;
-    ctx.result.followedCount = props.followedCount;
+    Object.keys(props).forEach(key => {
+      ctx.result[key] = props[key];
+    });
 
     return;
   };
