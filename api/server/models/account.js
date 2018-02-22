@@ -205,6 +205,16 @@ module.exports = function(Account) {
 
     let { Attachment, Connection, Followed } = Account.app.models;
 
+    let ownQuery = `
+      SELECT "feed"."type", count(*)
+      FROM "spiti"."feed" AS "feed"
+      WHERE "feed"."userId" = $1
+        AND "feed"."deleted_at" IS NULL
+      GROUP BY "feed"."type";
+    `;
+
+    const search = new Search(Account.app.dataSources.postgres.connector, Account.app, {raw: true});
+
     let props = {
       followersCount: Followed.count({ followedId: account.userId }),
       followedCount: Followed.count({ userId: account.userId }),
@@ -213,7 +223,8 @@ module.exports = function(Account) {
           userId,
           connectedId: account.userId
         }
-      })
+      }),
+      ownFeedCounters: search.rawQuery(ownQuery, [accountId]).then(formatFeedCounts)
     };
 
     account.avatarId && (props.avatar = Attachment.findById(account.avatarId));
