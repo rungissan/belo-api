@@ -180,6 +180,7 @@ module.exports = function(Chat) {
     let accountFrom = await Account.findById(user.id);
     chatData.participants = [accountTo, accountFrom];
 
+    await joinRoomByUserId(Chat.app, user.id, getRoomName(chatData.id));
     let recipientSocketIds = await joinRoomByUserId(Chat.app, accountTo.id, getRoomName(chatData.id));
     if (recipientSocketIds && recipientSocketIds.length) {
       recipientSocketIds.forEach(recipientSocketId => {
