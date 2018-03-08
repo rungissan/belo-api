@@ -21,7 +21,8 @@ module.exports = function(Connection) {
       accountTo: Account.findById(connectedId)
     });
 
-    if (!(accountTo && accountTo.type === 'prof')) {
+    let connectToIsProf = accountTo && accountTo.type === 'prof';
+    if (!connectToIsProf && !connectionFrom) {
       throw errValidation('User can not be connected');
     }
 
