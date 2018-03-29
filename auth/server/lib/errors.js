@@ -7,9 +7,9 @@ export const errEmailNotVerified = () => {
 
   return error;
 };
-export const errEmailNotFouns = () => {
+export const errEmailNotFound = () => {
   let error = new Error('Email not found');
-  error.statusCode = 400;
+  error.statusCode = 404;
   error.code = 'EMAIL_NOT_FOUND';
 
   return error;

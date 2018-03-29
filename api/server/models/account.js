@@ -162,7 +162,6 @@ module.exports = function(Account) {
   };
 
   Account.search = async function(ctx, filter = {}) {
-    console.log(ctx);
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
     let where = filter.where || {};
