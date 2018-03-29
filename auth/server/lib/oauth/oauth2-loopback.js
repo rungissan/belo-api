@@ -25,7 +25,7 @@ import {
   genereateTokensForClient
 } from './token-utils';
 
-import { errEmailNotVerified } from '../errors';
+import { errEmailNotVerified, errEmailNotFound } from '../errors';
 
 const debug = log('loopback:oauth2');
 
@@ -287,7 +287,9 @@ module.exports = function(app, options) {
         return done(err);
       }
       if (!user) {
-        return done(null, false);
+        // return done(null, false);
+        let error = errEmailNotFound();
+        return done(error);
       }
       if (!user.emailVerified && models.users.settings.emailVerificationRequired) {
         let error = errEmailNotVerified();
