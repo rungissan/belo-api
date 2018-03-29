@@ -23,7 +23,12 @@ module.exports = function(Account) {
   Account.validatesLengthOf('firstName',     {max: 30,  allowBlank: true, allowNull: true});
   Account.validatesLengthOf('type',          {max: 20,  allowBlank: true, allowNull: true});
 
-  Account.validatesUniquenessOf('userName',  {max: 30});
+  delete Account.validations.userName;
+  Account.validatesUniquenessOf('userName', {
+    message: 'Username already exists',
+    scopedTo: ['realm'],
+    ignoreCase: true
+  });
 
   Account.afterRemote('findById', includeCounts);
 
@@ -157,6 +162,7 @@ module.exports = function(Account) {
   };
 
   Account.search = async function(ctx, filter = {}) {
+    console.log(ctx);
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
     let where = filter.where || {};
