@@ -80,7 +80,7 @@ export default class ChatSearch extends BaseSearchController {
     query += ` FROM (${subQuery}) AS "chat"`;
     query += this._joinMessagesQuery();
     query += this._joinLastMessagesQuery();
-    query += 'GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants", "lastMessage"."last";';
+    query += ' GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants", "lastMessage"."last";';
 
     return query;
   }
