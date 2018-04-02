@@ -75,11 +75,12 @@ export default class ChatSearch extends BaseSearchController {
   _getChatMessagesQuery(subQuery) {
     let query = 'SELECT "chat"."id", "chat"."participants" AS "participants"';
     query += ', COALESCE(json_agg("message".* ORDER BY "message"."created_at" DESC) FILTER (WHERE message.id IS NOT NULL), \'[]\')';
-    query += ' AS "messages"';
+    query += ' AS "messages", "lastMessage"."last" ';
 
     query += ` FROM (${subQuery}) AS "chat"`;
     query += this._joinMessagesQuery();
-    query += 'GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants";';
+    query += this._joinLastMessagesQuery();
+    query += 'GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants", "lastMessage"."last";';
 
     return query;
   }
@@ -101,8 +102,25 @@ export default class ChatSearch extends BaseSearchController {
 
   _joinMessagesQuery() {
     return ` LEFT OUTER JOIN "spiti"."chat_message" AS "message" ON "message"."chatId" = "chat"."id"
-      AND "message"."id" > "chat"."lastReadedMessageId"`;
+      AND "message"."id" > "chat"."lastReadedMessageId" `;
   }
+  _joinLastMessagesQuery() {
+    return `
+    LEFT JOIN LATERAL (
+      SELECT jsonb_build_object(
+        'id', "lastMessage"."id", 
+        'message', "lastMessage"."message", 
+        'updated_at', "lastMessage"."updated_at"
+      ) AS "last"
+      FROM "spiti"."chat_message" AS "lastMessage"
+      WHERE "lastMessage"."chatId" = "chat"."id"
+      ORDER BY "lastMessage"."created_at" DESC
+      LIMIT 1
+     ) 
+    "lastMessage" ON "message"."id" IS NULL`;
+
+  }
+
 
   _typeFilterQuery(type) {
     let query = ` ${this._getJoinKey()} "chat"."type" = $${this.replacements.length + 1}`;
