@@ -105,11 +105,19 @@ export default class ChatSearch extends BaseSearchController {
       AND "message"."id" > "chat"."lastReadedMessageId" `;
   }
   _joinLastMessagesQuery() {
-    return ` LEFT JOIN LATERAL (SELECT jsonb_build_object('id', "lastMessage"."id", 'message', "lastMessage"."message", 'updated_at', "lastMessage"."updated_at") AS "last"
-  FROM "spiti"."chat_message" AS "lastMessage"
-  WHERE "lastMessage"."chatId" = "chat"."id"
-  ORDER BY "lastMessage"."created_at" DESC
-  LIMIT 1) "lastMessage" ON "message"."id" IS NULL `;
+    return `
+    LEFT JOIN LATERAL (
+      SELECT jsonb_build_object(
+        'id', "lastMessage"."id", 
+        'message', "lastMessage"."message", 
+        'updated_at', "lastMessage"."updated_at"
+      ) AS "last"
+      FROM "spiti"."chat_message" AS "lastMessage"
+      WHERE "lastMessage"."chatId" = "chat"."id"
+      ORDER BY "lastMessage"."created_at" DESC
+      LIMIT 1
+     ) 
+    "lastMessage" ON "message"."id" IS NULL`;
 
   }
 
