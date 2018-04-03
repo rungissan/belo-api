@@ -144,6 +144,7 @@ module.exports = function(Chat) {
   };
 
   async function findOrCreateChat(socket, data = {}) {
+
     let { user } = socket;
     let { type = 'personal', title, accountToId } = data;
     const { Account } = Chat.app.models;
