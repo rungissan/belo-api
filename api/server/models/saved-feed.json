@@ -73,11 +73,11 @@
       }
     },
     "geolocations": {
-      "type": "object",
-      "postgresql": {
-        "columnName": "geolocations",
-        "dataType": "jsonb"
-      }
+      "type": "hasMany",
+      "model": "Geolocation",
+      "through": "GeolocationToFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "geolocationId"
     },
     "feedOptions": {
       "type": "object",
