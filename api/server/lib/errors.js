@@ -18,7 +18,7 @@ export const errUserNotFound = (uid) => {
 };
 
 export const errEmailNotFound = () => {
-  let error = new Error('Email not found');
+  let error = new Error('Email doesn\'t exist yet, please Sign Up');
   error.statusCode = 404;
   error.code = 'EMAIL_NOT_FOUND';
 
@@ -37,6 +37,14 @@ export const errInvalidVerificationToken = (token) => {
   let error = new Error(`Invalid verification code: ${token}`);
   error.statusCode = 400;
   error.code = 'INVALID_TOKEN';
+
+  return error;
+};
+
+export const errInvalidVerificationCode = (code) => {
+  let error = new Error(`Invalid verification code: ${code}`);
+  error.statusCode = 400;
+  error.code = 'INVALID_CODE';
 
   return error;
 };
