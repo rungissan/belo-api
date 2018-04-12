@@ -18,7 +18,7 @@ export const errUserNotFound = (uid) => {
 };
 
 export const errEmailNotFound = () => {
-  let error = new Error('Email doesn\'t exist yet, please Sign Up');
+  let error = new Error('This Email is unknown to  the system');
   error.statusCode = 404;
   error.code = 'EMAIL_NOT_FOUND';
 
