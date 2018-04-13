@@ -135,7 +135,7 @@ export default function(Client) {
   });
 
   Client.passwordReset = function(email, next) {
-    return Client.findOne({where: {email: { ilike: email }}})
+    return Client.findOne({where: {email: { ilike: email.toLowerCase() }}})
       .then(client => {
         if (!client) {
           throw errEmailNotFound();
