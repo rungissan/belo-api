@@ -22,7 +22,7 @@ module.exports = (app) => {
 
   function applyLimit(filter) {
     const requestLimit = Number(filter.limit) || options.limit;
-    const limit = Math.min(requestLimit, options.limit);
+    const limit = Number(requestLimit) || options.limit;
 
     filter.limit = limit;
     return filter;

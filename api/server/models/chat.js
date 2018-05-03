@@ -23,7 +23,9 @@ module.exports = function(Chat) {
     };
     const chatSearch = new ChatSearch(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
     let chats = await chatSearch.queryChats(query);
-
+    // chats.forEach(chat => {
+    //   console.log('HELLOTHISISMYCONSOLE!', chat)
+    // })
     if (joinRooms || typeof joinRooms === 'undefined') {
       scocketJoinChatRooms(socket, chats);
     }
@@ -95,7 +97,7 @@ module.exports = function(Chat) {
     const { ChatMessage, ChatToAccount } = Chat.app.models;
 
     let linkedAccount = await ChatToAccount.findOne({where: {userId: user.id, chatId}});
-
+  
     if (!linkedAccount) {
       throw errUnauthorized();
     }
@@ -144,7 +146,6 @@ module.exports = function(Chat) {
   };
 
   async function findOrCreateChat(socket, data = {}) {
-
     let { user } = socket;
     let { type = 'personal', title, accountToId } = data;
     const { Account } = Chat.app.models;
