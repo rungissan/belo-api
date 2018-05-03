@@ -8,8 +8,7 @@ import {
   errEmailNotFound,
   errEmailNotVerified,
   errUnsupportedRole,
-  errUserAlreadyHaveRole,
-  errInvalidVerificationCode
+  errUserAlreadyHaveRole
 } from '../lib/errors';
 
 const DEFAULT_VERIFICATION_TTL = 900;
@@ -225,41 +224,6 @@ export default function(Client) {
       .catch(next);
   };
 
-
-  Client.checkCode = function(email, code, next) {
-    return new Promise((resolve, reject) => {
-      return resolve(Client.findOne({where: {email: { ilike: email }}}))
-      })
-      .then(client => {
-        if (!client) {
-          throw errEmailNotFound();
-        }
-
-        if (!client.emailVerified && Client.settings.emailVerificationRequired) {
-          throw errEmailNotVerified();
-        }
-
-        return Client.app.models.VerificationToken.findOne({
-          where: {
-            id: code,
-            userid: client.id
-          }
-        })
-          .then(verificationToken => {
-            if (!verificationToken) {
-              throw errInvalidVerificationToken(code);
-            }
-
-           else{
-              return client;
-            }
-          });
-      })
-      .catch(next =>{
-        throw errInvalidVerificationCode(code);
-      });
-  };
-
   Client.remoteMethod(
     'passwordUpdate',
     {
@@ -270,19 +234,6 @@ export default function(Client) {
         {arg: 'newPassword', type: 'string', required: true}
       ],
       http: {verb: 'post', path: '/password-update'}
-    }
-  );
-
-
-  Client.remoteMethod(
-    'checkCode',
-    {
-      description: 'Check verification code.',
-      accepts: [
-        {arg: 'email', type: 'string', required: true},
-        {arg: 'code', type: 'string', required: true}
-      ],
-      http: {verb: 'post', path: '/check-code'}
     }
   );
 

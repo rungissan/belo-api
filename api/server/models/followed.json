@@ -16,7 +16,6 @@
     "SetOwner": {},
     "RelationsValidate": {
       "account": {
-        "checkNotOwner": true,
         "validateProps": {
           "type": {
             "is": "prof",

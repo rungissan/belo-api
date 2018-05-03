@@ -14,10 +14,7 @@
   "properties": {
     "userId": {
       "type": "number",
-      "id": true,
-      "postgresql": {
-        "columnName": "userId"
-      }
+      "id": true
     },
     "type": {
       "type": "string",
