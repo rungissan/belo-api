@@ -27,7 +27,7 @@
     "authPath": "/auth/fb_android",
     "callbackPath": "/auth/fb_android/callback",
     "successRedirect": "SpitiApp://login",
-    "failureRedirect": "/login",
+    "failureRedirect": "SpitiApp://login",
     "scope": ["email"],
     "failureFlash": true,
     "json": true,
@@ -44,9 +44,10 @@
     "authPath": "/auth/fb_ios",
     "callbackPath": "/auth/fb_ios/callback",
     "successRedirect": "SpitiApp://login",
-    "failureRedirect": "/login",
+    "failureRedirect": "SpitiApp://login",
     "scope": ["email"],
     "failureFlash": true,
+    "enableProof": true,
     "json": true,
     "authScheme": "oAuth 2.0"
   }
