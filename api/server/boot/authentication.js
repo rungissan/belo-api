@@ -31,6 +31,9 @@ module.exports = function enableAuthentication(app) {
   }, {
     path: '/clients/confirm-email',
     method: 'GET'
+  },{
+    path: '/clients/check-code',
+    method: 'POST'
   }];
 
   app.use('/api', function(req, res, next) {
