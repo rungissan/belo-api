@@ -161,7 +161,7 @@ module.exports = function(Connection) {
   Connection.search = async function(ctx, filter = {}) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
-    let where = filter.where || {};
+    const where = filter.where || {};
 
     const connectionSearch = new ConnectionSearch(
       Connection.app.dataSources.postgres.connector,
@@ -169,8 +169,9 @@ module.exports = function(Connection) {
       {baseModelName: 'Connection'}
     );
 
-    let query = {
+    const query = {
       where: {
+        ...where,
         userId,
         account: {
           searchString: where.searchString
@@ -182,7 +183,7 @@ module.exports = function(Connection) {
     };
     where.geolocations && (query.where.geolocations = where.geolocations);
 
-    return await connectionSearch.query(query, {userId: userId});
+    return await connectionSearch.query(query, { userId });
   };
 
   Connection.remoteMethod(

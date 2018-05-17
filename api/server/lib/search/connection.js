@@ -15,7 +15,7 @@ export default class ConnectionSearch extends BaseSearchController {
 
   buildAdditionalWhereQuery() {
     let query = '';
-    let { where } = this.filter;
+    const { where } = this.filter;
 
     if (where && where.account && where.account.searchString) {
       query +=  ` ${this._getJoinKey()}`;
