@@ -2,7 +2,7 @@
 
 module.exports = function(Geolocation) {
   Geolocation.searchOrCreate = async function(geolocationData) {
-    let existentGeolocation = await Geolocation.findOne({
+    const existentGeolocation = await Geolocation.findOne({
       where: { place_id: geolocationData.place_id }
     });
 

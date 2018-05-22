@@ -194,8 +194,8 @@ module.exports = function(Chat) {
   };
 
   async function sendMessage(socket, data = {}) {
-    let { user } = socket;
-    let { message, chatId } = data;
+    const { user } = socket;
+    const { message, chatId } = data;
 
     if (!message) {
       throw errValidation('message required');
@@ -203,22 +203,31 @@ module.exports = function(Chat) {
 
     const { ChatMessage, ChatToAccount } = Chat.app.models;
 
-    let linkedAccount = await ChatToAccount.findOne({where: {userId: user.id, chatId}});
+    const linkedAccount = await ChatToAccount.findOne({
+      where: {
+        userId: user.id,
+        chatId
+      },
+      include: {
+        relation: 'account',
+        scope: { include: { relation: 'avatar' }}
+      }
+    });
 
     if (!linkedAccount) {
       throw errUnauthorized();
     }
 
-    let createdMessage = await ChatMessage.create({
+    const createdMessage = await ChatMessage.create({
       chatId,
       userId: user.id,
       message
     });
     await linkedAccount.updateAttributes({lastReadedMessageId: createdMessage.id});
 
-    socket.to(getRoomName(chatId)).emit('message', 'messageCreated', createdMessage);
-
-    return createdMessage;
+    const transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()}
+    socket.to(getRoomName(chatId)).emit('message', 'messageCreated', transformedData);
+    return transformedData;
   };
 
   Chat.on('attached', () => {
