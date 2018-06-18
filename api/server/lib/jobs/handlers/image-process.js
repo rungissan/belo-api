@@ -13,12 +13,17 @@ const DEFAULT_SIZE_OPTIONS = [{
   sizePrefix: 'thumbnail',
   width: 150,
   height: null,
-  quality: 100
+  quality: 80
 }, {
   sizePrefix: 'big',
   width: 1280,
   height: null,
-  quality: 100
+  quality: 80
+}, {
+  sizePrefix: 'feed',
+  width: null,
+  height: 500,
+  quality: 80
 }];
 
 export default {

@@ -16,12 +16,12 @@ const FEATURES_OPTIONS = {
     bedrooms: {
       type: 'integer',
       minimum: 0,
-      maximum: 100
+      // maximum: 100
     },
     bathrooms: {
       type: 'integer',
       minimum: 0,
-      maximum: 100
+      // maximum: 100
     },
     price: {
       type: 'integer',
