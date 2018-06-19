@@ -266,7 +266,7 @@ module.exports = function(Feed) {
     if (feed.type !== 'listing') {
       throw errValidation('Open house can be created only for listing');
     }
-
+    
     return await createOpenHouseWithListing(feed, openHouseData, token, userId);
   };
 
@@ -282,7 +282,6 @@ module.exports = function(Feed) {
     if (feed.type !== 'listing') {
       throw errValidation('Open house can be created only for listing');
     }
-
     const { OpenHouse, Attachment, AttachmentToOpenHouse } = Feed.app.models;
     let openHouse;
 
@@ -446,7 +445,8 @@ module.exports = function(Feed) {
       FeedOptions,
       AttachmentToFeed,
       Attachment,
-      AttachmentToOpenHouse
+      AttachmentToOpenHouse,
+      GeolocationToFeed,
     } = Feed.app.models;
 
     let listingCopyData = feed.toJSON();
@@ -454,12 +454,14 @@ module.exports = function(Feed) {
     delete listingCopyData.id;
     delete listingCopyData.openHouseId;
 
-    let [
+    const [
       listingFeedOptionsCopyData,
-      listingRelatedImagesData
+      listingRelatedImagesData,
+      listingRelatedGeolocations
     ] = await Promise.all([
       FeedOptions.findById(feed.id),
-      AttachmentToFeed.find({where: {feedId: feed.id}})
+      AttachmentToFeed.find({where: {feedId: feed.id}}),
+      GeolocationToFeed.find({where: {feedId: feed.id}})
     ]);
 
     openHouseData.userId = userId;
@@ -469,16 +471,19 @@ module.exports = function(Feed) {
     let createdFeedOptions;
     let createdOpenHouse;
     let createdAttachmentToFeed = [];
+    let createdGeolocationToFeed = [];
     let openHouseImages = [];
     let createdFeedAdditionalImages = [];
     let relatedImagesData = [];
+    let relatedGeolocationData = [];
 
     await Feed.app.dataSources.postgres.transaction(async models => {
       const {
         Feed: tFeed,
         FeedOptions: tFeedOptions,
         OpenHouse: tOpenHouse,
-        AttachmentToFeed: tAttachmentToFeed
+        AttachmentToFeed: tAttachmentToFeed,
+        GeolocationToFeed: tGeolocationToFeed
       } = models;
 
       createdFeed = await tFeed.create(listingCopyData, {accessToken: token});
@@ -493,7 +498,12 @@ module.exports = function(Feed) {
           attachmentId: imageRelation.attachmentId
         };
       });
-
+      relatedGeolocationData = listingRelatedGeolocations.map(locationRelation => {
+        return {
+          feedId: createdFeed.id,
+          geolocationId: locationRelation.geolocationId
+        };
+      });
       [
         createdFeedOptions,
         createdOpenHouse,
@@ -501,7 +511,8 @@ module.exports = function(Feed) {
       ] = await Promise.all([
         listingFeedOptionsCopyData ? tFeedOptions.create(listingFeedOptionsCopyData) : Promise.resolve(null),
         tOpenHouse.create(openHouseData),
-        tAttachmentToFeed.create(relatedImagesData, {accessToken: token})
+        tAttachmentToFeed.create(relatedImagesData, {accessToken: token}),
+        tGeolocationToFeed.create(relatedGeolocationData, {accessToken: token})
       ]);
 
       await createdFeed.updateAttributes({openHouseId: createdOpenHouse.id});
