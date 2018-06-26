@@ -65,7 +65,7 @@
     },
     "firstName": {
       "type": "string",
-      "minLength": 2,
+      "minLength": 1,
       "maxLength": 30,
       "postgresql": {
         "columnName": "firstName",
@@ -75,7 +75,7 @@
     },
     "lastName": {
       "type": "string",
-      "minLength": 2,
+      "minLength": 1,
       "maxLength": 30,
       "postgresql": {
         "columnName": "lastName",
@@ -85,7 +85,7 @@
     },
     "userName": {
       "type": "string",
-      "minLength": 2,
+      "minLength": 1,
       "maxLength": 30,
       "postgresql": {
         "columnName": "userName",
@@ -95,7 +95,7 @@
     },
     "phone": {
       "type": "string",
-      "minLength": 3,
+      "minLength": 1,
       "maxLength": 30,
       "postgresql": {
         "dataType": "character varying",
@@ -110,6 +110,7 @@
     },
     "brokerage": {
       "type": "string",
+      "minLength": 1,
       "maxLength": 100,
       "postgresql": {
         "dataType": "character varying",
