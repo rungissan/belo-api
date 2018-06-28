@@ -282,18 +282,18 @@ export default function(Client) {
     }
   );
 
-  Client.remoteMethod(
-    'passwordUpdate',
-    {
-      description: 'Update client password using verification code.',
-      accepts: [
-        {arg: 'email', type: 'string', required: true},
-        {arg: 'code', type: 'string', required: true},
-        {arg: 'newPassword', type: 'string', required: true}
-      ],
-      http: {verb: 'post', path: '/password-update'}
-    }
-  );
+  // Client.remoteMethod(
+  //   'passwordUpdate',
+  //   {
+  //     description: 'Update client password using verification code.',
+  //     accepts: [
+  //       {arg: 'email', type: 'string', required: true},
+  //       {arg: 'code', type: 'string', required: true},
+  //       {arg: 'newPassword', type: 'string', required: true}
+  //     ],
+  //     http: {verb: 'post', path: '/password-update'}
+  //   }
+  // );
 
   async function setRole(client, roleName) {
     let Role        = Client.app.models.Role;

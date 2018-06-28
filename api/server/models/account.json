@@ -21,9 +21,6 @@
         "updateAttributes",
         "__get__background",
         "__get__avatar",
-        "__get__geolocations",
-        "__link__geolocations",
-        "__unlink__geolocations",
         "__get__favoriteFeeds",
         "__link__favoriteFeeds",
         "__unlink__favoriteFeeds",
@@ -243,6 +240,12 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "__get__savedFeeds"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "setGeolocation"
     },
     {
       "principalType": "ROLE",

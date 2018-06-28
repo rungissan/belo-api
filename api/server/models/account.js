@@ -30,7 +30,7 @@ module.exports = function(Account) {
     ignoreCase: true
   });
 
-  Account.afterRemote('findById', includeCounts);
+  Account.afterRemote('findById', includeCountsAndGeo);
 
   function formatFeedCounts(rows) {
     let counts = {
@@ -52,7 +52,7 @@ module.exports = function(Account) {
     return counts;
   }
 
-  async function includeCounts(ctx, instance) {
+  async function includeCountsAndGeo(ctx, instance) {
     if (!(instance && instance.userId)) {
       return;
     }
@@ -64,7 +64,24 @@ module.exports = function(Account) {
     }
 
     let queries = {};
-    const { Followed, Feed } = Account.app.models;
+    const { 
+      Followed, 
+      Feed, 
+      GeolocationToAccount,
+      Geolocation
+    } = Account.app.models;
+
+    const areaOfServices = await GeolocationToAccount.find({
+      where: { userId: instance.userId }
+    })
+    if(areaOfServices.length){
+      const areaIds = [];
+      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }))
+      const geos = await Geolocation.find({ where: { or: areaIds } })
+      queries.areaOfServices = [...geos]      
+    } else {
+      queries.areaOfServices = []
+    }
 
     if (populate.includes('followersCount')) {
       queries.followersCount = Followed.count({ followedId: instance.userId });
@@ -208,7 +225,25 @@ module.exports = function(Account) {
       throw errAccessDenied();
     }
 
-    let { Attachment, Connection, Followed } = Account.app.models;
+    const { 
+      Attachment,
+      Connection,
+      Followed,
+      GeolocationToAccount,
+      Geolocation
+    } = Account.app.models;
+
+    const areaOfServices = await GeolocationToAccount.find({
+      where: { userId: account.userId }
+    })
+    if(areaOfServices.length){
+      const areaIds = [];
+      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }))
+      const geos = await Geolocation.find({ where: { or: areaIds } })
+      account.areaOfServices = [...geos]      
+    } else {
+      account.areaOfServices = []
+    }
 
     let ownQuery = `
       SELECT "feed"."type", count(*)
@@ -253,6 +288,57 @@ module.exports = function(Account) {
       ],
       returns: { arg: 'account', type: 'Account', root: true},
       http: {verb: 'get', path: '/preview/:id'}
+    }
+  );
+  Account.prototype.setGeolocation = async function(geolocations){
+    try {
+
+      const { userId } = this; 
+
+      if(!geolocations.length){
+        const err = {};
+        err.status = 422;
+        throw err;
+      }
+      if(!this.userId){
+        const err = {};
+        err.status = 401;
+        throw err;
+      }
+      const { GeolocationToAccount } = Account.app.models;
+
+      let presentedLocations;
+      await GeolocationToAccount.destroyAll({ userId });
+
+      geolocations.forEach(async geolocationId => {
+        const createdGeo = await GeolocationToAccount.findOrCreate({
+          where: { 
+            userId: this.userId,
+            geolocationId
+          }
+        }, {
+            userId: this.userId,
+            geolocationId
+        });
+      });
+
+      return {
+        status: 200,
+        message: 'updated'
+      };
+    } catch (err) {
+      throw err
+    }
+  };
+  Account.remoteMethod(
+    'prototype.setGeolocation',
+    {
+      description: 'Set new / update users own geolocation.',
+      accepts: [
+        { arg: 'geolocations', type: 'array', required: true }
+      ],
+      returns: { arg: 'data', type: 'Account', root: true},
+      http: { verb: 'post', path: '/user-geolocation' }
     }
   );
 };
