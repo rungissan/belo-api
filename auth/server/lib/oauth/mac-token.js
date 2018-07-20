@@ -34,7 +34,7 @@ MACTokenGenerator.prototype.generateToken = function(options) {
     iss: options.client.id, // issuer - client id
     sub: options.user && options.user.id, // subject
     aud: '/oauth/token', // audience
-    exp: Date.now() + options.ttl * 1000, // expiration time
+    exp: Date.now() + options.ttl * 1000000, // expiration time
     iat: Date.now(), // issued at time
     scope: options.scope, // a list of oAuth 2.0 scopes
     mac_algorithm: algorithm,

@@ -199,6 +199,190 @@ module.exports = function(Account) {
     return await clientSearch.query(query, {userId: userId});
   };
 
+  Account.prototype.getOwnSortedOpenHouses = async function(filter){
+
+    const limit = filter.limit || 9;
+    const offset = filter.offset || 0;
+    const { 
+      GeolocationToFeed,
+      Geolocation,
+      Attachment,
+      AttachmentToOpenHouse,
+      FeedOptions
+    } = Account.app.models;
+
+    const ownQuery = `
+      SELECT 
+        "feed"."id" AS "feedId",
+        "openHouseId" AS "openHouseId",
+        *
+      FROM "spiti"."feed"
+      JOIN "spiti"."open_house" ON "openHouseId" = "spiti"."open_house"."id"
+      WHERE "spiti"."feed"."userId" = $1
+        AND "spiti"."feed"."type" = 'openHouse'
+        AND "spiti"."feed"."deleted_at" IS NULL
+      ORDER BY "spiti"."open_house"."date"
+      LIMIT ${limit}
+      OFFSET ${offset};
+    `;
+
+    const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
+    const openHouses = await search.rawQuery(ownQuery, [this.userId]);
+
+    if(openHouses && openHouses.length){
+      const formatedOpenHouses = await this.formatOpenHouse(openHouses);
+      return formatedOpenHouses;
+    } else {
+      return [];
+    }
+  }
+
+  Account.remoteMethod(
+    'prototype.getOwnSortedOpenHouses',
+    {
+      description: 'Get sorted by date open houses.',
+      accepts: [
+        { arg: 'filter', type: 'object', required: true }
+      ],
+      returns: { arg: 'data', type: 'Account', root: true },
+      http: { verb: 'get', path: '/get-own-sorted-open-houses' }
+    }
+  );
+
+  Account.prototype.getFavoriteSortedOpenHouses = async function(filter){
+
+    const limit = filter.limit || 9;
+    const offset = filter.offset || 0;
+    const {
+      FavoriteFeed
+    } = Account.app.models;
+    const favoriteFeedsIds = await FavoriteFeed.find({
+      where: { userId: this.userId }
+    });
+
+    const ownQuery = `
+      SELECT 
+        "feed"."id" AS "feedId",
+        "openHouseId" AS "openHouseId",
+        *
+      FROM "spiti"."feed"
+      JOIN "spiti"."open_house" ON "openHouseId" = "spiti"."open_house"."id"
+      WHERE "spiti"."feed"."userId" = $1
+        ${favoriteFeedsIds.map((item, i) => {
+          if(i === 0){
+            return `AND "feedId" = ${item.feedId}`
+          } else {
+            return `OR "feedId" = ${item.feedId}`}
+          }
+        ).join(' ')}
+        AND "spiti"."feed"."type" = 'openHouse'
+        AND "spiti"."feed"."deleted_at" IS NULL
+      ORDER BY "spiti"."open_house"."date"
+      LIMIT ${limit}
+      OFFSET ${offset};
+    `;
+
+    const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
+    const openHouses = await search.rawQuery(ownQuery, [this.userId]);
+
+    if(openHouses && openHouses.length){
+      const formatedOpenHouses = await this.formatOpenHouse(openHouses);
+      return formatedOpenHouses;
+    } else {
+      return []
+    }
+  }
+
+  Account.remoteMethod(
+    'prototype.getFavoriteSortedOpenHouses',
+    {
+      description: 'Search by feed criterion.',
+      accepts: [
+        {arg: 'filter', type: 'object', required: true}
+      ],
+      returns: { arg: 'data', type: 'Array', root: true},
+      http: {verb: 'get', path: '/get-favorite-sorted-open-houses'}
+    }
+  );
+
+  Account.prototype.formatOpenHouse = async function(openHouses){
+    const { 
+      GeolocationToFeed,
+      Geolocation,
+      Attachment,
+      AttachmentToOpenHouse,
+      FeedOptions
+    } = Account.app.models;
+    const geosToFeed = await GeolocationToFeed.find({
+      where: { or: openHouses.map(item => { return { feedId: item.feedId } }) }
+    })
+    const feedOptions = await FeedOptions.find({
+      where: { or: openHouses.map(item => { return { feedId: item.feedId } }) }
+    })
+    const attToOh = await AttachmentToOpenHouse.find({
+      where: { or: openHouses.map(item => { return { openHouseId: item.openHouseId } }) }
+    })
+    const att = await Attachment.find({
+      where: { or: attToOh.map(item => { return { id: item.attachmentId } })}
+    })
+    const geos = await Geolocation.find({
+      where: { or: geosToFeed.map(item => { return { id: item.geolocationId } })}
+    })
+    const mainImage = await Attachment.find({
+      where: { or: openHouses.map(item => { return { id: item.imageId } }) }
+    })
+    openHouses.forEach(oh => {
+      oh.geolocations = [];
+      oh.additionalImages = [];
+      oh.image = {};
+      oh.feedOptions = {};
+      oh.id = oh.feedId;
+      oh.openHouse = {
+        contactPhone: oh.contactPhone,
+        date: oh.date,
+        feedId: oh.feedId,
+        host: oh.host,
+        id: oh.openHouseId,
+        images: [],
+        timeEnd: oh.timeEnd,
+        timeStart: oh.timeStart,
+        userId: oh.userId
+      }
+      feedOptions.forEach(fo => {
+        if(fo.feedId === oh.id){
+          oh.feedOptions = fo
+        }
+      })
+      mainImage.forEach(mi => {
+        if(oh.imageId === mi.id){
+          oh.image = mi
+        }
+      })
+      attToOh.forEach(ato => {
+        att.forEach(at => {
+          if(oh.openHouseId === ato.openHouseId && ato.attachmentId === at.id){
+            oh.openHouse.images.unshift(at);
+          }
+        })
+      })
+      geosToFeed.forEach(gtf => {
+        geos.forEach(geo => {
+          if(oh.id === gtf.feedId && gtf.geolocationId === geo.id){
+            oh.geolocations.push(geo);
+          }
+        })
+      })
+      oh.feedId = undefined;
+      oh.contactPhone = undefined;
+      oh.date = undefined;
+      oh.feedId = undefined;
+      oh.host = undefined;
+      oh.timeEnd = undefined;
+      oh.timeStart = undefined;
+    })
+    return openHouses
+  }
+
   Account.remoteMethod(
     'search',
     {
@@ -252,7 +436,7 @@ module.exports = function(Account) {
         AND "feed"."deleted_at" IS NULL
       GROUP BY "feed"."type";
     `;
-
+    
     const search = new Search(Account.app.dataSources.postgres.connector, Account.app, {raw: true});
 
     let props = {
