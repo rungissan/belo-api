@@ -259,7 +259,9 @@ module.exports = function(Account) {
     const favoriteFeedsIds = await FavoriteFeed.find({
       where: { userId: this.userId }
     });
-
+    if(!favoriteFeedsIds.length){
+      return [];
+    }
     const ownQuery = `
       SELECT 
         "feed"."id" AS "feedId",
@@ -286,6 +288,7 @@ module.exports = function(Account) {
     const openHouses = await search.rawQuery(ownQuery, [this.userId]);
 
     if(openHouses && openHouses.length){
+      // return ['zatichka']
       const formatedOpenHouses = await this.formatOpenHouse(openHouses);
       return formatedOpenHouses;
     } else {
@@ -325,9 +328,14 @@ module.exports = function(Account) {
     const att = await Attachment.find({
       where: { or: attToOh.map(item => { return { id: item.attachmentId } })}
     })
-    const geos = await Geolocation.find({
-      where: { or: geosToFeed.map(item => { return { id: item.geolocationId } })}
-    })
+    let geos;
+    if(geosToFeed && geosToFeed.length){
+      geos = await Geolocation.find({
+        where: { or: geosToFeed.map(item => { return { id: item.geolocationId } })}
+      })
+    } else {
+      geos = [];
+    }
     const mainImage = await Attachment.find({
       where: { or: openHouses.map(item => { return { id: item.imageId } }) }
     })

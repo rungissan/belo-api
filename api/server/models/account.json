@@ -264,6 +264,12 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "getOwnSortedOpenHouses"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "getFavoriteSortedOpenHouses"
     }
   ],
   "methods": []
