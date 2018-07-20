@@ -262,6 +262,7 @@ module.exports = function(Account) {
     if(!favoriteFeedsIds.length){
       return [];
     }
+ 
     const ownQuery = `
       SELECT 
         "feed"."id" AS "feedId",
@@ -269,7 +270,7 @@ module.exports = function(Account) {
         *
       FROM "spiti"."feed"
       JOIN "spiti"."open_house" ON "openHouseId" = "spiti"."open_house"."id"
-      WHERE "spiti"."feed"."userId" = $1
+      WHERE "spiti"."feed"."type" = 'openHouse'
         ${favoriteFeedsIds.map((item, i) => {
           if(i === 0){
             return `AND "feedId" = ${item.feedId}`
@@ -277,7 +278,6 @@ module.exports = function(Account) {
             return `OR "feedId" = ${item.feedId}`}
           }
         ).join(' ')}
-        AND "spiti"."feed"."type" = 'openHouse'
         AND "spiti"."feed"."deleted_at" IS NULL
       ORDER BY "spiti"."open_house"."date"
       LIMIT ${limit}
@@ -285,10 +285,9 @@ module.exports = function(Account) {
     `;
 
     const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
-    const openHouses = await search.rawQuery(ownQuery, [this.userId]);
-
+    const openHouses = await search.rawQuery(ownQuery);
+    
     if(openHouses && openHouses.length){
-      // return ['zatichka']
       const formatedOpenHouses = await this.formatOpenHouse(openHouses);
       return formatedOpenHouses;
     } else {
