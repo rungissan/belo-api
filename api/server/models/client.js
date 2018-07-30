@@ -18,7 +18,7 @@ export default function(Client) {
   // NOTE: override default email validation to case insensitive
   delete Client.validations.email;
   Client.validatesUniquenessOf('email', {
-    message: 'Email already exists',
+    message: 'already exists',
     scopedTo: ['realm'],
     ignoreCase: true
   });
