@@ -32,7 +32,7 @@ function isExpired(tokenOrCode) {
     (tokenOrCode.expiredAt && tokenOrCode.expiredAt.getTime()) || -1;
   if (expirationTime === -1 && issuedTime !== -1 &&
     typeof tokenOrCode.expiresIn === 'number') {
-    expirationTime = issuedTime + tokenOrCode.expiresIn * 1000;
+    expirationTime = issuedTime + tokenOrCode.expiresIn * 1000000;
   }
   return now > expirationTime;
 }

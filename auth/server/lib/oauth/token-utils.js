@@ -58,7 +58,7 @@ export async function genereateTokensForClient(app, options) {
     refreshToken: true
   }).id;
 
-  let ttl = 3600;
+  let ttl = 360000;
   let tokenObj = {
     id: token.id,
     appId: clientApp.id,

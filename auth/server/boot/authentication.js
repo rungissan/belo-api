@@ -35,7 +35,7 @@ module.exports = function enableAuthentication(app) {
     resourceServer: true,
     session: true,
     allowsPostForAuthorization: true,
-    ttl: 3600,
+    ttl: 604800, // access token expiration time
     providers: providersConfig
   };
 
