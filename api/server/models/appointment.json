@@ -1,0 +1,106 @@
+{
+    "name": "Appointment",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true,
+      "postgresql": {
+        "schema": "spiti",
+        "table": "appointment"
+      }
+    },
+    "mixins": {
+      "Timestamp": {},
+      "ReadOnly" : {},
+      "SetOwner": {},
+      "RemoteRouting" : {
+        "only": [
+          "@find",
+          "@findById",
+          "updateAttributes"
+        ]
+      }
+    },
+    "properties": {
+      "id": {
+        "type": "number",
+        "id": true
+      },
+      "userId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "userId",
+          "dataType": "integer"
+        }
+      },
+      "feedId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "feedId",
+          "dataType": "integer"
+        }
+      },
+      "listingOwnerId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "listingOwnerId",
+          "dataType": "integer"
+        }
+      },
+      "status": {
+        "type": "number",
+        "default": 0,
+        "postgresql": {
+          "dataType": "integer"
+        }
+      },
+      "date": {
+        "type": "date",
+        "postgresql": {
+          "dataType": "date"
+        }
+      },
+      "time": {
+        "type": "date",
+        "postgresql": {
+          "columnName": "time",
+          "dataType": "time without time zone"
+        }
+      }
+    },
+    "validations": [],
+    "relations": {
+      "account": {
+        "type": "belongsTo",
+        "model": "Account",
+        "foreignKey": "userId"
+      },
+      "feed": {
+          "type": "belongsTo",
+          "model": "Feed",
+          "foreignKey": "feedId"
+      }
+    },
+    "acls": [
+      {
+        "accessType": "WRITE",
+        "principalType": "ROLE",
+        "principalId": "$everyone",
+        "permission": "DENY"
+      },
+      {
+        "accessType": "WRITE",
+        "principalType": "ROLE",
+        "principalId": "$owner",
+        "permission": "ALLOW"
+      },
+      {
+        "principalType": "ROLE",
+        "principalId": "$authenticated",
+        "permission": "ALLOW",
+        "property": "create"
+      }
+    ],
+    "methods": []
+  }
+  
