@@ -214,6 +214,16 @@
       "type": "hasMany",
       "model": "Connection",
       "foreignKey": "userId"
+    },
+    "appointment": {
+      "type": "hasMany",
+      "model": "Appointment",
+      "foreignKey": "userId"
+    },
+    "statusCheck": {
+      "type": "hasMany",
+      "model": "StatusCheck",
+      "foreignKey": "userId"
     }
   },
   "acls": [

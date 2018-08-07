@@ -140,6 +140,12 @@
   "SavedFeed": {
     "dataSource": "postgres"
   },
+  "Appointment": {
+    "dataSource": "postgres"
+  },
+  "StatusCheck": {
+    "dataSource": "postgres"
+  },
   "Followed": {
     "dataSource": "postgres",
     "public": false

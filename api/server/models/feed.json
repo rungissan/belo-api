@@ -155,6 +155,16 @@
       "type": "hasOne",
       "model": "OpenHouse",
       "foreignKey": "feedId"
+    },
+    "appointment": {
+      "type": "hasMany",
+      "model": "Appointment",
+      "foreignKey": "feedId"
+    },
+    "statusCheck": {
+      "type": "hasMany",
+      "model": "StatusCheck",
+      "foreignKey": "feedId"
     }
   },
   "acls": [
