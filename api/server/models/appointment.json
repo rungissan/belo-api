@@ -47,6 +47,13 @@
           "dataType": "integer"
         }
       },
+      "lastTimeUpdateBy": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "lastTimeUpdateBy",
+          "dataType": "integer"
+        }
+      },
       "status": {
         "type": "number",
         "default": 0,

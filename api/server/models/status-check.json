@@ -17,7 +17,6 @@
         "only": [
           "@find",
           "@findById",
-          "@create",
           "updateAttributes"
         ]
       }
@@ -41,8 +40,16 @@
           "dataType": "integer"
         }
       },
+      "listingOwnerId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "listingOwnerId",
+          "dataType": "integer"
+        }
+      },
       "status": {
         "type": "number",
+        "default": 0,
         "postgresql": {
           "dataType": "smallInt"
         }

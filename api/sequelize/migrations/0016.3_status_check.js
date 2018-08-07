@@ -19,6 +19,9 @@ const statusCheck = (DataTypes) => ({
     references: {model: {tableName: 'feed', ...BASE_SCHEMA}, key: 'id'},
     ...CASCADE_RULES
   },
+  listingOwnerId: {
+    type: DataTypes.INTEGER
+  },
   status: {
     type: DataTypes.INTEGER
   },
@@ -32,10 +35,7 @@ module.exports = {
     return queryInterface.createTable('status_check', statusCheck(DataTypes), BASE_SCHEMA)
       .then(() => queryInterface.addIndex(
         `${BASE_SCHEMA.schema}.status_check`,
-        ['userId', 'feedId'],
-        {
-          indicesType: 'UNIQUE'
-        }
+        ['userId', 'feedId']
       ));
   },
   down: (queryInterface) => {

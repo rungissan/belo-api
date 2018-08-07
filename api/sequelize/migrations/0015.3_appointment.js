@@ -22,6 +22,9 @@ const appointment = (DataTypes) => ({
   listingOwnerId: {
     type: DataTypes.INTEGER
   },
+  lastTimeUpdateBy: {
+    type: DataTypes.INTEGER
+  },
   status: {
     type: DataTypes.INTEGER
   },

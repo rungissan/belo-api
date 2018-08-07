@@ -1,10 +1,24 @@
 module.exports = function(Appointment) {
 
     Appointment.searchOrCreate = async function(ctx, appnt) {
-        const token = ctx.req.accessToken;
-        const userId = token && token.userId;
-        const data = appnt
-        return data;
+
+        // status: 0 - requesting, 1 - accepted, 2 - canceled by requester
+        
+        const data = await Appointment.findOrCreate({
+            where: { 
+                userId: appnt.userId,
+                feedId: appnt.feedId,
+                listingOwnerId: appnt.listingOwnerId
+            }
+        }, {
+            userId: appnt.userId,
+            feedId: appnt.feedId,
+            listingOwnerId: appnt.listingOwnerId,
+            date: appnt.date,
+            time: appnt.time,
+            lastTimeUpdateBy: appnt.userId
+        })
+        return data[0];
     }
 
     Appointment.remoteMethod(
@@ -14,8 +28,9 @@ module.exports = function(Appointment) {
             accepts: [
                 { 
                     arg: 'ctx',
-                    type: 'object', 
-                    http: { source: 'context' } },
+                    type: 'object',
+                    http: { source: 'context' }
+                },
                 {
                     arg: 'appnt',
                     type: 'object',
@@ -34,30 +49,4 @@ module.exports = function(Appointment) {
             }
         }
     );
-    // Appointment.searchOrCreate = async function(geolocationData) {
-    //     const existentGeolocation = await Geolocation.findOne({
-    //       where: { place_id: geolocationData.place_id }
-    //     });
-    
-    //     if (existentGeolocation) {
-    //       return existentGeolocation;
-    //     }
-    
-    //     return await Geolocation.create(geolocationData);
-    //   };
-    
-    // Appointment.remoteMethod(
-    // 'searchOrCreate',
-    //     {
-    //         description: 'Find or create geolocation',
-    //         accepts: [{
-    //         arg: 'geolocationData',
-    //         type: 'object',
-    //         http: { source: 'body' },
-    //         description: 'data property can be used to store original gmaps geolocation data'
-    //         }],
-    //         returns: [ {arg: 'geolocation', type: 'Geolocation', root: true} ],
-    //         http: {verb: 'post', path: '/search-or-create'}
-    //     }
-    // );
 }
