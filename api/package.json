@@ -70,6 +70,7 @@
     "eslint-config-loopback": "^8.0.0",
     "nsp": "^2.1.0",
     "sequelize": "^4.22.6",
+    "sequelize-cli": "^4.0.0",
     "supertest": "^3.0.0"
   },
   "repository": {
