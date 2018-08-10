@@ -8,7 +8,8 @@ module.exports = function(Appointment) {
             where: { 
                 userId: appnt.userId,
                 feedId: appnt.feedId,
-                listingOwnerId: appnt.listingOwnerId
+                listingOwnerId: appnt.listingOwnerId,
+                status: 0
             }
         }, {
             userId: appnt.userId,
