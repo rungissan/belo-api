@@ -68,7 +68,8 @@ module.exports = function(Account) {
       Followed, 
       Feed, 
       GeolocationToAccount,
-      Geolocation
+      Geolocation,
+      StatusCheck
     } = Account.app.models;
 
     const areaOfServices = await GeolocationToAccount.find({
@@ -89,6 +90,7 @@ module.exports = function(Account) {
     if (populate.includes('followedCount')) {
       queries.followedCount = Followed.count({ userId: instance.userId });
     }
+    queries.statusCheckCount = StatusCheck.count({listingOwnerId: instance.userId, status: 0})
     if (populate.includes('feedCounts')) {
       let ownQuery = `
         SELECT "feed"."type", count(*)
