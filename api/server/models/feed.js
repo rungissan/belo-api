@@ -270,6 +270,70 @@ module.exports = function(Feed) {
     return await createOpenHouseWithListing(feed, openHouseData, token, userId);
   };
 
+  Feed.destroyListingWithDependencies = async function(ctx, data) {
+    // console.log('[ctx]', ctx);
+    if(!data.feedId) return;
+
+    const { 
+      feedId
+    } = data;
+
+    const { 
+      StatusCheck,
+      Appointment,
+    } = Feed.app.models;
+
+    const openHousesToDelete = await Feed.find({
+      where: { parentId: feedId }
+    })
+
+    if(openHousesToDelete.length){
+      openHousesToDelete.forEach(async item => {
+        await StatusCheck.destroyAll({ feedId: item.id })
+        await Appointment.destroyAll({ feedId: item.id })
+      })
+    }
+
+    await StatusCheck.destroyAll({ feedId })
+    await Appointment.destroyAll({ feedId })
+    await Feed.destroyAll({ parentId: feedId })
+    await Feed.destroyById(feedId)
+    // console.log('[data]', openHousesToDelete);
+    return { 
+      status: true,
+      message: 'everything was successfully deleted'
+    };
+  }
+
+  Feed.remoteMethod(
+      'destroyListingWithDependencies',
+      {
+          description: 'Destroy listing with all dependencies around the app',
+          accepts: [
+              { 
+                  arg: 'ctx',
+                  type: 'object',
+                  http: { source: 'context' }
+              },
+              { 
+                arg: 'data',
+                type: 'object',
+                required: true,
+                http: { source: 'body' }
+            }
+          ],
+          returns: [{ 
+              arg: 'data',
+              type: 'Object', 
+              root: true
+          }],
+          http: {
+              verb: 'delete', 
+              path: '/destroyListing'
+          }
+      }
+  );
+
   Feed.prototype.setOpenHouse = async function(ctx, openHouseData) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
@@ -451,6 +515,7 @@ module.exports = function(Feed) {
 
     let listingCopyData = feed.toJSON();
     listingCopyData.type = 'openHouse';
+    listingCopyData.parentId = listingCopyData.id;
     delete listingCopyData.id;
     delete listingCopyData.openHouseId;
 

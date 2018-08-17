@@ -275,12 +275,11 @@ module.exports = function(Account) {
       WHERE "spiti"."feed"."type" = 'openHouse'
         ${favoriteFeedsIds.map((item, i) => {
           if(i === 0){
-            return `AND "feedId" = ${item.feedId}`
+            return `AND "feedId" = ${item.feedId} AND "spiti"."feed"."deleted_at" IS NULL`
           } else {
-            return `OR "feedId" = ${item.feedId}`}
+            return `OR "feedId" = ${item.feedId} AND "spiti"."feed"."deleted_at" IS NULL`}
           }
         ).join(' ')}
-        AND "spiti"."feed"."deleted_at" IS NULL
       ORDER BY "spiti"."open_house"."date"
       LIMIT ${limit}
       OFFSET ${offset};
@@ -288,7 +287,7 @@ module.exports = function(Account) {
 
     const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
     const openHouses = await search.rawQuery(ownQuery);
-    
+
     if(openHouses && openHouses.length){
       const formatedOpenHouses = await this.formatOpenHouse(openHouses);
       return formatedOpenHouses;
