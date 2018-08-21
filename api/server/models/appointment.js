@@ -2,6 +2,14 @@ module.exports = function(Appointment) {
 
     Appointment.searchOrCreate = async function(ctx, appnt) {
 
+        const { Feed } = Appointment.app.models;
+        const isFeedPresent = await Feed.findOne({ where: { id: appnt.feedId } })
+
+        if(!isFeedPresent){
+            return {
+                error: { message: 'Can not find feed. Probably it has been deleted by owner' }
+            }
+        }
         // status: 0 - requesting, 1 - accepted, 2 - canceled by requester
 
         const data = await Appointment.upsertWithWhere({
