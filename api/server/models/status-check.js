@@ -1,6 +1,14 @@
 module.exports = function(StatusCheck) {
 
     StatusCheck.searchOrCreate = async function(ctx, statusData) {
+        const { Feed } = StatusCheck.app.models;
+        const isFeedPresent = await Feed.findOne({ where: { id: statusData.feedId } })
+
+        if(!isFeedPresent){
+            return {
+                error: { message: 'Can not find feed. Probably it has been deleted by owner' }
+            }
+        }
 
         const data = await StatusCheck.findOrCreate({
             where: { 
