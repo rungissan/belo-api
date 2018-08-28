@@ -83,6 +83,22 @@
         "dataType": "character varying"
       }
     },
+    "feedStatus": {
+      "type": "number",
+      "required":false,
+      "default": 0,
+      "postgresql": {
+        "columnName": "feedStatus"
+      }
+    },
+    "expiration": {
+      "type": "date",
+      "required": false,
+      "default": "$now",
+      "postgresql": {
+        "columnName": "expiration"
+      }
+    },
     "description": {
       "type": "string"
     },
