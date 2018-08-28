@@ -1,7 +1,5 @@
 'use strict';
 
-import Promise from 'bluebird';
-
 import Search from '../../search';
 
 export default {
@@ -31,7 +29,7 @@ async function cleanOpenHouses(app, job) {
 }
 
 async function deleteAllOldOpenHouses(app) {
-  let haveMoreOldOpenHouses = await deleteOpenHouses(app);
+  const haveMoreOldOpenHouses = await deleteOpenHouses(app);
 
   if (haveMoreOldOpenHouses) {
     return await deleteAllOldOpenHouses(app);
