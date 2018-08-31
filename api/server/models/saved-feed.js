@@ -6,13 +6,37 @@ import FeedSearch from '../lib/search/feed';
 
 module.exports = function(SavedFeed) {
   SavedFeed.search = async function(ctx, filter) {
+    const {
+      OpenHouse
+    } = SavedFeed.app.models;
     filter.where = formatFeedQuery(filter.where);
     filter.queryOptions = {distinct: true};
 
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
 
-    return await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter, userId);
+    const result = await searchSavedFeeds(SavedFeed.app.dataSources.postgres, SavedFeed.app, filter, userId);
+
+    const ohIds = []; 
+    result.forEach(item => {
+      if (item.openHouse && item.openHouse.id) {
+        ohIds.push({id: item.openHouse.id})
+      }
+    })
+    if(ohIds.length){
+      const OpenHousesWithImages = await OpenHouse.find({
+        where: { or: ohIds },
+        include: ['images']
+      })
+      result.forEach(listing => {
+        OpenHousesWithImages.forEach(openHouse => {
+          if(listing.openHouse && listing.openHouse.id === openHouse.id){
+            listing.openHouse = {...openHouse.toJSON()}
+          }
+        })
+      })
+    }
+    return result;
   };
 
   SavedFeed.remoteMethod(

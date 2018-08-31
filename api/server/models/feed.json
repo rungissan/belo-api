@@ -143,6 +143,13 @@
       "model": "Account",
       "foreignKey": "userId"
     },
+    "favoriteFeeds": {
+      "type": "hasMany",
+      "model": "Account",
+      "through": "FavoriteFeed",
+      "foreignKey": "feedId",
+      "keyThrough": "userId"
+    },
     "feedOptions": {
       "type": "hasOne",
       "model": "FeedOptions",

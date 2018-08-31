@@ -149,7 +149,7 @@ module.exports = function(Account) {
   );
 
   async function searchFavoriteFeeds(app, userId, filter = {}) {
-    let { Feed, FavoriteFeed } = app.models;
+    let { Feed, FavoriteFeed, Followed } = app.models;
     filter.where = filter.where || {};
     let where = filter.where;
 
@@ -176,8 +176,34 @@ module.exports = function(Account) {
     delete filter.limit;
     delete filter.offset;
     filter.where = {id: {inq: ids}};
+    filter.include = [...filter.include, [{relation: 'account', scope: { include: ['avatar']}}]]
 
-    return await Feed.find(filter);
+    const result = await Feed.find(filter);
+
+    if(result && result.length){
+      const JSResult = result.map(item => item.toJSON());
+      const accIds = [];
+      JSResult.forEach(item => {
+        item.isFavorite = true;
+        accIds.push({
+          userId,
+          followedId: item.userId
+        })
+      })
+      const followedUsers = await Followed.find({
+        where: { or: accIds }
+      })
+      JSResult.forEach(listing => {
+        listing.account.isFollowed = false;
+        followedUsers.forEach(user => {
+          if(user && user.followedId === listing.userId){
+            listing.account.isFollowed = true;
+          }
+        })
+      })
+      return JSResult;
+    }
+    return result;
   };
 
   Account.search = async function(ctx, filter = {}) {
