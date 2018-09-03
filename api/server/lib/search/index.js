@@ -116,9 +116,9 @@ export default class FeedSearch {
 
     query += this._buildWhereQuery();
     query += this._buildGroupByQuery();
-    query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
+    query += orderQuery;
 
     debug('Finish build query');
     return {
@@ -559,7 +559,6 @@ export default class FeedSearch {
       let orderString = this._buildOrderQueryString(modelOptions, order);
       orderString && orderStatments.push(orderString);
     }
-
     if (!orderStatments.length) {
       let defaultOrderString = this._buildOrderQueryString(modelOptions, 'id DESC');
       defaultOrderString && orderStatments.push(defaultOrderString);
@@ -568,8 +567,9 @@ export default class FeedSearch {
     if (!orderStatments.length) {
       return '';
     }
-
-    return ` ORDER BY ${orderStatments.join(', ')}`;
+    const result = ` ORDER BY ${orderStatments.join(', ')}`;
+    // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', result);
+    return result;
   }
 
   _buildOrderQueryString(modelOptions, order) {
