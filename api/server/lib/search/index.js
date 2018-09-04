@@ -119,6 +119,9 @@ export default class FeedSearch {
     query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
+    if(filter.where && filter.where.type === 'listing'){
+      query += orderQuery;
+    }
 
     debug('Finish build query');
     return {
@@ -567,9 +570,7 @@ export default class FeedSearch {
     if (!orderStatments.length) {
       return '';
     }
-    const result = ` ORDER BY ${orderStatments.join(', ')}`;
-    // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', result);
-    return result;
+    return ` ORDER BY ${orderStatments.join(', ')}`; 
   }
 
   _buildOrderQueryString(modelOptions, order) {
