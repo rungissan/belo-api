@@ -91,6 +91,21 @@
         "columnName": "feedStatus"
       }
     },
+    "sold_at": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "time without time zone",
+        "columnName": "sold_at"
+      }
+    },
+    "actual_sold_price": {
+      "type": "number",
+      "required":false,
+      "postgresql": {
+        "columnName": "actual_sold_price",
+        "dataType": "integer"
+      }
+    },
     "expiration": {
       "type": "date",
       "required": false,
