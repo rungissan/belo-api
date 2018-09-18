@@ -28,6 +28,7 @@ export default class FeedSearch extends BaseSearchController {
         'firstName', "account"."firstName",
         'lastName', "account"."lastName",
         'userName', "account"."userName",
+        'phone', "account"."phone",
         'brokerage', "account"."brokerage",
         'avatar', json_build_object(
           'id', "accountAvatar".id,
