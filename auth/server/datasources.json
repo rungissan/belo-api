@@ -1,6 +1,6 @@
 {
   "postgres": {
-    "host": "/usr/src/postgresql",
+    "host": "postgres",
     "port": 5432,
     "url": "",
     "database": "spiti",
