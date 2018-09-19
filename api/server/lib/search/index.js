@@ -95,7 +95,9 @@ export default class FeedSearch {
   }
 
   buildQuery(filter = {}) {
+
     filter = this._validateFilter(filter);
+
     this.filter = {...filter};
     this.queryOptions = filter.queryOptions || {};
 
@@ -119,9 +121,6 @@ export default class FeedSearch {
     query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
     query = this._buildIncludesQuery(query);
-    if(filter.where && filter.where.type === 'listing'){
-      query += orderQuery;
-    }
 
     debug('Finish build query');
     return {
