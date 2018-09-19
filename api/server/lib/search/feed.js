@@ -11,7 +11,8 @@ export default class FeedSearch extends BaseSearchController {
 
   // TODO: Refactor include queries
   _buildIncludesQuery(query) {
-    let include = this.filter.include;
+    let { include, searchFeed } = this.filter;
+
     debug('Build include query', include);
 
     if (!(include && include.length)) {
@@ -58,6 +59,7 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
+      ${ Boolean(searchFeed)  ? 'ORDER BY "Feed"."updated_at" DESC' : 'ORDER BY "Feed"."created_at" DESC' }
     `;
   }
 
