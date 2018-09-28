@@ -11,8 +11,12 @@ export default class FeedSearch extends BaseSearchController {
 
   // TODO: Refactor include queries
   _buildIncludesQuery(query) {
-    let { include, searchFeed } = this.filter;
 
+    console.log(this.filter)
+    const { include, searchFeed, available, recentlySold, recentlyRented } = this.filter;
+
+
+    console.log(available)
     debug('Build include query', include);
 
     if (!(include && include.length)) {
@@ -40,7 +44,7 @@ export default class FeedSearch extends BaseSearchController {
         ${isFollowedIncludeQuery}
       ) AS "account"
     `;
-
+   console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     return `
       SELECT "${tableKey}".*
              ${include.includes('image') ? ', row_to_json("image".*) AS "image"' : ''}
@@ -59,8 +63,29 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
-      ${ Boolean(searchFeed)  ? 'ORDER BY "Feed"."updated_at" DESC' : 'ORDER BY "Feed"."created_at" DESC' }
+      ${ this._addFilterByStatus(searchFeed, available, recentlySold, recentlyRented) }
+     
     `;
+  }
+
+  _addFilterByStatus(searchFeed, avaliable, recentlySold, recentlyRented) {
+    const isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
+          isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
+          isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
+          arrayOfQuery = [ isAvalible, isSold, isRented ];
+
+    let query = arrayOfQuery.reduce((prev, curr) => {
+      if ( !prev ) return curr
+      if ( !curr ) return prev
+      return  `${prev} OR ${curr}`;
+    });
+
+    if ( query ) query = `WHERE ${query}`
+
+    query += Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
+             searchFeed ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC'
+
+    return query;
   }
 
   _includeAdditionalImages() {
