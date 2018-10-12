@@ -45,6 +45,9 @@ const FEATURES_OPTIONS = {
     propertyFeatures: {
       type: 'object'
     },
+    noFee: {
+      type: 'boolean'
+    },
     keyDetails: {
       type: 'object'
     },
@@ -448,18 +451,12 @@ module.exports = function(Feed) {
   function getBeforeSaveHook(options = {}) {
     return async function beforeSaveHook(ctx, modelInstance) {
       let feed = ctx.args.instance || ctx.args.data;
-      if (!feed) {
-        return;
-      }
+      if (!feed) return;
 
-      if ((options.type === 'update') && (typeof feed.type !== 'undefined')) {
-        throw errValidation('type can not be changed');
-      }
+      if ((options.type === 'update') && (typeof feed.type !== 'undefined')) throw errValidation('type can not be changed');
 
       if (feed.options) {
-        if (feed.type === 'post') {
-          throw errValidation('"options" allowed only for Listings');
-        }
+        if (feed.type === 'post') throw errValidation('"options" allowed only for Listings');
 
         await validateBySchema(feed.options, FEATURES_OPTIONS, 'Feed');
         await validateFeedOptions(feed.options);
