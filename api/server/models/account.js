@@ -241,11 +241,25 @@ module.exports = function(Account) {
 
     const ownQuery = `
       SELECT 
+        "feed".*,
         "feed"."id" AS "feedId",
         "openHouseId" AS "openHouseId",
-        *
+        json_build_object( 
+             'userId', "account"."userId",
+            'firstName', "account"."firstName", 
+            'lastName', "account"."lastName", 
+            'userName', "account"."userName", 
+            'brokerage', "account"."brokerage", 
+                'avatar', json_build_object(
+                'id', "avatar"."id", 
+                'publicUrl', "avatar"."publicUrl", 
+                'name', "avatar"."name", 
+                'sizes', "avatar"."sizes"  ) 
+      ) AS "account" 
       FROM "spiti"."feed"
       JOIN "spiti"."open_house" ON "openHouseId" = "spiti"."open_house"."id"
+      LEFT JOIN "spiti"."account" AS "account" ON "feed"."userId" = "account"."userId"
+      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "account"."avatarId"
       WHERE "spiti"."feed"."userId" = $1
         AND "spiti"."feed"."type" = 'openHouse'
         AND "spiti"."feed"."deleted_at" IS NULL
@@ -293,11 +307,25 @@ module.exports = function(Account) {
  
     const ownQuery = `
       SELECT 
+        "feed".*,
         "feed"."id" AS "feedId",
         "openHouseId" AS "openHouseId",
-        *
+         json_build_object( 
+             'userId', "account"."userId",
+            'firstName', "account"."firstName", 
+            'lastName', "account"."lastName", 
+            'userName', "account"."userName", 
+            'brokerage', "account"."brokerage", 
+                'avatar', json_build_object(
+                'id', "avatar"."id", 
+                'publicUrl', "avatar"."publicUrl", 
+                'name', "avatar"."name", 
+                'sizes', "avatar"."sizes"  ) 
+      ) AS "account" 
       FROM "spiti"."feed"
       JOIN "spiti"."open_house" ON "openHouseId" = "spiti"."open_house"."id"
+      LEFT JOIN "spiti"."account" AS "account" ON "feed"."userId" = "account"."userId"
+      LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "account"."avatarId"
       WHERE "spiti"."feed"."type" = 'openHouse'
         ${favoriteFeedsIds.map((item, i) => {
           if(i === 0){
