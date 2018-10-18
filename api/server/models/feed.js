@@ -45,6 +45,9 @@ const FEATURES_OPTIONS = {
     propertyFeatures: {
       type: 'object'
     },
+    noFee: {
+      type: 'boolean'
+    },
     keyDetails: {
       type: 'object'
     },
@@ -270,22 +273,14 @@ module.exports = function(Feed) {
     return await createOpenHouseWithListing(feed, openHouseData, token, userId);
   };
 
-  Feed.destroyListingWithDependencies = async function(ctx, data) {
+  Feed.destroyListingWithDependencies = async function(ctx, data, destroyFeedById = true) {
     // console.log('[ctx]', ctx);
-    if(!data.feedId) return;
+    const feedId = data.feedId || data.id
 
-    const { 
-      feedId
-    } = data;
+    if(!feedId ) return;
 
-    const { 
-      StatusCheck,
-      Appointment,
-    } = Feed.app.models;
-
-    const openHousesToDelete = await Feed.find({
-      where: { parentId: feedId }
-    })
+    const { StatusCheck, Appointment, } = Feed.app.models,
+          openHousesToDelete = await Feed.find({ where: { parentId: feedId } })
 
     if(openHousesToDelete.length){
       openHousesToDelete.forEach(async item => {
@@ -297,7 +292,7 @@ module.exports = function(Feed) {
     await StatusCheck.destroyAll({ feedId })
     await Appointment.destroyAll({ feedId })
     await Feed.destroyAll({ parentId: feedId })
-    await Feed.destroyById(feedId)
+    if ( destroyFeedById ) await Feed.destroyById(feedId)
     // console.log('[data]', openHousesToDelete);
     return { 
       status: true,
@@ -448,18 +443,29 @@ module.exports = function(Feed) {
   function getBeforeSaveHook(options = {}) {
     return async function beforeSaveHook(ctx, modelInstance) {
       let feed = ctx.args.instance || ctx.args.data;
-      if (!feed) {
-        return;
+      if (!feed) return;
+
+      const { id } = feed,
+            typeUpdate = options.type === "update",
+            shouldRemoveDependencies = feed.feedStatus !== 0
+
+
+      let currentFeed = null;
+
+      try {
+        currentFeed = await Feed.findById(id)
+      } catch(e) { console.log(e.message) }
+
+
+      if ( currentFeed && typeUpdate && shouldRemoveDependencies && ( currentFeed.feedStatus !== feed.feedStatus) ) {
+       await Feed.destroyListingWithDependencies(ctx, currentFeed, false)
       }
 
-      if ((options.type === 'update') && (typeof feed.type !== 'undefined')) {
-        throw errValidation('type can not be changed');
-      }
+
+      if ( typeUpdate && (typeof feed.type !== 'undefined')) throw errValidation('type can not be changed');
 
       if (feed.options) {
-        if (feed.type === 'post') {
-          throw errValidation('"options" allowed only for Listings');
-        }
+        if (feed.type === 'post') throw errValidation('"options" allowed only for Listings');
 
         await validateBySchema(feed.options, FEATURES_OPTIONS, 'Feed');
         await validateFeedOptions(feed.options);

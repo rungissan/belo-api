@@ -91,6 +91,14 @@
         "columnName": "feedStatus"
       }
     },
+    "noFee": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "postgresql": {
+        "columnName": "noFee"
+      }
+    },
     "sold_at": {
       "type": "date",
       "postgresql": {

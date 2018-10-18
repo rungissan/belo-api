@@ -11,7 +11,22 @@ export default class FeedSearch extends BaseSearchController {
 
   // TODO: Refactor include queries
   _buildIncludesQuery(query) {
-    let { include, searchFeed } = this.filter;
+
+    const { searchFeed,  include, where: { feedOptions }  }  = this.filter;
+
+    let noFee = false,
+        isAvailable = false,
+        isRecentlySold = false,
+        isRecentlyRented = false;
+
+    if ( feedOptions ) {
+        noFee = feedOptions.noFee;
+        isAvailable = feedOptions.isAvailable;
+        isRecentlySold = feedOptions.isRecentlySold;
+        isRecentlyRented = feedOptions.isRecentlyRented;
+    }
+
+
 
     debug('Build include query', include);
 
@@ -59,8 +74,31 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
-      ${ Boolean(searchFeed)  ? 'ORDER BY "Feed"."updated_at" DESC' : 'ORDER BY "Feed"."created_at" DESC' }
+      ${ this._addFilterByStatus(searchFeed, isAvailable, isRecentlySold, isRecentlyRented, noFee) }
+     
     `;
+  }
+
+  _addFilterByStatus( searchFeed, avaliable, recentlySold, recentlyRented, noFee ) {
+    const isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
+          isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
+          isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
+          isFee = noFee ? '"Feed"."noFee" = true' : '',
+          arrayOfQuery = [ isAvalible, isSold, isRented, isFee ];
+
+    let query = arrayOfQuery.reduce((prev, curr) => {
+      if ( !prev ) return curr
+      if ( !curr ) return prev
+      return  `${prev} OR ${curr}`;
+    });
+
+    if ( query ) query = `WHERE ${query}`
+
+
+    query += Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
+             Boolean( searchFeed || isFee ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC'
+
+    return query;
   }
 
   _includeAdditionalImages() {
