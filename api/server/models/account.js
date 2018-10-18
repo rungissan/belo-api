@@ -242,6 +242,7 @@ module.exports = function(Account) {
     const ownQuery = `
       SELECT 
         "feed".*,
+        "open_house".*,
         "feed"."id" AS "feedId",
         "openHouseId" AS "openHouseId",
         json_build_object( 
@@ -308,6 +309,7 @@ module.exports = function(Account) {
     const ownQuery = `
       SELECT 
         "feed".*,
+        "open_house".*,
         "feed"."id" AS "feedId",
         "openHouseId" AS "openHouseId",
          json_build_object( 
