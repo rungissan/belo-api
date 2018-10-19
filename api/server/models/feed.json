@@ -99,6 +99,14 @@
         "columnName": "noFee"
       }
     },
+    "hasOwner": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "postgresql": {
+        "columnName": "hasOwner"
+      }
+    },
     "sold_at": {
       "type": "date",
       "postgresql": {

@@ -17,10 +17,12 @@ export default class FeedSearch extends BaseSearchController {
     let noFee = false,
         isAvailable = false,
         isRecentlySold = false,
-        isRecentlyRented = false;
+        isRecentlyRented = false,
+        hasOwner = false;
 
     if ( feedOptions ) {
         noFee = feedOptions.noFee;
+        hasOwner = feedOptions.byOwner;
         isAvailable = feedOptions.isAvailable;
         isRecentlySold = feedOptions.isRecentlySold;
         isRecentlyRented = feedOptions.isRecentlyRented;
@@ -74,17 +76,18 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
-      ${ this._addFilterByStatus(searchFeed, isAvailable, isRecentlySold, isRecentlyRented, noFee) }
+      ${ this._addFilterByStatus(searchFeed, isAvailable, isRecentlySold, isRecentlyRented, noFee, hasOwner) }
      
     `;
   }
 
-  _addFilterByStatus( searchFeed, avaliable, recentlySold, recentlyRented, noFee ) {
+  _addFilterByStatus( searchFeed, avaliable, recentlySold, recentlyRented, noFee, hasOwner ) {
     const isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
           isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
           isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
           isFee = noFee ? '"Feed"."noFee" = true' : '',
-          arrayOfQuery = [ isAvalible, isSold, isRented, isFee ];
+          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '',
+          arrayOfQuery = [ isAvalible, isSold, isRented, isFee, isListedByOwner ];
 
     let query = arrayOfQuery.reduce((prev, curr) => {
       if ( !prev ) return curr
@@ -96,7 +99,7 @@ export default class FeedSearch extends BaseSearchController {
 
 
     query += Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
-             Boolean( searchFeed || isFee ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC'
+             Boolean( searchFeed || isFee || isListedByOwner ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
 
     return query;
   }

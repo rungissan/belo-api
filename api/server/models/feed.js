@@ -48,6 +48,9 @@ const FEATURES_OPTIONS = {
     noFee: {
       type: 'boolean'
     },
+    hasOwner: {
+      type: 'boolean'
+    },
     keyDetails: {
       type: 'object'
     },
