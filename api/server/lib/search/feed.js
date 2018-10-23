@@ -84,8 +84,7 @@ export default class FeedSearch extends BaseSearchController {
   _addOrderByStatus( searchFeed, recentlySold, recentlyRented, noFee, hasOwner ) {
     const isFee = noFee ? '"Feed"."noFee" = true' : '',
           isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : ''
-    console.log('I am here'); 
-
+   
     let query = Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
              Boolean( searchFeed || isFee || isListedByOwner ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
     console.log(query);
