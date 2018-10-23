@@ -71,6 +71,15 @@
         "dataType": "integer"
       }
     },
+    "new_test_userman":{
+      "type": "number",
+      "default": 1,
+      "required":false,
+      "postgresql": {
+        "columnName": "new_test_userman",
+        "dataType": "integer"
+      }
+    },
     "type": {
       "type": "string",
       "maxLength": 20,

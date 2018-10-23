@@ -46,6 +46,7 @@ export default class ConnectionSearch extends BaseSearchController {
         'lastName', "account"."lastName", \
         'userName', "account"."userName", \
         'brokerage', "account"."brokerage", \
+        'phone', "account"."phone", \
         'avatar', json_build_object( \
           'id', "avatar"."id", \
           'publicUrl', "avatar"."publicUrl", \

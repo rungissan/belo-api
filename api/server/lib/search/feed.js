@@ -11,7 +11,7 @@ export default class FeedSearch extends BaseSearchController {
 
   // TODO: Refactor include queries
   _buildIncludesQuery(query) {
-
+  
     const { searchFeed,  include, where: { feedOptions }  }  = this.filter;
 
     let noFee = false,
@@ -76,12 +76,39 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
-      ${ this._addFilterByStatus(searchFeed, isAvailable, isRecentlySold, isRecentlyRented, noFee, hasOwner) }
+      ${this._addOrderByStatus(searchFeed, isRecentlySold, isRecentlyRented, noFee, hasOwner) }
      
     `;
   }
 
-  _addFilterByStatus( searchFeed, avaliable, recentlySold, recentlyRented, noFee, hasOwner ) {
+  _addOrderByStatus( searchFeed, recentlySold, recentlyRented, noFee, hasOwner ) {
+    const isFee = noFee ? '"Feed"."noFee" = true' : '',
+          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : ''
+    console.log('I am here'); 
+
+    let query = Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
+             Boolean( searchFeed || isFee || isListedByOwner ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
+    console.log(query);
+    return query;
+  }
+
+  buildAdditionalWhereQuery() {
+    const { where: { feedOptions }  }  = this.filter;
+
+    let noFee = false,
+        avaliable = false,
+        recentlySold  = false,
+        recentlyRented = false,
+        hasOwner = false;
+
+    if ( feedOptions ) {
+        noFee = feedOptions.noFee;
+        hasOwner = feedOptions.byOwner;
+        avaliable = feedOptions.isAvailable;
+        recentlySold  = feedOptions.isRecentlySold;
+        recentlyRented = feedOptions.isRecentlyRented;
+    }
+
     const isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
           isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
           isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
@@ -90,17 +117,11 @@ export default class FeedSearch extends BaseSearchController {
           arrayOfQuery = [ isAvalible, isSold, isRented, isFee, isListedByOwner ];
 
     let query = arrayOfQuery.reduce((prev, curr) => {
-      if ( !prev ) return curr
-      if ( !curr ) return prev
-      return  `${prev} OR ${curr}`;
+    if ( !prev ) return curr
+    if ( !curr ) return prev
+       return  `${prev} OR ${curr}`;
     });
-
-    if ( query ) query = `WHERE ${query}`
-
-
-    query += Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
-             Boolean( searchFeed || isFee || isListedByOwner ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
-
+    if ( query ) query = ` AND ( ${query})`
     return query;
   }
 
