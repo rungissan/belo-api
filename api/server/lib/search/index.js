@@ -299,6 +299,7 @@ export default class FeedSearch {
   _buildWhereQuery() {
     let { whereValues, baseModel } = this;
     let query = '';
+    
 
     query = this._buildWhereForValues(whereValues);
 

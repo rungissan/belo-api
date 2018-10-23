@@ -613,7 +613,6 @@ module.exports = function(Feed) {
           attachmentId: imageId,
           openHouseId: createdOpenHouse.id
         };
-
         let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({where: attachmentLinkData});
         if (!attachmentToOpenHouse) {
           AttachmentToOpenHouse.create({attachmentId: imageId, openHouseId: createdOpenHouse.id}, {accessToken: token});
