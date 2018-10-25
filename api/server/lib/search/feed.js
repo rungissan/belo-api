@@ -11,24 +11,21 @@ export default class FeedSearch extends BaseSearchController {
 
   // TODO: Refactor include queries
   _buildIncludesQuery(query) {
-  
     const { searchFeed,  include, where: { feedOptions }  }  = this.filter;
 
     let noFee = false,
-        isAvailable = false,
-        isRecentlySold = false,
-        isRecentlyRented = false,
-        hasOwner = false;
+      isAvailable = false,
+      isRecentlySold = false,
+      isRecentlyRented = false,
+      hasOwner = false;
 
-    if ( feedOptions ) {
-        noFee = feedOptions.noFee;
-        hasOwner = feedOptions.byOwner;
-        isAvailable = feedOptions.isAvailable;
-        isRecentlySold = feedOptions.isRecentlySold;
-        isRecentlyRented = feedOptions.isRecentlyRented;
+    if (feedOptions) {
+      noFee = feedOptions.noFee;
+      hasOwner = feedOptions.byOwner;
+      isAvailable = feedOptions.isAvailable;
+      isRecentlySold = feedOptions.isRecentlySold;
+      isRecentlyRented = feedOptions.isRecentlyRented;
     }
-
-
 
     debug('Build include query', include);
 
@@ -81,12 +78,12 @@ export default class FeedSearch extends BaseSearchController {
     `;
   }
 
-  _addOrderByStatus( searchFeed, recentlySold, recentlyRented, noFee, hasOwner ) {
+  _addOrderByStatus(searchFeed, recentlySold, recentlyRented, noFee, hasOwner) {
     const isFee = noFee ? '"Feed"."noFee" = true' : '',
-          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : ''
-   
-    let query = Boolean( recentlySold || recentlyRented ) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
-             Boolean( searchFeed || isFee || isListedByOwner ) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
+          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '';
+
+    let query = Boolean(recentlySold || recentlyRented) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
+             Boolean(searchFeed || isFee || isListedByOwner) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
     console.log(query);
     return query;
   }
@@ -94,33 +91,37 @@ export default class FeedSearch extends BaseSearchController {
   buildAdditionalWhereQuery() {
     const { where: { feedOptions }  }  = this.filter;
 
-    let noFee = false,
-        avaliable = false,
-        recentlySold  = false,
-        recentlyRented = false,
-        hasOwner = false;
+    let
+      noFee = false,
+      avaliable = false,
+      recentlySold  = false,
+      recentlyRented = false,
+      hasOwner = false;
 
-    if ( feedOptions ) {
-        noFee = feedOptions.noFee;
-        hasOwner = feedOptions.byOwner;
-        avaliable = feedOptions.isAvailable;
-        recentlySold  = feedOptions.isRecentlySold;
-        recentlyRented = feedOptions.isRecentlyRented;
+    if (feedOptions) {
+      noFee = feedOptions.noFee;
+      hasOwner = feedOptions.byOwner;
+      avaliable = feedOptions.isAvailable;
+      recentlySold  = feedOptions.isRecentlySold;
+      recentlyRented = feedOptions.isRecentlyRented;
     }
 
-    const isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
-          isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
-          isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
-          isFee = noFee ? '"Feed"."noFee" = true' : '',
-          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '',
-          arrayOfQuery = [ isAvalible, isSold, isRented, isFee, isListedByOwner ];
+    const
+      isAvalible = avaliable ? '"Feed"."feedStatus" = 0' : '',
+      isSold = recentlySold  ? '"Feed"."feedStatus" = 1' : '',
+      isRented = recentlyRented ? '"Feed"."feedStatus" = 2' : '',
+      isFee = noFee ? '"Feed"."noFee" = true' : '',
+      isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '',
+      arrayOfQuery = [isSold, isRented, isFee, isListedByOwner];
 
     let query = arrayOfQuery.reduce((prev, curr) => {
-    if ( !prev ) return curr
-    if ( !curr ) return prev
-       return  `${prev} OR ${curr}`;
+      if (!prev) return curr;
+      if (!curr) return prev;
+      return  `${prev} OR ${curr}`;
     });
-    if ( query ) query = ` AND ( ${query})`
+    if (query)  query = ` AND ( ${query})`;
+    query = avaliable ? query + ` AND ${isAvalible}` : query;
+
     return query;
   }
 
