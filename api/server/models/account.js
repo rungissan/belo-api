@@ -64,9 +64,9 @@ module.exports = function(Account) {
     }
 
     let queries = {};
-    const { 
-      Followed, 
-      Feed, 
+    const {
+      Followed,
+      Feed,
       GeolocationToAccount,
       Geolocation,
       StatusCheck
@@ -74,14 +74,14 @@ module.exports = function(Account) {
 
     const areaOfServices = await GeolocationToAccount.find({
       where: { userId: instance.userId }
-    })
-    if(areaOfServices.length){
+    });
+    if (areaOfServices.length) {
       const areaIds = [];
-      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }))
-      const geos = await Geolocation.find({ where: { or: areaIds } })
-      queries.areaOfServices = [...geos]      
+      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }));
+      const geos = await Geolocation.find({ where: { or: areaIds } });
+      queries.areaOfServices = [...geos];
     } else {
-      queries.areaOfServices = []
+      queries.areaOfServices = [];
     }
 
     if (populate.includes('followersCount')) {
@@ -90,7 +90,7 @@ module.exports = function(Account) {
     if (populate.includes('followedCount')) {
       queries.followedCount = Followed.count({ userId: instance.userId });
     }
-    queries.statusCheckCount = StatusCheck.count({listingOwnerId: instance.userId, status: 0})
+    queries.statusCheckCount = StatusCheck.count({listingOwnerId: instance.userId, status: 0});
     if (populate.includes('feedCounts')) {
       let ownQuery = `
         SELECT "feed"."type", count(*)
@@ -176,11 +176,11 @@ module.exports = function(Account) {
     delete filter.limit;
     delete filter.offset;
     filter.where = {id: {inq: ids}};
-    filter.include = [...filter.include, [{relation: 'account', scope: { include: ['avatar']}}]]
+    filter.include = [...filter.include, [{relation: 'account', scope: { include: ['avatar']}}]];
 
     const result = await Feed.find(filter);
 
-    if(result && result.length){
+    if (result && result.length) {
       const JSResult = result.map(item => item.toJSON());
       const accIds = [];
       JSResult.forEach(item => {
@@ -188,19 +188,19 @@ module.exports = function(Account) {
         accIds.push({
           userId,
           followedId: item.userId
-        })
-      })
+        });
+      });
       const followedUsers = await Followed.find({
         where: { or: accIds }
-      })
+      });
       JSResult.forEach(listing => {
         listing.account.isFollowed = false;
         followedUsers.forEach(user => {
-          if(user && user.followedId === listing.userId){
+          if (user && user.followedId === listing.userId) {
             listing.account.isFollowed = true;
           }
-        })
-      })
+        });
+      });
       return JSResult;
     }
     return result;
@@ -227,11 +227,10 @@ module.exports = function(Account) {
     return await clientSearch.query(query, {userId: userId});
   };
 
-  Account.prototype.getOwnSortedOpenHouses = async function(filter){
-
+  Account.prototype.getOwnSortedOpenHouses = async function(filter) {
     const limit = filter.limit || 9;
     const offset = filter.offset || 0;
-    const { 
+    const {
       GeolocationToFeed,
       Geolocation,
       Attachment,
@@ -269,16 +268,16 @@ module.exports = function(Account) {
       OFFSET ${offset};
     `;
 
-    const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
+    const search = new Search(Account.app.dataSources.postgres.connector, Account.app, { raw: true });
     const openHouses = await search.rawQuery(ownQuery, [this.userId]);
 
-    if(openHouses && openHouses.length){
+    if (openHouses && openHouses.length) {
       const formatedOpenHouses = await this.formatOpenHouse(openHouses);
       return formatedOpenHouses;
     } else {
       return [];
     }
-  }
+  };
 
   Account.remoteMethod(
     'prototype.getOwnSortedOpenHouses',
@@ -292,8 +291,7 @@ module.exports = function(Account) {
     }
   );
 
-  Account.prototype.getFavoriteSortedOpenHouses = async function(filter){
-
+  Account.prototype.getFavoriteSortedOpenHouses = async function(filter) {
     const limit = filter.limit || 9;
     const offset = filter.offset || 0;
     const {
@@ -301,11 +299,10 @@ module.exports = function(Account) {
     } = Account.app.models;
     const favoriteFeedsIds = await FavoriteFeed.find({
       where: { userId: this.userId }
-    });
-    if(!favoriteFeedsIds.length){
+    }).map(item => item.feedId);
+    if (!favoriteFeedsIds.length) {
       return [];
     }
- 
     const ownQuery = `
       SELECT 
         "feed".*,
@@ -329,28 +326,21 @@ module.exports = function(Account) {
       LEFT JOIN "spiti"."account" AS "account" ON "feed"."userId" = "account"."userId"
       LEFT JOIN "spiti"."attachment" AS "avatar" ON "avatar"."id" = "account"."avatarId"
       WHERE "spiti"."feed"."type" = 'openHouse'
-        ${favoriteFeedsIds.map((item, i) => {
-          if(i === 0){
-            return `AND "feedId" = ${item.feedId} AND "spiti"."feed"."deleted_at" IS NULL`
-          } else {
-            return `OR "feedId" = ${item.feedId} AND "spiti"."feed"."deleted_at" IS NULL`}
-          }
-        ).join(' ')}
+      AND "feedId" in (${favoriteFeedsIds}) AND "spiti"."feed"."deleted_at" IS NULL 
       ORDER BY "spiti"."open_house"."date"
       LIMIT ${limit}
       OFFSET ${offset};
     `;
 
-    const search = new Search( Account.app.dataSources.postgres.connector, Account.app, { raw: true });
+    const search = new Search(Account.app.dataSources.postgres.connector, Account.app, { raw: true });
     const openHouses = await search.rawQuery(ownQuery);
-
-    if(openHouses && openHouses.length){
+    if (openHouses && openHouses.length) {
       const formatedOpenHouses = await this.formatOpenHouse(openHouses);
       return formatedOpenHouses;
     } else {
-      return []
+      return [];
     }
-  }
+  };
 
   Account.remoteMethod(
     'prototype.getFavoriteSortedOpenHouses',
@@ -364,38 +354,45 @@ module.exports = function(Account) {
     }
   );
 
-  Account.prototype.formatOpenHouse = async function(openHouses){
-    const { 
+  Account.prototype.formatOpenHouse = async function(openHouses) {
+    const {
       GeolocationToFeed,
       Geolocation,
       Attachment,
       AttachmentToOpenHouse,
-      FeedOptions
+      FeedOptions,
+      Followed
     } = Account.app.models;
+
+    const followedIds = await Followed.find({
+      where: { userId: this.userId }
+    }).map(item => item.followedId);
+
     const geosToFeed = await GeolocationToFeed.find({
-      where: { or: openHouses.map(item => { return { feedId: item.feedId } }) }
-    })
+      where: { or: openHouses.map(item => { return { feedId: item.feedId }; }) }
+    });
     const feedOptions = await FeedOptions.find({
-      where: { or: openHouses.map(item => { return { feedId: item.feedId } }) }
-    })
+      where: { or: openHouses.map(item => { return { feedId: item.feedId }; }) }
+    });
     const attToOh = await AttachmentToOpenHouse.find({
-      where: { or: openHouses.map(item => { return { openHouseId: item.openHouseId } }) }
-    })
+      where: { or: openHouses.map(item => { return { openHouseId: item.openHouseId }; }) }
+    });
     const att = await Attachment.find({
-      where: { or: attToOh.map(item => { return { id: item.attachmentId } })}
-    })
+      where: { or: attToOh.map(item => { return { id: item.attachmentId }; })}
+    });
     let geos;
-    if(geosToFeed && geosToFeed.length){
+    if (geosToFeed && geosToFeed.length) {
       geos = await Geolocation.find({
-        where: { or: geosToFeed.map(item => { return { id: item.geolocationId } })}
-      })
+        where: { or: geosToFeed.map(item => { return { id: item.geolocationId }; })}
+      });
     } else {
       geos = [];
     }
     const mainImage = await Attachment.find({
-      where: { or: openHouses.map(item => { return { id: item.imageId } }) }
-    })
+      where: { or: openHouses.map(item => { return { id: item.imageId }; }) }
+    });
     openHouses.forEach(oh => {
+      oh.account.isFollowed = followedIds.includes(oh.account.userId) ? true : false;
       oh.geolocations = [];
       oh.additionalImages = [];
       oh.image = {};
@@ -411,31 +408,31 @@ module.exports = function(Account) {
         timeEnd: oh.timeEnd,
         timeStart: oh.timeStart,
         userId: oh.userId
-      }
+      };
       feedOptions.forEach(fo => {
-        if(fo.feedId === oh.id){
-          oh.feedOptions = fo
+        if (fo.feedId === oh.id) {
+          oh.feedOptions = fo;
         }
-      })
+      });
       mainImage.forEach(mi => {
-        if(oh.imageId === mi.id){
-          oh.image = mi
+        if (oh.imageId === mi.id) {
+          oh.image = mi;
         }
-      })
+      });
       attToOh.forEach(ato => {
         att.forEach(at => {
-          if(oh.openHouseId === ato.openHouseId && ato.attachmentId === at.id){
+          if (oh.openHouseId === ato.openHouseId && ato.attachmentId === at.id) {
             oh.openHouse.images.unshift(at);
           }
-        })
-      })
+        });
+      });
       geosToFeed.forEach(gtf => {
         geos.forEach(geo => {
-          if(oh.id === gtf.feedId && gtf.geolocationId === geo.id){
+          if (oh.id === gtf.feedId && gtf.geolocationId === geo.id) {
             oh.geolocations.push(geo);
           }
-        })
-      })
+        });
+      });
       oh.feedId = undefined;
       oh.contactPhone = undefined;
       oh.date = undefined;
@@ -443,9 +440,9 @@ module.exports = function(Account) {
       oh.host = undefined;
       oh.timeEnd = undefined;
       oh.timeStart = undefined;
-    })
-    return openHouses
-  }
+    });
+    return openHouses;
+  };
 
   Account.remoteMethod(
     'search',
@@ -473,7 +470,7 @@ module.exports = function(Account) {
       throw errAccessDenied();
     }
 
-    const { 
+    const {
       Attachment,
       Connection,
       Followed,
@@ -483,14 +480,14 @@ module.exports = function(Account) {
 
     const areaOfServices = await GeolocationToAccount.find({
       where: { userId: account.userId }
-    })
-    if(areaOfServices.length){
+    });
+    if (areaOfServices.length) {
       const areaIds = [];
-      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }))
-      const geos = await Geolocation.find({ where: { or: areaIds } })
-      account.areaOfServices = [...geos]      
+      areaOfServices.forEach(geo => areaIds.push({ id: geo.geolocationId }));
+      const geos = await Geolocation.find({ where: { or: areaIds } });
+      account.areaOfServices = [...geos];
     } else {
-      account.areaOfServices = []
+      account.areaOfServices = [];
     }
 
     let ownQuery = `
@@ -500,7 +497,7 @@ module.exports = function(Account) {
         AND "feed"."deleted_at" IS NULL
       GROUP BY "feed"."type";
     `;
-    
+
     const search = new Search(Account.app.dataSources.postgres.connector, Account.app, {raw: true});
 
     let props = {
@@ -538,17 +535,16 @@ module.exports = function(Account) {
       http: {verb: 'get', path: '/preview/:id'}
     }
   );
-  Account.prototype.setGeolocation = async function(geolocations){
+  Account.prototype.setGeolocation = async function(geolocations) {
     try {
+      const { userId } = this;
 
-      const { userId } = this; 
-
-      if(!geolocations.length){
+      if (!geolocations.length) {
         const err = {};
         err.status = 422;
         throw err;
       }
-      if(!this.userId){
+      if (!this.userId) {
         const err = {};
         err.status = 401;
         throw err;
@@ -560,13 +556,13 @@ module.exports = function(Account) {
 
       geolocations.forEach(async geolocationId => {
         const createdGeo = await GeolocationToAccount.findOrCreate({
-          where: { 
+          where: {
             userId: this.userId,
             geolocationId
           }
         }, {
-            userId: this.userId,
-            geolocationId
+          userId: this.userId,
+          geolocationId
         });
       });
 
@@ -575,7 +571,7 @@ module.exports = function(Account) {
         message: 'updated'
       };
     } catch (err) {
-      throw err
+      throw err;
     }
   };
   Account.remoteMethod(
