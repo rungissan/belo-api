@@ -42,23 +42,23 @@ async function deleteOpenHouses(app) {
       }
     })
 
-    if(listingsToDelete.length){
-      const openHousesToDelete = await Feed.find({
-        where: { or: listingsToDelete.map(item => {return { parentId: item.id }}) }
-      })
-      if(openHousesToDelete.length){
-        openHousesToDelete.forEach(async item => {
-          await StatusCheck.destroyAll({ feedId: item.id })
-          await Appointment.destroyAll({ feedId: item.id })
-          await Feed.destroyAll({ id: item.id })
-        })
-      }
-      listingsToDelete.forEach(async item => {
-        await StatusCheck.destroyAll({ feedId: item.id })
-        await Appointment.destroyAll({ feedId: item.id })
-        await Feed.destroyAll({ id: item.id })
-      })
-    }
+    // if(listingsToDelete.length){
+    //   const openHousesToDelete = await Feed.find({
+    //     where: { or: listingsToDelete.map(item => {return { parentId: item.id }}) }
+    //   })
+    //   if(openHousesToDelete.length){
+    //     openHousesToDelete.forEach(async item => {
+    //       await StatusCheck.destroyAll({ feedId: item.id })
+    //       await Appointment.destroyAll({ feedId: item.id })
+    //       await Feed.destroyAll({ id: item.id })
+    //     })
+    //   }
+    //   listingsToDelete.forEach(async item => {
+    //     await StatusCheck.destroyAll({ feedId: item.id })
+    //     await Appointment.destroyAll({ feedId: item.id })
+    //     await Feed.destroyAll({ id: item.id })
+    //   })
+    // }
   
     return true;
 }
