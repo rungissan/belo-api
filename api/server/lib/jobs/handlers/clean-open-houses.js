@@ -59,8 +59,8 @@ async function deleteOpenHouses(app) {
     return false;
   }
 
-  let oldOpenHousesIds = oldOpenHouses.map(f => f.id);
-  await Feed.destroyAll({ id: {inq: oldOpenHousesIds}});
+ let oldOpenHousesIds = oldOpenHouses.map(f => f.id);
+ await Feed.destroyAll({ id: {inq: oldOpenHousesIds}});
 
   return true;
 }

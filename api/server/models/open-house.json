@@ -9,7 +9,7 @@
     }
   },
   "mixins": {
-    "RemoteRouting" : {
+    "RemoteRouting": {
       "only": [
         "@find",
         "@findById",
@@ -22,12 +22,12 @@
     "CreateWithRelationsLink": {
       "images": {
         "checkOwner": true,
-        "removeOldRelations": true 
+        "removeOldRelations": true
       }
     },
-    "ReadOnly" : {
+    "ReadOnly": {
       "userId": true,
-      "feedId" : true
+      "feedId": true
     }
   },
   "properties": {
@@ -80,6 +80,24 @@
         "columnName": "timeEnd",
         "dataType": "time without time zone"
       }
+    },
+    "created_at": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "date"
+      }
+    },
+    "updated_at": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "date"
+      }
+    },
+    "deleted_at": {
+      "type": "date",
+      "postgresql": {
+        "dataType": "date"
+      }
     }
   },
   "validations": [],
@@ -102,8 +120,7 @@
       "keyThrough": "attachmentId"
     }
   },
-  "acls": [
-    {
+  "acls": [{
       "accessType": "READ",
       "principalType": "ROLE",
       "principalId": "$authenticated",
