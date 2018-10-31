@@ -12,6 +12,7 @@ npm-debug.log*
 node_modules
 
 # postgres db data
+/data/backup
 /data/postgres
 /data/redis
 /data/logs/api/
