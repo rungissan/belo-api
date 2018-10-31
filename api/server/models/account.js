@@ -410,7 +410,10 @@ module.exports = function(Account) {
         images: [],
         timeEnd: oh.timeEnd,
         timeStart: oh.timeStart,
-        userId: oh.userId
+        userId: oh.userId,
+        created_at: oh.created_at,
+        deleted_at: oh.deleted_at,
+        updated_at: oh.updated_at
       }
       feedOptions.forEach(fo => {
         if(fo.feedId === oh.id){

@@ -15,12 +15,12 @@ const FEATURES_OPTIONS = {
     },
     bedrooms: {
       type: 'integer',
-      minimum: 0,
+      minimum: 0
       // maximum: 100
     },
     bathrooms: {
       type: 'integer',
-      minimum: 0,
+      minimum: 0
       // maximum: 100
     },
     price: {
@@ -272,36 +272,36 @@ module.exports = function(Feed) {
     if (feed.type !== 'listing') {
       throw errValidation('Open house can be created only for listing');
     }
-    
+
     return await createOpenHouseWithListing(feed, openHouseData, token, userId);
   };
 
   Feed.destroyListingWithDependencies = async function(ctx, data, destroyFeedById = true) {
     // console.log('[ctx]', ctx);
-    const feedId = data.feedId || data.id
+    const feedId = data.feedId || data.id;
 
-    if(!feedId ) return;
+    if (!feedId) return;
 
-    const { StatusCheck, Appointment, } = Feed.app.models,
-          openHousesToDelete = await Feed.find({ where: { parentId: feedId } })
+    const { StatusCheck, Appointment } = Feed.app.models,
+          openHousesToDelete = await Feed.find({ where: { parentId: feedId } });
 
-    if(openHousesToDelete.length){
+    if (openHousesToDelete.length) {
       openHousesToDelete.forEach(async item => {
-        await StatusCheck.destroyAll({ feedId: item.id })
-        await Appointment.destroyAll({ feedId: item.id })
+        await StatusCheck.destroyAll({ feedId: item.id });
+        await Appointment.destroyAll({ feedId: item.id });
       })
     }
 
-    await StatusCheck.destroyAll({ feedId })
-    await Appointment.destroyAll({ feedId })
-    await Feed.destroyAll({ parentId: feedId })
-    if ( destroyFeedById ) await Feed.destroyById(feedId)
+    await StatusCheck.destroyAll({ feedId });
+    await Appointment.destroyAll({ feedId });
+    await Feed.destroyAll({ parentId: feedId });
+    if (destroyFeedById) await Feed.destroyById(feedId);
     // console.log('[data]', openHousesToDelete);
-    return { 
+    return {
       status: true,
       message: 'everything was successfully deleted'
     };
-  }
+  };
 
   Feed.remoteMethod(
       'destroyListingWithDependencies',
@@ -320,13 +320,13 @@ module.exports = function(Feed) {
                 http: { source: 'body' }
             }
           ],
-          returns: [{ 
+          returns: [{
               arg: 'data',
-              type: 'Object', 
+              type: 'Object',
               root: true
           }],
           http: {
-              verb: 'delete', 
+              verb: 'delete',
               path: '/destroyListing'
           }
       }
@@ -448,24 +448,22 @@ module.exports = function(Feed) {
       let feed = ctx.args.instance || ctx.args.data;
       if (!feed) return;
 
-      const { id } = feed,
-            typeUpdate = options.type === "update",
-            shouldRemoveDependencies = feed.feedStatus !== 0
-
+      const
+        { id } = feed,
+        typeUpdate = options.type === 'update',
+        shouldRemoveDependencies = feed.feedStatus !== 0;
 
       let currentFeed = null;
 
       try {
-        currentFeed = await Feed.findById(id)
-      } catch(e) { console.log(e.message) }
+        currentFeed = await Feed.findById(id);
+      } catch (e) { console.log(e.message)}
 
-
-      if ( currentFeed && typeUpdate && shouldRemoveDependencies && ( currentFeed.feedStatus !== feed.feedStatus) ) {
-       await Feed.destroyListingWithDependencies(ctx, currentFeed, false)
+      if (currentFeed && typeUpdate && shouldRemoveDependencies && ( currentFeed.feedStatus !== feed.feedStatus) ) {
+        await Feed.destroyListingWithDependencies(ctx, currentFeed, false)
       }
 
-
-      if ( typeUpdate && (typeof feed.type !== 'undefined')) throw errValidation('type can not be changed');
+      if (typeUpdate && (typeof feed.type !== 'undefined')) throw errValidation('type can not be changed');
 
       if (feed.options) {
         if (feed.type === 'post') throw errValidation('"options" allowed only for Listings');
@@ -519,7 +517,7 @@ module.exports = function(Feed) {
       AttachmentToFeed,
       Attachment,
       AttachmentToOpenHouse,
-      GeolocationToFeed,
+      GeolocationToFeed
     } = Feed.app.models;
 
     let listingCopyData = feed.toJSON();
