@@ -3,7 +3,6 @@
 cd  ..
 
 git pull samoshkin testing
-
 export UID
 export GID
 
