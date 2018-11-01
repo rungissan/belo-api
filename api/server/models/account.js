@@ -407,16 +407,11 @@ module.exports = function(Account) {
         images: [],
         timeEnd: oh.timeEnd,
         timeStart: oh.timeStart,
-<<<<<<< HEAD
         userId: oh.userId,
         created_at: oh.created_at,
         deleted_at: oh.deleted_at,
         updated_at: oh.updated_at
-      }
-=======
-        userId: oh.userId
       };
->>>>>>> ec63e74d6ee6ca50b7abf9ecc3cc635d28a38288
       feedOptions.forEach(fo => {
         if (fo.feedId === oh.id) {
           oh.feedOptions = fo;
@@ -448,6 +443,9 @@ module.exports = function(Account) {
       oh.host = undefined;
       oh.timeEnd = undefined;
       oh.timeStart = undefined;
+      oh.created_at= undefined;
+      oh.deleted_at= undefined;
+      oh.updated_at= undefined;
     });
     return openHouses;
   };
