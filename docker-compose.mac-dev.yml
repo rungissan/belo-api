@@ -1,0 +1,161 @@
+version: '3.3'
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+
+services:
+  balancer:
+    build: ./nginx
+    networks:
+      backend:
+        ipv4_address: 10.5.0.2
+    privileged: true
+    environment:
+      NGINX_HOST: "localhost"
+      NGINX_SSL: "OFF"
+      NGINX_PROD: "OFF"
+    volumes:
+      - "./nginx/nginx2.conf:/etc/nginx/nginx.conf"
+      - "./nginx/nginx.conf:/etc/nginx/conf.d/default.j2"
+      - "./data/storage/public:/uploads-public"
+      - "./nginx/pass/explorer.txt:/etc/nginx/passwords/explorer.txt"
+    ports:
+      - "80:80"
+      - "443:443"
+    command: /bin/bash -c "j2 /etc/nginx/conf.d/default.j2 > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - api
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+
+
+  postgres:
+    image: postgres:10.0
+    networks:
+      backend:
+          ipv4_address: 10.5.0.11
+    ports:
+      - "5433:5432"
+    volumes:
+      - "./data/postgres/etc:/etc/postgresql"
+      - "./data/postgres/log:/var/log/postgresql"
+      - "./data/postgres/postgresdb:/var/lib/postgresql/data"
+      - "/private/var/run/postgresql:/var/run/postgresql"
+      - "./data/backup:/usr/src/backup"
+      - ./postgres/init-scripts:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: spiti,spiti_test
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
+      POSTGRES_USER: admin
+      POSTGRES_HOST: postgres
+      DEBUG: "true"
+    logging:
+      options:
+        max-size: 1000m
+    command: postgres -c work_mem="24MB"
+    restart: 'no'
+   
+
+  api:
+    build: ./api
+    tty: true
+    user: "${UID}:${GID}"
+    networks:
+      backend:
+          ipv4_address: 10.5.0.3
+    ports:
+      - "127.0.0.1::3000"
+    volumes:
+      - "./api:/usr/src/app"
+      - api_modules:/usr/src/app/node_modules/
+      - "/private/var/run/postgresql:/usr/src/postgresql"
+      - "./data/storage:/usr/src/storage"
+    environment:
+      PRODUCTION_MODE: "OFF"
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
+      POSTGRES_USER: admin
+      POSTGRES_DB: spiti
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB
+      baseSchema: spiti
+      NODE_ENV: development
+      domain: localhost
+      protocol: http
+      LOG_LEVEL: "debug"
+      # DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,spiti:boot,loopback:mixin:readonly,spiti:validations,spiti:jobs,spiti:feed:search
+      DEBUG: spiti:boot:socket,socketio-auth,loopback:oauth2,loopback:connector:postgresql,spiti:boot*,spiti:validations,spiti:jobs,spiti:feed:search
+      BABEL_DISABLE_CACHE: 1
+    
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+    command: ./wait-for-postgres.sh
+ 
+
+  auth:
+    build: ./auth
+    tty: true
+    user: "${UID}:${GID}"
+    networks:
+      backend:
+         ipv4_address: 10.5.0.4
+    ports:
+      - "127.0.0.1::3000"
+    volumes:
+      - "./auth:/usr/src/app"
+      - auth_modules:/usr/src/app/node_modules/
+      - "/private/var/run/postgresql:/usr/src/postgresql"
+    environment:
+      PRODUCTION_MODE: "OFF"
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
+      POSTGRES_USER: admin
+      POSTGRES_DB: spiti
+      POSTGRES_HOST: postgres
+      NODE_ENV: development
+      domain: localhost
+      protocol: http
+      LOG_LEVEL: "debug"
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize,spiti:boot
+      BABEL_DISABLE_CACHE: 1
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+    command: ./wait-for-postgres.sh 
+    
+  redis:
+    image: redis:alpine
+    networks:
+      backend:
+        ipv4_address: 10.5.0.5
+    ports:
+      - "6380:6379"
+    volumes:
+      - "./data/redis:/data"
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    logging:
+      options:
+        max-size: 1000m
+    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB --appendonly yes
+    restart: 'no'
+
+
+volumes:
+  api_modules:
+  auth_modules:
+  redis_socket:
+ 
