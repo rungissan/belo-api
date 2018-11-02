@@ -7,7 +7,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "development": "nodemon -e js,json --exec babel-node server/server.js",
+    "development": "nodemon -e js,json --exec babel-node --inspect=0.0.0.0 server/server.js",
     "start": "npm run build && node dist/server.js",
     "build": "babel server -d dist -D",
     "clean": "rm -rf build && mkdir build",
