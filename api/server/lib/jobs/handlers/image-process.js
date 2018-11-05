@@ -2,6 +2,8 @@
 
 import Promise from 'bluebird';
 import gm      from 'gm';
+const im = gm.subClass({ imageMagick: true });
+
 import {
   join,
   extname,
@@ -105,7 +107,7 @@ function createImgCopy(attachment, options) {
   let fileDestPath = join(containerRoot, container, fileDestName);
 
   return new Promise((resolve, reject) => {
-    let processImage = gm(fileOriginalPath);
+    let processImage = im(fileOriginalPath);
 
     processImage.resize(options.width, options.height);
 
