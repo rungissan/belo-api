@@ -16,7 +16,12 @@ module.exports = function(Appointment) {
             userId: userId
           }
         }).map(item => item.followedId);
-        data.map(item => item.__data.account.isFollowed = followedIds.includes(item.userId) ? true : false);
+        data.map(item => {
+            let elem_level1 = item.__data;
+            if (!(elem_level1.feed && elem_level1.feed.__data && elem_level1.feed.__data.account)) return item;
+            let elem_level2 = elem_level1.feed.__data;
+            return elem_level2.account.isFollowed = followedIds.includes(item.userId) ? true : false
+        });
         return data;
     };
 
