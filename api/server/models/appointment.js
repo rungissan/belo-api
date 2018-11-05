@@ -1,4 +1,26 @@
 module.exports = function(Appointment) {
+    const includeAdditionalData = async (ctx, instance) => {
+        const token = ctx.req.accessToken;
+        const userId = token && token.userId;
+    
+        if (!Array.isArray(instance)) {
+          return;
+        }
+        let data = instance;
+    
+        const {
+           Followed
+         } = Appointment.app.models;
+        const followedIds = await Followed.find({
+          where: {
+            userId: userId
+          }
+        }).map(item => item.followedId);
+        data.map(item => item.__data.account.isFollowed = followedIds.includes(item.userId) ? true : false);
+        return data;
+    };
+
+    Appointment.afterRemote('find', includeAdditionalData);
 
     Appointment.searchOrCreate = async function(ctx, appnt) {
 

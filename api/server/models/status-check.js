@@ -1,4 +1,26 @@
 module.exports = function(StatusCheck) {
+    const includeAdditionalData = async (ctx, instance) => {
+        const token = ctx.req.accessToken;
+        const userId = token && token.userId;
+    
+        if (!Array.isArray(instance)) {
+          return;
+        }
+        let data = instance;
+    
+        const {
+           Followed
+         } = StatusCheck.app.models;
+        const followedIds = await Followed.find({
+          where: {
+            userId: userId
+          }
+        }).map(item => item.followedId);
+        data.map(item => item.__data.account.isFollowed = followedIds.includes(item.userId) ? true : false);
+        return data;
+    };
+
+    StatusCheck.afterRemote('find', includeAdditionalData);
 
     StatusCheck.searchOrCreate = async function(ctx, statusData) {
         const { Feed } = StatusCheck.app.models;
