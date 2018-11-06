@@ -16,12 +16,22 @@ module.exports = function(Appointment) {
             userId: userId
           }
         }).map(item => item.followedId);
-        data.map(item => {
+        await Promise.all(data.map(async item => {
             let elem_level1 = item.__data;
+            // if current user is owner for listing
+            if (elem_level1.listingOwnerId === userId ) { 
+              return elem_level1.account.isFollowed =followedIds.includes(elem_level1.userId) ? true : false;
+            } 
+            // check for avoiding any feeds   
             if (!(elem_level1.feed && elem_level1.feed.__data && elem_level1.feed.__data.account)) return item;
+
             let elem_level2 = elem_level1.feed.__data;
-            return elem_level2.account.isFollowed = followedIds.includes(item.userId) ? true : false
-        });
+            let isFollowedFeedOwner = await Followed.find(
+                { 
+                  where:  { and:  [{ userId: elem_level2.account.userId }, {followedId: userId}] }
+                });
+            return elem_level2.account.isFollowed = isFollowedFeedOwner.length > 0 ? true : false
+        }));
         return data;
     };
 
