@@ -110,7 +110,7 @@ export default class FeedSearch {
       this._buildQueryForNotBasicProperty(baseModel, key, filters[key]);
     });
 
-    let orderQuery = this._buildOrderQuery(baseModel, filter.order);
+   // let orderQuery = this._buildOrderQuery(baseModel, filter.order);
     let query = this._buildSelectQuery(baseModel);
 
     this.buildAdditionalJoinQuery && (this.sqlJoin += this.buildAdditionalJoinQuery());
@@ -119,7 +119,7 @@ export default class FeedSearch {
     query += this._buildWhereQuery();
     query += this._buildGroupByQuery();
     query = this._buildIncludesQuery(query);
-    query += orderQuery;
+    //query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
 
     debug('Finish build query');

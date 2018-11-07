@@ -73,18 +73,17 @@ export default class FeedSearch extends BaseSearchController {
       ${include.includes('account') ? this._includeAccount() : ''}
       ${include.includes('isFavorite') && this.userOptions.userId ? this._includeIsFavorite() : ''}
       ${include.includes('followed') && this.userOptions.userId ? this._includeIsFollowed() : ''}
-      ${this._addOrderByStatus(searchFeed, isRecentlySold, isRecentlyRented, noFee, hasOwner) }
+      ${this._addOrder(searchFeed, isRecentlySold, isRecentlyRented, noFee, hasOwner) }
      
     `;
   }
 
-  _addOrderByStatus(searchFeed, recentlySold, recentlyRented, noFee, hasOwner) {
+  _addOrder(searchFeed, recentlySold, recentlyRented, noFee, hasOwner) {
     const isFee = noFee ? '"Feed"."noFee" = true' : '',
           isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '';
 
     let query = Boolean(recentlySold || recentlyRented) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
              Boolean(searchFeed || isFee || isListedByOwner) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
-    console.log(query);
     return query;
   }
 

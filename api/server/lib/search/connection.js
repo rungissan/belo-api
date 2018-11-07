@@ -61,8 +61,15 @@ export default class ConnectionSearch extends BaseSearchController {
       FROM (${query}) AS "${tableKey}"
       LEFT JOIN "spiti"."user" AS "user" ON "user"."id" = "${this.baseModel.tableKey}"."userId"
       ${include.includes('account') ? this._includeAccount() : ''}
+      ${this._addOrder() }
     `;
   }
+  _addOrder() {
+    let tableKey = this.baseModel.tableKey;
+    let query = ` ORDER BY ("${tableKey}"."status"='waitingApprove') DESC,"${tableKey}"."status" DESC `;
+    return query;
+  }
+
 
   _includeAccount() {
     return `
