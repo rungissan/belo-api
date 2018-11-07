@@ -168,7 +168,8 @@ module.exports = function(Connection) {
       Connection.app,
       {baseModelName: 'Connection'}
     );
-
+    const tableKey = 'Connection';
+    const columnName = 'status';
     const query = {
       where: {
         ...where,
@@ -177,7 +178,9 @@ module.exports = function(Connection) {
           searchString: where.searchString
         }
       },
+      
       include: ['account'],
+      order: [`@("${tableKey}"."${columnName}"='waitingApprove') DESC`,"status DESC"],  //@ - non-standart model column without validation "@('status'='waitingApprove') DESC"
       limit: filter.limit,
       offset: filter.offset
     };
