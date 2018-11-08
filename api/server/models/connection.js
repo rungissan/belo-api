@@ -180,7 +180,6 @@ module.exports = function(Connection) {
       },
       
       include: ['account'],
-      order: [`@("${tableKey}"."${columnName}"='waitingApprove') DESC`,"status DESC"],  //@ - non-standart model column without validation "@('status'='waitingApprove') DESC"
       limit: filter.limit,
       offset: filter.offset
     };

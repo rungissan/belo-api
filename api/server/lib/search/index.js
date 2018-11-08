@@ -555,8 +555,7 @@ export default class FeedSearch {
 
     if (Array.isArray(order)) {
       order.forEach(o => {
-        // check for non-standart order field  @
-        let orderString = o.substring(0,1)==='@'? o.substring(1)  : this._buildOrderQueryString(modelOptions, o);
+        let orderString = this._buildOrderQueryString(modelOptions, o);
         orderString && orderStatments.push(orderString);
       });
     } else if (order) {
