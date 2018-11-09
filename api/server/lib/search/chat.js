@@ -13,8 +13,13 @@ export default class ChatSearch extends BaseSearchController {
   queryChats(filter = {}) {
     let query = this._getChatSubquery(filter);
     query = this._getChatMessagesQuery(query);
-
+    query += this._addOrder();
     return this._query(query, this.replacements);
+  }
+
+  _addOrder() {
+    let query = ` ORDER BY "last"->>'updated_at' DESC NULLS LAST; `;
+    return query;
   }
 
   querySearchChat(filter = {}) {
@@ -80,7 +85,7 @@ export default class ChatSearch extends BaseSearchController {
     query += ` FROM (${subQuery}) AS "chat"`;
     query += this._joinMessagesQuery();
     query += this._joinLastMessagesQuery();
-    query += ' GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants", "lastMessage"."last";';
+    query += ' GROUP BY "chat"."id", "chat"."lastReadedMessageId", "chat"."participants", "lastMessage"."last"';
 
     return query;
   }
