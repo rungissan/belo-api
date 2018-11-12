@@ -5,12 +5,14 @@ const debug = require('debug')('spiti:feed:search');
 
 const FULL_TEXT_SEARCH_FIELDS = ['firstName', 'lastName', 'userName', 'brokerage', 'phone', 'email'];
 const FIELDS = ['userId', 'type', 'userName', 'phone', 'about', 'biography', 'brokerage'];
+const USERNAME_BROKERAGE = ['userName', 'brokerage'];
 
 export default class ClientSearch extends BaseSearchController {
   constructor(connector, app, options = {}) {
     super(connector, app, options);
 
     this.fulltextSearchFields = options.fulltextSearchFields || FULL_TEXT_SEARCH_FIELDS;
+    this.userNameOrBrokerage = USERNAME_BROKERAGE;
   }
 
   buildAdditionalWhereQuery() {
@@ -18,11 +20,20 @@ export default class ClientSearch extends BaseSearchController {
     let { where } = this.filter;
 
     if (where && where.searchString) {
-      query +=  ` ${this._getJoinKey()} (`;
-      query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(" || ");
-      query += ` LIKE LOWER($${this.replacements.length + 1}))`;
-
-      this.replacements.push(`%${where.searchString}%`);
+      switch(where.type) {
+        case 'prof':
+          query +=  ` ${this._getJoinKey()} (`;
+          query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(" || ");
+          query += ` LIKE LOWER($${this.replacements.length + 1}))`;
+          this.replacements.push(`%${where.searchString}%`);
+          break; 
+        default: 
+          query +=  ` ${this._getJoinKey()} (`;
+          query += this.fulltextSearchFields.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1}) || `);
+          query += `FALSE)`;
+          //   query += ` LIKE LOWER($${this.replacements.length + 1}))`;
+          this.replacements.push(`${where.searchString}`);
+      }
     }
 
     return query;
