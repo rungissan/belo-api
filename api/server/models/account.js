@@ -215,14 +215,17 @@ module.exports = function(Account) {
 
     let query = {
       where: {
-        type: 'prof',
+     //   type: 'prof',
         searchString: where.searchString
       },
       include: ['avatar', 'followed'],
       limit: filter.limit,
       offset: filter.offset
     };
+
+    where.onlyAccountType && (query.where.type = where.onlyAccountType);
     where.geolocations && (query.where.geolocations = where.geolocations);
+    console.log(query);
 
     return await clientSearch.query(query, {userId: userId});
   };

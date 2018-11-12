@@ -18,12 +18,11 @@ export default class ClientSearch extends BaseSearchController {
     let { where } = this.filter;
 
     if (where && where.searchString) {
-      query +=  ` ${this._getJoinKey()}`;
-      query += ' to_tsvector(';
-      query += this.fulltextSearchFields.map(column => `"${column}"`).join(" || ' ' || ");
-      query += `) @@ plainto_tsquery($${this.replacements.length + 1})`;
+      query +=  ` ${this._getJoinKey()} (`;
+      query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(" || ");
+      query += ` LIKE LOWER($${this.replacements.length + 1}))`;
 
-      this.replacements.push(where.searchString);
+      this.replacements.push(`%${where.searchString}%`);
     }
 
     return query;
