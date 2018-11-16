@@ -222,18 +222,37 @@ module.exports = function(Account) {
       offset: filter.offset
     };
 
-    switch(where.onlyAccountType) {
+    switch (where.onlyAccountType) {
       case 'all': break;
-      case 'user': 
+      case 'user':
         query.where.type = 'user';
         break;
       case 'prof':
-      default: 
+      default:
         query.where.type = 'prof';
     }
     where.geolocations && (query.where.geolocations = where.geolocations);
- 
-    return await clientSearch.query(query, {userId: userId});
+    const result = await clientSearch.query(query, {userId: userId});
+    const formatedResult = await formatSearchResult(result, userId);
+    return  formatedResult;
+  };
+
+  const formatSearchResult = async (result, userId) => {
+    const {
+      Connection
+    } = Account.app.models;
+
+    const connectionStatus = await Connection.find({
+      where: { userId: userId }
+    }).reduce((result, item) => {
+      result[item.connectedId] = item.status;
+      return result;
+    }, {});
+
+    result.forEach(item => {
+      item.connectionStatus =  connectionStatus[item.userId];
+    });
+    return result;
   };
 
   Account.prototype.getOwnSortedOpenHouses = async function(filter) {

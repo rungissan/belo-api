@@ -3,9 +3,9 @@
 # restore backup from directory format 
 
 set -x
-BACKUP_SOURCE = ~/Downloads/backup-testing/.
+
 BACKUP_NAME=backup_testing
-docker cp ~/Downloads/backup-testing/. spiti_postgres_1:$BACKUP_NAME
+docker cp ~/Downloads/backup_testing/. spiti_postgres_1:$BACKUP_NAME
 
 docker exec spiti_postgres_1 psql -c 'DROP SCHEMA IF EXISTS auth CASCADE;' -d spiti -U admin
 docker exec spiti_postgres_1 psql -c 'DROP SCHEMA IF EXISTS spiti CASCADE;' -d spiti -U admin

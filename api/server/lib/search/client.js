@@ -21,20 +21,20 @@ export default class ClientSearch extends BaseSearchController {
     let { where } = this.filter;
 
     if (where) {
-      switch(where.type) {
+      switch (where.type) {
         case 'prof':
           if (!where.searchString) break;
           query +=  ` ${this._getJoinKey()} (`;
-          query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(" || ");
+          query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(' || ');
           query += ` LIKE LOWER($${this.replacements.length + 1}))`;
           this.replacements.push(`%${where.searchString}%`);
-          break; 
+          break;
         default:
           let search = where.searchString  || NOTHING_FOUND;
           query +=  ` ${this._getJoinKey()} (`;
-          query += this.userNameOrBrokerage.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1})`).join(" OR ");
-          query += `)`;
-         this.replacements.push(`${search}`);
+          query += this.userNameOrBrokerage.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1})`).join(' OR ');
+          query += ')';
+          this.replacements.push(`${search}`);
       }
     }
 

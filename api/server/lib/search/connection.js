@@ -70,7 +70,6 @@ export default class ConnectionSearch extends BaseSearchController {
     return query;
   }
 
-
   _includeAccount() {
     return `
       LEFT JOIN "spiti"."account" AS "account" ON "account"."userId" = "${this.baseModel.tableKey}"."connectedId"

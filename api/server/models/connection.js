@@ -178,7 +178,6 @@ module.exports = function(Connection) {
           searchString: where.searchString
         }
       },
-      
       include: ['account'],
       limit: filter.limit,
       offset: filter.offset
