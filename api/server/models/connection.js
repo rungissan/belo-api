@@ -21,7 +21,7 @@ module.exports = function(Connection) {
       accountTo: Account.findById(connectedId)
     });
 
-    let connectToIsProf = accountTo && accountTo.type === 'prof';
+    let connectToIsProf = accountTo && (accountTo.type === 'prof' || accountTo.type === 'user');
     if (!connectToIsProf && !connectionFrom) {
       throw errValidation('User can not be connected');
     }
@@ -34,8 +34,11 @@ module.exports = function(Connection) {
 
     await Connection.app.dataSources.postgres.transaction(async models => {
       const { Connection: TConnection } = models;
+      let connectionToStatus;
       let props = {};
-      let connectionToStatus = (connectionTo && connectionTo.status === 'waitingApprove') ? 'connected' : 'new';
+      if (connectionTo && connectionTo.status) {
+        connectionToStatus =  'waitingApprove';
+      } else connectionToStatus = (connectionTo.status === 'waitingApprove') ? 'connected' : 'new';
 
       if (!connectionTo) {
         props.createdconnectionTo = TConnection.create(
@@ -184,7 +187,7 @@ module.exports = function(Connection) {
     };
     where.geolocations && (query.where.geolocations = where.geolocations);
 
-    return await connectionSearch.query(query, { userId });
+    return  await connectionSearch.query(query, { userId });
   };
 
   Connection.remoteMethod(
