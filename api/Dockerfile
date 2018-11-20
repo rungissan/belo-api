@@ -1,6 +1,6 @@
 FROM node:slim
 
-RUN apt-get update && apt-get -y install graphicsmagick
+RUN apt-get update && apt-get -y install imagemagick graphicsmagick
 
 RUN mkdir -p /usr/src/app
 
