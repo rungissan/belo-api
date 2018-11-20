@@ -161,6 +161,33 @@ module.exports = function(Connection) {
     }
   );
 
+  Connection.cancelRequest = async function(ctx, connectedId) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+
+    const  cancellation = await Connection.destoyAll({
+      where: {
+        or: [
+               { userId, connectedId },
+               { userId: connectedId, connectedId: userId }
+        ]}});
+
+    return cancellation;
+  };
+
+  Connection.remoteMethod(
+    'cancelRequest',
+    {
+      description: 'cancelRequest with another account',
+      accepts: [
+        { arg: 'ctx',         type: 'object', http: { source: 'context' } },
+        { arg: 'connectedId', type: 'number' }
+      ],
+      returns: { arg: 'data', type: 'Connection', root: true},
+      http:  {verb: 'post', path: '/cancel-request' }
+    }
+  );
+
   Connection.search = async function(ctx, filter = {}) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;

@@ -305,7 +305,7 @@ module.exports = function(Feed) {
 
   Feed.remoteMethod(
       'destroyListingWithDependencies',
-      {
+    {
           description: 'Destroy listing with all dependencies around the app',
           accepts: [
               { 
@@ -327,9 +327,9 @@ module.exports = function(Feed) {
           }],
           http: {
               verb: 'delete',
-              path: '/destroyListing'
+            path: '/destroyListing'
           }
-      }
+    }
   );
 
   Feed.prototype.setOpenHouse = async function(ctx, openHouseData) {

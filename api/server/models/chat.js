@@ -19,7 +19,7 @@ module.exports = function(Chat) {
     let query = {
       where: {
         fromId: user.id
-      }
+      }     
     };
     const chatSearch = new ChatSearch(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
     let chats = await chatSearch.queryChats(query);
@@ -93,9 +93,11 @@ module.exports = function(Chat) {
   async function getMessages(socket, data = {}) {
     let { user } = socket;
     let { chatId, earlierThanId, limit, offset, order, include } = data;
+   
     const { ChatMessage, ChatToAccount, Followed} = Chat.app.models;
 
     const linkedAccounts = await ChatToAccount.find({where: {chatId}});
+
     if (!linkedAccounts) {
       throw errUnauthorized();
     }
@@ -246,7 +248,7 @@ module.exports = function(Chat) {
     const transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()}
 
     // check if multichat
-    if (followedUserIds.length > 1) {
+    if (followedUserIds.length > 1){
       transformedData.account.multichat = followedUserIds;
     }  else  transformedData.account.isFollowed = followedUserIds[0] ? true : false;
 
