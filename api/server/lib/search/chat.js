@@ -123,9 +123,7 @@ export default class ChatSearch extends BaseSearchController {
       LIMIT 1
      ) 
     "lastMessage" ON "message"."id" IS NULL`;
-
   }
-
 
   _typeFilterQuery(type) {
     let query = ` ${this._getJoinKey()} "chat"."type" = $${this.replacements.length + 1}`;

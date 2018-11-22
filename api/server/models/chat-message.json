@@ -41,7 +41,11 @@
       }
     },
     "message": {
-      "type": "string"
+      "type": "object",
+      "postgresql": {
+        "columnName": "message",
+        "dataType": "jsonb"
+      }
     }
   },
   "validations": [],

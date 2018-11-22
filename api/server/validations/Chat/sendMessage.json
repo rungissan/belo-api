@@ -3,8 +3,7 @@
   "additionalProperties": false,
   "properties" : {
     "message": {
-      "type": "string",
-      "maxLength": 1000
+      "type":  "object"
     },
     "chatId": {
       "type": "integer"

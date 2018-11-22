@@ -457,10 +457,10 @@ module.exports = function(Feed) {
 
       try {
         currentFeed = await Feed.findById(id);
-      } catch (e) { console.log(e.message)}
+      } catch (e) { console.log(e.message); }
 
-      if (currentFeed && typeUpdate && shouldRemoveDependencies && ( currentFeed.feedStatus !== feed.feedStatus) ) {
-        await Feed.destroyListingWithDependencies(ctx, currentFeed, false)
+      if (currentFeed && typeUpdate && shouldRemoveDependencies && (currentFeed.feedStatus !== feed.feedStatus)) {
+        await Feed.destroyListingWithDependencies(ctx, currentFeed, false);
       }
 
       if (typeUpdate && (typeof feed.type !== 'undefined')) throw errValidation('type can not be changed');

@@ -14,7 +14,7 @@ module.exports = function(Chat) {
     let { joinRooms } = data;
     let { user } = socket;
 
-    const { ChatToAccount } = Chat.app.models;
+    const { ChatToAccount, Feed } = Chat.app.models;
 
     let query = {
       where: {
@@ -30,7 +30,37 @@ module.exports = function(Chat) {
       scocketJoinChatRooms(socket, chats);
     }
 
-    return chats;
+    const transformedChats = await Promise.all(chats.map(async item => {
+      let messageFeed;
+      switch (item.message.type) {
+        case 'listing':
+          messageFeed = await Feed.findById(item.message.message, {
+            include: [
+              'image',
+              'feedOptions',
+              'geolocations',
+              'openHouse',
+              'additionalImages',
+              {
+                relation: 'account',
+                scope: {
+                  include: {
+                    relation: 'avatar'
+                  }
+                }
+              }
+            ]
+          });
+          item.__data.message.systemInfo = `${item.message.type} has been sent by ${item.account.userName ? item.account.userName : item.account.firstName}`;
+          break;
+        case 'plain' :
+        default:
+      }
+      item.__data.message.feed = messageFeed;
+      return item;
+    }));
+
+    return transformedChats;
   };
 
   async function readChat(socket, data = {}) {
@@ -93,8 +123,8 @@ module.exports = function(Chat) {
   async function getMessages(socket, data = {}) {
     let { user } = socket;
     let { chatId, earlierThanId, limit, offset, order, include } = data;
-   
-    const { ChatMessage, ChatToAccount, Followed} = Chat.app.models;
+
+    const { ChatMessage, ChatToAccount, Followed, Feed} = Chat.app.models;
 
     const linkedAccounts = await ChatToAccount.find({where: {chatId}});
 
@@ -126,11 +156,38 @@ module.exports = function(Chat) {
     }
 
     let chats = await ChatMessage.find(query);
-    chats.map(item => {
-      return item.__data.account.__data.isFollowed = followedUserIds.includes(item.userId) ? true : false;
-    });
 
-    return chats;
+    const transformedChats = await Promise.all(chats.map(async item => {
+      let messageFeed;
+      switch (item.message.type) {
+        case 'listing':
+          messageFeed = await Feed.findById(item.message.message, {
+            include: [
+              'image',
+              'feedOptions',
+              'geolocations',
+              'openHouse',
+              'additionalImages',
+              {
+                relation: 'account',
+                scope: {
+                  include: {
+                    relation: 'avatar'
+                  }
+                }
+              }
+            ]
+          });
+          item.__data.message.systemInfo = `${item.message.type} has been sent by ${item.account.userName ? item.account.userName : item.account.firstName}`;
+          break;
+        case 'plain' :
+        default:
+      }
+      item.__data.message.feed = messageFeed;
+      item.__data.account.__data.isFollowed = followedUserIds.includes(item.userId) ? true : false;
+      return item;
+    }));
+    return transformedChats;
   };
 
   async function searchMessages(socket, data = {}) {
@@ -210,8 +267,8 @@ module.exports = function(Chat) {
     if (!message) {
       throw errValidation('message required');
     }
-
-    const { ChatMessage, ChatToAccount, Followed} = Chat.app.models;
+    const { ChatMessage, ChatToAccount, Followed, Feed} = Chat.app.models;
+    let messageFeed;
 
     const linkedAccount = await ChatToAccount.findOne({
       where: {
@@ -245,10 +302,40 @@ module.exports = function(Chat) {
          return null;
        }));
 
-    const transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()}
+    switch (createdMessage.message.type) {
+      case 'listing':
+        messageFeed = await Feed.findById(createdMessage.message.message, {
+          include: [
+            'image',
+            'feedOptions',
+            'geolocations',
+            'openHouse',
+            'additionalImages',
+            {
+              relation: 'account',
+              scope: {
+                include: {
+                  relation: 'avatar'
+                }
+              }
+            }
+          ]
+        });
+        console.log(messageFeed); 
+        console.log('**************************');
+        let  acc = messageFeed.__data.account.__data;
+        createdMessage.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${createdMessage.message.type} `;
+        console.log('**************************');
+        console.log(createdMessage);
+        break;
+      case 'plain' :
+      default:
+    }
+    createdMessage.__data.message.feed = messageFeed;
+    const transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()};
 
     // check if multichat
-    if (followedUserIds.length > 1){
+    if (followedUserIds.length > 1) {
       transformedData.account.multichat = followedUserIds;
     }  else  transformedData.account.isFollowed = followedUserIds[0] ? true : false;
 
