@@ -26,11 +26,11 @@ async function nonResizedImages(app, job) {
 
   const attachmentsToResize = await Attachment.find({
     where: {
-      sizes: {}
+      'sizes::text': "'{}'::text"
     }
   });
   console.log('*******************************');
-  console.log(attachmentsToResize.length);
+  console.log(attachmentsToResize);
   console.log('*******************************');
   attachmentsToResize.forEach(attachment => kueJobs.createJob('createImgCopies', attachment));
 

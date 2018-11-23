@@ -19,22 +19,23 @@ module.exports = function(Chat) {
     let query = {
       where: {
         fromId: user.id
-      }     
+      }
     };
     const chatSearch = new ChatSearch(Chat.app.dataSources.postgres.connector, Chat.app, {baseModelName: 'Chat'});
     let chats = await chatSearch.queryChats(query);
-    // chats.forEach(chat => {
-    //   console.log('HELLOTHISISMYCONSOLE!', chat)
-    // })
+
     if (joinRooms || typeof joinRooms === 'undefined') {
       scocketJoinChatRooms(socket, chats);
     }
 
     const transformedChats = await Promise.all(chats.map(async item => {
+      const last = item.last;
+      if (!last) return item;
+
       let messageFeed;
-      switch (item.message.type) {
+      switch (last.message.type) {
         case 'listing':
-          messageFeed = await Feed.findById(item.message.message, {
+          messageFeed = await Feed.findById(last.message.message, {
             include: [
               'image',
               'feedOptions',
@@ -51,14 +52,17 @@ module.exports = function(Chat) {
               }
             ]
           });
-          item.__data.message.systemInfo = `${item.message.type} has been sent by ${item.account.userName ? item.account.userName : item.account.firstName}`;
+          let  acc = messageFeed.__data.account.__data;
+          last.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${last.message.type} `;
           break;
         case 'plain' :
         default:
       }
-      item.__data.message.feed = messageFeed;
+      last.message.feed = messageFeed;
+   //   console.log(last);
       return item;
     }));
+ //   console.log(transformedChats.length);
 
     return transformedChats;
   };
@@ -96,29 +100,6 @@ module.exports = function(Chat) {
 
     return {lastReadedMessageId: readedMessage && readedMessage.id || null};
   };
-
-  // async function getChat(socket, data = {}) {
-  //   let { filter = {} } = data;
-  //   let { user } = socket;
-  //
-  //   const { ChatToAccount } = Chat.app.models;
-  //
-  //   let chatConnections = await ChatToAccount.find({
-  //     where: { userId: user.id },
-  //     include: {
-  //       relation: 'chat',
-  //       scope: {
-  //         include: [{
-  //           relation: 'image'
-  //         }, {
-  //           relation: 'account'
-  //         }]
-  //       }
-  //     }
-  //   });
-  //
-  //   return chatConnections.map(c => c.toJSON().chat);
-  // };
 
   async function getMessages(socket, data = {}) {
     let { user } = socket;
@@ -321,7 +302,7 @@ module.exports = function(Chat) {
             }
           ]
         });
-        console.log(messageFeed); 
+        console.log(messageFeed);
         console.log('**************************');
         let  acc = messageFeed.__data.account.__data;
         createdMessage.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${createdMessage.message.type} `;

@@ -18,7 +18,7 @@ export default class ChatSearch extends BaseSearchController {
   }
 
   _addOrder() {
-    let query = ` ORDER BY "last"->>'updated_at' DESC NULLS LAST; `;
+    let query = ' ORDER BY "last"->>\'updated_at\' DESC NULLS LAST; ';
     return query;
   }
 

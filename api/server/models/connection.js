@@ -37,26 +37,43 @@ module.exports = function(Connection) {
       let connectionToStatus;
       let props = {};
       if (connectionTo && connectionTo.status) {
-        connectionToStatus =  'waitingApprove';
-      } else connectionToStatus = (connectionTo.status === 'waitingApprove') ? 'connected' : 'new';
-
-      if (!connectionTo) {
+        connectionToStatus = (connectionTo.status === 'new') ? 'connected' : 'connected';
+        if (connectionTo.status !== connectionToStatus) {
+          props.createdconnectionTo = TConnection.updateAll(
+            {
+              userId,
+              connectedId
+            },
+            { status: connectionToStatus }
+          );
+        }
+      } else {
+        connectionToStatus =  'new';
         props.createdconnectionTo = TConnection.create(
           {
             userId,
             connectedId,
             status: connectionToStatus
-          }
-        );
-      } else if (connectionTo.status !== connectionToStatus) {
-        props.createdconnectionTo = TConnection.updateAll(
-          {
-            userId,
-            connectedId
-          },
-          { status: connectionToStatus }
-        );
+          });
       }
+
+      // if (!connectionTo) {
+      //   props.createdconnectionTo = TConnection.create(
+      //     {
+      //       userId,
+      //       connectedId,
+      //       status: connectionToStatus
+      //     }
+      //   );
+      // } else if (connectionTo.status !== connectionToStatus) {
+      //   props.createdconnectionTo = TConnection.updateAll(
+      //     {
+      //       userId,
+      //       connectedId
+      //     },
+      //     { status: connectionToStatus }
+      //   );
+      // }
 
       if (!connectionFrom) {
         props.createdConnetcionFrom = TConnection.create(
@@ -165,12 +182,11 @@ module.exports = function(Connection) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
 
-    const  cancellation = await Connection.destoyAll({
-      where: {
-        or: [
-               { userId, connectedId },
-               { userId: connectedId, connectedId: userId }
-        ]}});
+    const  cancellation = await Connection.destroyAll({
+      or: [
+        { userId: userId, connectedId: connectedId },
+        { userId: connectedId, connectedId: userId }
+      ]});
 
     return cancellation;
   };

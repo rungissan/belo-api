@@ -23,7 +23,7 @@ export default {
 
 async function cleanOpenHouses(app, job) {
   const { OpenHouse, Feed } = app.models;
-
+  console.log('I am here sir');
   await deleteAllOldOpenHouses(app);
   return true;
 }
