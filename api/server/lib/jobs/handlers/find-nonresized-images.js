@@ -29,9 +29,7 @@ async function nonResizedImages(app, job) {
       'sizes::text': "'{}'::text"
     }
   });
-  console.log('*******************************');
-  console.log(attachmentsToResize);
-  console.log('*******************************');
+
   attachmentsToResize.forEach(attachment => kueJobs.createJob('createImgCopies', attachment));
 
   return true;

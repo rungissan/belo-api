@@ -35,6 +35,8 @@ module.exports = function(Chat) {
       let messageFeed;
       switch (last.message.type) {
         case 'listing':
+        case 'openHouse':
+        case 'post':
           messageFeed = await Feed.findById(last.message.message, {
             include: [
               'image',
@@ -58,11 +60,9 @@ module.exports = function(Chat) {
         case 'plain' :
         default:
       }
-      last.message.feed = messageFeed;
-   //   console.log(last);
+   //   messageFeed.__data.feed = messageFeed;
       return item;
     }));
- //   console.log(transformedChats.length);
 
     return transformedChats;
   };
@@ -142,6 +142,8 @@ module.exports = function(Chat) {
       let messageFeed;
       switch (item.message.type) {
         case 'listing':
+        case 'openHouse':
+        case 'post':
           messageFeed = await Feed.findById(item.message.message, {
             include: [
               'image',
@@ -159,7 +161,8 @@ module.exports = function(Chat) {
               }
             ]
           });
-          item.__data.message.systemInfo = `${item.message.type} has been sent by ${item.account.userName ? item.account.userName : item.account.firstName}`;
+          let  acc = item.__data.account.__data;
+          item.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName} has sent you a ${item.__data.message.type} `;
           break;
         case 'plain' :
         default:
@@ -285,6 +288,8 @@ module.exports = function(Chat) {
 
     switch (createdMessage.message.type) {
       case 'listing':
+      case 'openHouse':
+      case 'post':
         messageFeed = await Feed.findById(createdMessage.message.message, {
           include: [
             'image',
@@ -302,8 +307,7 @@ module.exports = function(Chat) {
             }
           ]
         });
-        console.log(messageFeed);
-        console.log('**************************');
+      
         let  acc = messageFeed.__data.account.__data;
         createdMessage.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${createdMessage.message.type} `;
         console.log('**************************');

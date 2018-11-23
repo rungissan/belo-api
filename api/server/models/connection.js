@@ -57,24 +57,6 @@ module.exports = function(Connection) {
           });
       }
 
-      // if (!connectionTo) {
-      //   props.createdconnectionTo = TConnection.create(
-      //     {
-      //       userId,
-      //       connectedId,
-      //       status: connectionToStatus
-      //     }
-      //   );
-      // } else if (connectionTo.status !== connectionToStatus) {
-      //   props.createdconnectionTo = TConnection.updateAll(
-      //     {
-      //       userId,
-      //       connectedId
-      //     },
-      //     { status: connectionToStatus }
-      //   );
-      // }
-
       if (!connectionFrom) {
         props.createdConnetcionFrom = TConnection.create(
           {
@@ -184,7 +166,7 @@ module.exports = function(Connection) {
 
     const  cancellation = await Connection.destroyAll({
       or: [
-        { userId: userId, connectedId: connectedId },
+        { userId, connectedId },
         { userId: connectedId, connectedId: userId }
       ]});
 
