@@ -30,10 +30,10 @@ module.exports = function(Chat) {
 
     const transformedChats = await Promise.all(chats.map(async item => {
       const last = item.last;
-      if (!last) {
-        item.last = {type:'plain', message:''};
-        return item;
-      }
+   //   if (!last) {
+    //    item.last = {type:'plain', message:''};
+  //      return item;
+  //    }
 
       switch (last.message.type) {
         case 'listing':
