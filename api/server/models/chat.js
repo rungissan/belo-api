@@ -14,7 +14,7 @@ module.exports = function(Chat) {
     let { joinRooms } = data;
     let { user } = socket;
 
-    const { ChatToAccount, Feed } = Chat.app.models;
+    const { ChatMessage } = Chat.app.models;
 
     let query = {
       where: {
@@ -30,37 +30,25 @@ module.exports = function(Chat) {
 
     const transformedChats = await Promise.all(chats.map(async item => {
       const last = item.last;
-      if (!last) return item;
+      if (!last) {
+        item.last = {type:'plain', message:''};
+        return item;
+      }
 
-      let messageFeed;
       switch (last.message.type) {
         case 'listing':
         case 'openHouse':
         case 'post':
-          messageFeed = await Feed.findById(last.message.message, {
-            include: [
-              'image',
-              'feedOptions',
-              'geolocations',
-              'openHouse',
-              'additionalImages',
-              {
-                relation: 'account',
-                scope: {
-                  include: {
-                    relation: 'avatar'
-                  }
-                }
-              }
-            ]
+          const lastMessageInfo = await ChatMessage.findById(last.id, {
+            include: 'account'
           });
-          let  acc = messageFeed.__data.account.__data;
-          last.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${last.message.type} `;
+          if (!lastMessageInfo)  break;
+          const  acc = lastMessageInfo.__data.account.__data;
+          last.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent a ${last.message.type} `;
           break;
         case 'plain' :
         default:
       }
-   //   messageFeed.__data.feed = messageFeed;
       return item;
     }));
 
@@ -162,7 +150,7 @@ module.exports = function(Chat) {
             ]
           });
           let  acc = item.__data.account.__data;
-          item.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName} has sent you a ${item.__data.message.type} `;
+          item.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName} has sent a ${item.__data.message.type} `;
           break;
         case 'plain' :
         default:
@@ -307,11 +295,9 @@ module.exports = function(Chat) {
             }
           ]
         });
-      
+
         let  acc = messageFeed.__data.account.__data;
-        createdMessage.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent you a ${createdMessage.message.type} `;
-        console.log('**************************');
-        console.log(createdMessage);
+        createdMessage.__data.message.systemInfo = `${acc.userName ? acc.userName : acc.firstName + ' ' + acc.lastName} has sent a ${createdMessage.message.type} `;
         break;
       case 'plain' :
       default:
