@@ -241,9 +241,8 @@ module.exports = function(Chat) {
     const { ChatMessage, ChatToAccount, Followed, Feed} = Chat.app.models;
     let messageFeed;
 
-    const linkedAccount = await ChatToAccount.findOne({
+    const participantsAccounts = await ChatToAccount.find({
       where: {
-        userId: user.id,
         chatId
       },
       include: {
@@ -252,7 +251,7 @@ module.exports = function(Chat) {
       }
     });
 
-    if (!linkedAccount) {
+    if (!participantsAccounts) {
       throw errUnauthorized();
     }
 
@@ -261,9 +260,7 @@ module.exports = function(Chat) {
       userId: user.id,
       message
     });
-    await linkedAccount.updateAttributes({lastReadedMessageId: createdMessage.id});
-
-    const participantsAccounts = await ChatToAccount.find({where: {chatId}});
+    await Promise.all(participantsAccounts.map(async participant=> participant.updateAttributes({lastReadedMessageId: createdMessage.id})));
 
     const followedUserIds = await Promise.all(participantsAccounts
        .filter(item => item.userId != user.id)
@@ -302,7 +299,8 @@ module.exports = function(Chat) {
       default:
     }
     createdMessage.__data.message.feed = messageFeed;
-    const transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()};
+    const  linkedAccount = participantsAccounts.filter(item =>item.userId != user.id)[0];
+    const  transformedData = {...linkedAccount.toJSON(), ...createdMessage.toJSON()};
 
     // check if multichat
     if (followedUserIds.length > 1) {
