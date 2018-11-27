@@ -260,7 +260,8 @@ module.exports = function(Chat) {
       userId: user.id,
       message
     });
-    await Promise.all(participantsAccounts.map(async participant=> participant.updateAttributes({lastReadedMessageId: createdMessage.id})));
+
+    await participantsAccounts.map(async participant=> participant.updateAttributes({lastReadedMessageId: createdMessage.id}));
 
     const followedUserIds = await Promise.all(participantsAccounts
        .filter(item => item.userId != user.id)

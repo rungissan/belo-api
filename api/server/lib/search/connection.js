@@ -66,7 +66,7 @@ export default class ConnectionSearch extends BaseSearchController {
   }
   _addOrder() {
     let tableKey = this.baseModel.tableKey;
-    let query = ` ORDER BY ("${tableKey}"."status"='waitingApprove') DESC,"${tableKey}"."status" DESC `;
+    let query = ` ORDER BY ("${tableKey}"."status"='waitingApprove') DESC,"${tableKey}"."status" DESC, "account"."userName" ASC`;
     return query;
   }
 
