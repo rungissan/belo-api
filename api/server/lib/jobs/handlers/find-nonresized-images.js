@@ -1,4 +1,3 @@
-
 'use strict';
 
 export default {
@@ -21,7 +20,9 @@ export default {
 };
 
 async function nonResizedImages(app, job) {
-  const { Attachment } = app.models;
+  const {
+    Attachment
+  } = app.models;
   let kueJobs = app.kueJobs;
 
   const attachmentsToResize = await Attachment.find({
@@ -30,7 +31,7 @@ async function nonResizedImages(app, job) {
     }
   });
 
-  attachmentsToResize.forEach(attachment => kueJobs.createJob('createImgCopies', attachment));
+  // attachmentsToResize.forEach(attachment => kueJobs.createJob('createImgCopies', attachment));
 
   return true;
 }

@@ -138,7 +138,11 @@ const FEATURES_VALIDATIONS = {
       reo:               {type: 'boolean'},
       shortSale:         {type: 'boolean'},
       yearlyOrSeasonal:  {type: 'string', enum: ['Yearly', 'Seasonal']},
-      lotSize:           {type: 'string'} // object?
+      lotSize:           {type: 'string'}, // object?
+      heatType:          {type: 'string'},
+      heatingZones:      {type: 'number'},
+      centralAirZones:   {type: 'number'},
+      schoolDistrict:    {type: 'number'}
     }
   },
 
@@ -283,13 +287,13 @@ module.exports = function(Feed) {
     if (!feedId) return;
 
     const { StatusCheck, Appointment } = Feed.app.models,
-          openHousesToDelete = await Feed.find({ where: { parentId: feedId } });
+      openHousesToDelete = await Feed.find({ where: { parentId: feedId } });
 
     if (openHousesToDelete.length) {
       openHousesToDelete.forEach(async item => {
         await StatusCheck.destroyAll({ feedId: item.id });
         await Appointment.destroyAll({ feedId: item.id });
-      })
+      });
     }
 
     await StatusCheck.destroyAll({ feedId });
@@ -306,29 +310,29 @@ module.exports = function(Feed) {
   Feed.remoteMethod(
       'destroyListingWithDependencies',
     {
-          description: 'Destroy listing with all dependencies around the app',
-          accepts: [
-              { 
-                  arg: 'ctx',
-                  type: 'object',
-                  http: { source: 'context' }
-              },
-              { 
-                arg: 'data',
-                type: 'object',
-                required: true,
-                http: { source: 'body' }
-            }
-          ],
-          returns: [{
-              arg: 'data',
-              type: 'Object',
-              root: true
-          }],
-          http: {
-              verb: 'delete',
-            path: '/destroyListing'
-          }
+      description: 'Destroy listing with all dependencies around the app',
+      accepts: [
+        {
+          arg: 'ctx',
+          type: 'object',
+          http: { source: 'context' }
+        },
+        {
+          arg: 'data',
+          type: 'object',
+          required: true,
+          http: { source: 'body' }
+        }
+      ],
+      returns: [{
+        arg: 'data',
+        type: 'Object',
+        root: true
+      }],
+      http: {
+        verb: 'delete',
+        path: '/destroyListing'
+      }
     }
   );
 
