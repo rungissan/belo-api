@@ -18,21 +18,25 @@ export default class ClientSearch extends BaseSearchController {
 
   buildAdditionalWhereQuery() {
     let query = '';
-    let { where } = this.filter;
-    let { userId } = this.userOptions;
+    let {
+      where
+    } = this.filter;
+    let {
+      userId
+    } = this.userOptions;
     if (where) {
       switch (where.type) {
         case 'prof':
           if (!where.searchString) break;
-          query +=  ` ${this._getJoinKey()} (`;
+          query += ` ${this._getJoinKey()} ((`;
           query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(' || ');
-          query += ` LIKE LOWER($${this.replacements.length + 1})) AND "Account"."userId" <> ${userId}`;
+          query += ` || LOWER(CONCAT("Account"."firstName", ' ', "Account"."cd ..lastName")) ) LIKE LOWER($${this.replacements.length + 1})) AND "Account"."userId" <> ${userId}`;
           this.replacements.push(`%${where.searchString}%`);
           break;
         default:
-          let search = where.searchString  || NOTHING_FOUND;
-          query +=  ` ${this._getJoinKey()} (`;
-          query += this.userNameOrBrokerage.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1})`).join(' OR ');
+          let search = where.searchString || NOTHING_FOUND;
+          query += ` ${this._getJoinKey()} (`;
+          query += this.userNameOrBrokerage.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1})`).join(' || ');
           query += `) AND "Account"."userId" <> ${userId}`;
           this.replacements.push(`${search}`);
       }
@@ -43,7 +47,9 @@ export default class ClientSearch extends BaseSearchController {
 
   buildAdditionalJoinQuery() {
     let additionalJoinQuery = '';
-    let { where } = this.filter;
+    let {
+      where
+    } = this.filter;
 
     if (where && where.searchString) {
       let userModel = this._getOptionsForModel(this.app.models, 'client', this.baseModel);
