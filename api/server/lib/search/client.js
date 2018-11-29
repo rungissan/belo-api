@@ -30,7 +30,7 @@ export default class ClientSearch extends BaseSearchController {
           if (!where.searchString) break;
           query += ` ${this._getJoinKey()} ((`;
           query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(' || ');
-          query += ` || LOWER(CONCAT("Account"."firstName", ' ', "Account"."cd ..lastName")) ) LIKE LOWER($${this.replacements.length + 1})) AND "Account"."userId" <> ${userId}`;
+          query += ` || LOWER(CONCAT("Account"."firstName", ' ', "Account"."lastName")) ) LIKE LOWER($${this.replacements.length + 1})) AND "Account"."userId" <> ${userId}`;
           this.replacements.push(`%${where.searchString}%`);
           break;
         default:
