@@ -2,8 +2,12 @@
 
 import Promise from 'bluebird';
 
-import { validateBySchema } from '../lib/validate';
-import { errValidation } from '../lib/errors';
+import {
+  validateBySchema
+} from '../lib/validate';
+import {
+  errValidation
+} from '../lib/errors';
 
 const FEATURES_OPTIONS = {
   type: 'object',
@@ -127,22 +131,55 @@ const FEATURES_VALIDATIONS = {
           'Victorian'
         ]
       },
-      yearBuilt:         {type: 'number'},
-      interiorSqFt:      {type: 'number'},
-      acres:             {type: 'number'},
-      totalNuberOfUnits: {type: 'number'},
-      garage:            {type: 'boolean'},
-      garageParking:     {type: 'boolean'},
-      driveway:          {type: 'boolean'},
-      energyEfficient:   {type: 'boolean'},
-      reo:               {type: 'boolean'},
-      shortSale:         {type: 'boolean'},
-      yearlyOrSeasonal:  {type: 'string', enum: ['Yearly', 'Seasonal']},
-      lotSize:           {type: 'string'}, // object?
-      heatType:          {type: 'string'},
-      heatingZones:      {type: 'number'},
-      centralAirZones:   {type: 'number'},
-      schoolDistrict:    {type: 'number'}
+      yearBuilt: {
+        type: 'number'
+      },
+      interiorSqFt: {
+        type: 'number'
+      },
+      acres: {
+        type: 'number'
+      },
+      totalNuberOfUnits: {
+        type: 'number'
+      },
+      garage: {
+        type: 'boolean'
+      },
+      garageParking: {
+        type: 'boolean'
+      },
+      driveway: {
+        type: 'boolean'
+      },
+      energyEfficient: {
+        type: 'boolean'
+      },
+      reo: {
+        type: 'boolean'
+      },
+      shortSale: {
+        type: 'boolean'
+      },
+      yearlyOrSeasonal: {
+        type: 'string',
+        enum: ['Yearly', 'Seasonal']
+      },
+      lotSize: {
+        type: 'string'
+      }, // object?
+      heatType: {
+        type: 'string'
+      },
+      heatingZones: {
+        type: 'number'
+      },
+      centralAirZones: {
+        type: 'number'
+      },
+      schoolDistrict: {
+        type: 'number'
+      }
     }
   },
 
@@ -150,41 +187,111 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      laundry:              {type: 'boolean'},
-      waterfront:           {type: 'boolean'},
-      fireplace:            {type: 'boolean'},
-      woodFloors:           {type: 'boolean'},
-      centralAir:           {type: 'boolean'},
-      outdoorSpace:         {type: 'boolean'},
-      skylight:             {type: 'boolean'},
-      basement:             {type: 'boolean'},
-      finishedBasement:     {type: 'boolean'},
-      attic:                {type: 'boolean'},
-      yard:                 {type: 'boolean'},
-      pool:                 {type: 'boolean'},
-      sportsCourt:          {type: 'boolean'},
-      elevator:             {type: 'boolean'},
-      dogOK:                {type: 'boolean'},
-      catOK:                {type: 'boolean'},
-      furnished:            {type: 'boolean'},
-      inUnitLaundry:        {type: 'boolean'},
-      sharedLaundry:        {type: 'boolean'},
-      waterview:            {type: 'boolean'},
-      pvtOutdoorSpace:      {type: 'boolean'},
-      communalOutdoorSpace: {type: 'boolean'},
-      conciergeDoorman:     {type: 'boolean'},
-      onSiteSuper:          {type: 'boolean'},
-      communalOutdoorArea:  {type: 'boolean'},
-      fitnessCenter:        {type: 'boolean'},
-      storageAvailable:     {type: 'boolean'},
-      bikeRoom:             {type: 'boolean'},
-      publicWater:          {type: 'boolean'},
-      wellWater:            {type: 'boolean'},
-      sewer:                {type: 'boolean'},
-      electric:             {type: 'boolean'},
-      gas:                  {type: 'boolean'},
-      cleared:              {type: 'boolean'},
-      varianceNeeded:       {type: 'boolean'}
+      laundry: {
+        type: 'boolean'
+      },
+      waterfront: {
+        type: 'boolean'
+      },
+      fireplace: {
+        type: 'boolean'
+      },
+      woodFloors: {
+        type: 'boolean'
+      },
+      centralAir: {
+        type: 'boolean'
+      },
+      outdoorSpace: {
+        type: 'boolean'
+      },
+      skylight: {
+        type: 'boolean'
+      },
+      basement: {
+        type: 'boolean'
+      },
+      finishedBasement: {
+        type: 'boolean'
+      },
+      attic: {
+        type: 'boolean'
+      },
+      yard: {
+        type: 'boolean'
+      },
+      pool: {
+        type: 'boolean'
+      },
+      sportsCourt: {
+        type: 'boolean'
+      },
+      elevator: {
+        type: 'boolean'
+      },
+      dogOK: {
+        type: 'boolean'
+      },
+      catOK: {
+        type: 'boolean'
+      },
+      furnished: {
+        type: 'boolean'
+      },
+      inUnitLaundry: {
+        type: 'boolean'
+      },
+      sharedLaundry: {
+        type: 'boolean'
+      },
+      waterview: {
+        type: 'boolean'
+      },
+      pvtOutdoorSpace: {
+        type: 'boolean'
+      },
+      communalOutdoorSpace: {
+        type: 'boolean'
+      },
+      conciergeDoorman: {
+        type: 'boolean'
+      },
+      onSiteSuper: {
+        type: 'boolean'
+      },
+      communalOutdoorArea: {
+        type: 'boolean'
+      },
+      fitnessCenter: {
+        type: 'boolean'
+      },
+      storageAvailable: {
+        type: 'boolean'
+      },
+      bikeRoom: {
+        type: 'boolean'
+      },
+      publicWater: {
+        type: 'boolean'
+      },
+      wellWater: {
+        type: 'boolean'
+      },
+      sewer: {
+        type: 'boolean'
+      },
+      electric: {
+        type: 'boolean'
+      },
+      gas: {
+        type: 'boolean'
+      },
+      cleared: {
+        type: 'boolean'
+      },
+      varianceNeeded: {
+        type: 'boolean'
+      }
     }
   },
 
@@ -192,16 +299,36 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      totalTaxes:     {type: 'number'},
-      maintenance:    {type: 'number'},
-      commonCharge:   {type: 'number'},
-      amenities:      {type: 'number'},
-      parking:        {type: 'number'},
-      utilities:      {type: 'number'},
-      insurance:      {type: 'number'},
-      miscExpenses:   {type: 'number'},
-      annualRentRoll: {type: 'number'},
-      netIncome:      {type: 'number'}
+      totalTaxes: {
+        type: 'number'
+      },
+      maintenance: {
+        type: 'number'
+      },
+      commonCharge: {
+        type: 'number'
+      },
+      amenities: {
+        type: 'number'
+      },
+      parking: {
+        type: 'number'
+      },
+      utilities: {
+        type: 'number'
+      },
+      insurance: {
+        type: 'number'
+      },
+      miscExpenses: {
+        type: 'number'
+      },
+      annualRentRoll: {
+        type: 'number'
+      },
+      netIncome: {
+        type: 'number'
+      }
     }
   },
 
@@ -209,11 +336,21 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      firstMonthRent:  {type: 'boolean'},
-      lastMonthRent:   {type: 'boolean'},
-      securityDeposit: {type: 'number'},
-      applicationFee:  {type: 'number'},
-      brokerFee:       {type: 'number'}
+      firstMonthRent: {
+        type: 'boolean'
+      },
+      lastMonthRent: {
+        type: 'boolean'
+      },
+      securityDeposit: {
+        type: 'number'
+      },
+      applicationFee: {
+        type: 'number'
+      },
+      brokerFee: {
+        type: 'number'
+      }
     }
   },
 
@@ -221,12 +358,24 @@ const FEATURES_VALIDATIONS = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      electric:   {type: 'boolean'},
-      water:      {type: 'boolean'},
-      cookingGas: {type: 'boolean'},
-      heat:       {type: 'boolean'},
-      sewer:      {type: 'boolean'},
-      garbage:    {type: 'boolean'}
+      electric: {
+        type: 'boolean'
+      },
+      water: {
+        type: 'boolean'
+      },
+      cookingGas: {
+        type: 'boolean'
+      },
+      heat: {
+        type: 'boolean'
+      },
+      sewer: {
+        type: 'boolean'
+      },
+      garbage: {
+        type: 'boolean'
+      }
     }
   },
 
@@ -255,14 +404,18 @@ const FEATURES_VALIDATIONS = {
 };
 
 module.exports = function(Feed) {
-  Feed.validatesInclusionOf('type', {in: ['post', 'listing', 'openHouse']});
+  Feed.validatesInclusionOf('type', { in: ['post', 'listing', 'openHouse']
+  });
 
   Feed.beforeRemote('create', getBeforeSaveHook());
-  Feed.beforeRemote('prototype.patchAttributes', getBeforeSaveHook({type: 'update'}));
+  Feed.beforeRemote('prototype.patchAttributes', getBeforeSaveHook({
+    type: 'update'
+  }));
 
   Feed.afterRemote('create', afterSaveHook);
   Feed.afterRemote('prototype.patchAttributes', afterSaveHook);
   Feed.afterRemote('find', includePopulates);
+  // Feed.afterRemote('find', includeCounters);
 
   Feed.prototype.createOpenHouse = async function(ctx, openHouseData) {
     const token = ctx.req.accessToken;
@@ -286,19 +439,36 @@ module.exports = function(Feed) {
 
     if (!feedId) return;
 
-    const { StatusCheck, Appointment } = Feed.app.models,
-      openHousesToDelete = await Feed.find({ where: { parentId: feedId } });
+    const {
+      StatusCheck,
+      Appointment
+    } = Feed.app.models,
+      openHousesToDelete = await Feed.find({
+        where: {
+          parentId: feedId
+        }
+      });
 
     if (openHousesToDelete.length) {
       openHousesToDelete.forEach(async item => {
-        await StatusCheck.destroyAll({ feedId: item.id });
-        await Appointment.destroyAll({ feedId: item.id });
+        await StatusCheck.destroyAll({
+          feedId: item.id
+        });
+        await Appointment.destroyAll({
+          feedId: item.id
+        });
       });
     }
 
-    await StatusCheck.destroyAll({ feedId });
-    await Appointment.destroyAll({ feedId });
-    await Feed.destroyAll({ parentId: feedId });
+    await StatusCheck.destroyAll({
+      feedId
+    });
+    await Appointment.destroyAll({
+      feedId
+    });
+    await Feed.destroyAll({
+      parentId: feedId
+    });
     if (destroyFeedById) await Feed.destroyById(feedId);
     // console.log('[data]', openHousesToDelete);
     return {
@@ -308,21 +478,23 @@ module.exports = function(Feed) {
   };
 
   Feed.remoteMethod(
-      'destroyListingWithDependencies',
-    {
+    'destroyListingWithDependencies', {
       description: 'Destroy listing with all dependencies around the app',
-      accepts: [
-        {
-          arg: 'ctx',
-          type: 'object',
-          http: { source: 'context' }
-        },
-        {
-          arg: 'data',
-          type: 'object',
-          required: true,
-          http: { source: 'body' }
+      accepts: [{
+        arg: 'ctx',
+        type: 'object',
+        http: {
+          source: 'context'
         }
+      },
+      {
+        arg: 'data',
+        type: 'object',
+        required: true,
+        http: {
+          source: 'body'
+        }
+      }
       ],
       returns: [{
         arg: 'data',
@@ -348,7 +520,11 @@ module.exports = function(Feed) {
     if (feed.type !== 'listing') {
       throw errValidation('Open house can be created only for listing');
     }
-    const { OpenHouse, Attachment, AttachmentToOpenHouse } = Feed.app.models;
+    const {
+      OpenHouse,
+      Attachment,
+      AttachmentToOpenHouse
+    } = Feed.app.models;
     let openHouse;
 
     if (!feed.openHouseId) {
@@ -356,7 +532,9 @@ module.exports = function(Feed) {
       return copiedFeed.openHouse;
     }
 
-    await OpenHouse.updateAll({id: feed.openHouseId}, openHouseData);
+    await OpenHouse.updateAll({
+      id: feed.openHouseId
+    }, openHouseData);
 
     if (openHouseData.images && openHouseData.images.length) {
       if (!openHouse) {
@@ -369,7 +547,7 @@ module.exports = function(Feed) {
           return false;
         }
 
-        let relationInstance =  await Attachment.findById(imageId);
+        let relationInstance = await Attachment.findById(imageId);
         if (!relationInstance) {
           return false;
         }
@@ -383,9 +561,16 @@ module.exports = function(Feed) {
           openHouseId: openHouse.id
         };
 
-        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({where: attachmentLinkData});
+        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({
+          where: attachmentLinkData
+        });
         if (!attachmentToOpenHouse) {
-          AttachmentToOpenHouse.create({attachmentId: imageId, openHouseId: openHouse.id}, {accessToken: token});
+          AttachmentToOpenHouse.create({
+            attachmentId: imageId,
+            openHouseId: openHouse.id
+          }, {
+            accessToken: token
+          });
         }
         return;
       });
@@ -394,35 +579,50 @@ module.exports = function(Feed) {
     return openHouse || openHouseData;
   };
 
-  const OPEN_HOUSE_ACCEPTS = [
-    { arg: 'ctx',    type: 'object', http: { source: 'context' } },
-    {
-      arg: 'openHouse',
-      type: 'object',
-      required: true,
-      http: { source: 'body' }
+  const OPEN_HOUSE_ACCEPTS = [{
+    arg: 'ctx',
+    type: 'object',
+    http: {
+      source: 'context'
     }
+  },
+  {
+    arg: 'openHouse',
+    type: 'object',
+    required: true,
+    http: {
+      source: 'body'
+    }
+  }
   ];
-  const OPEN_HOUSE_RETURNS = { arg: 'data', type: 'OpenHouse', root: true};
+  const OPEN_HOUSE_RETURNS = {
+    arg: 'data',
+    type: 'OpenHouse',
+    root: true
+  };
 
   // TODO: remove method after app updated
   Feed.remoteMethod(
-    'prototype.setOpenHouse',
-    {
+    'prototype.setOpenHouse', {
       description: 'Create/update open house for listing. (deprecated)',
       accepts: OPEN_HOUSE_ACCEPTS,
       returns: OPEN_HOUSE_RETURNS,
-      http: {verb: 'post', path: '/open-house'}
+      http: {
+        verb: 'post',
+        path: '/open-house'
+      }
     }
   );
 
   Feed.remoteMethod(
-    'prototype.createOpenHouse',
-    {
+    'prototype.createOpenHouse', {
       description: 'Create open house from listing.',
       accepts: OPEN_HOUSE_ACCEPTS,
       returns: OPEN_HOUSE_RETURNS,
-      http: {verb: 'post', path: '/create-open-house'}
+      http: {
+        verb: 'post',
+        path: '/create-open-house'
+      }
     }
   );
 
@@ -452,8 +652,9 @@ module.exports = function(Feed) {
       let feed = ctx.args.instance || ctx.args.data;
       if (!feed) return;
 
-      const
-        { id } = feed,
+      const {
+        id
+      } = feed,
         typeUpdate = options.type === 'update',
         shouldRemoveDependencies = feed.feedStatus !== 0;
 
@@ -461,7 +662,9 @@ module.exports = function(Feed) {
 
       try {
         currentFeed = await Feed.findById(id);
-      } catch (e) { console.log(e.message); }
+      } catch (e) {
+        console.log(e.message);
+      }
 
       if (currentFeed && typeUpdate && shouldRemoveDependencies && (currentFeed.feedStatus !== feed.feedStatus)) {
         await Feed.destroyListingWithDependencies(ctx, currentFeed, false);
@@ -536,8 +739,16 @@ module.exports = function(Feed) {
       listingRelatedGeolocations
     ] = await Promise.all([
       FeedOptions.findById(feed.id),
-      AttachmentToFeed.find({where: {feedId: feed.id}}),
-      GeolocationToFeed.find({where: {feedId: feed.id}})
+      AttachmentToFeed.find({
+        where: {
+          feedId: feed.id
+        }
+      }),
+      GeolocationToFeed.find({
+        where: {
+          feedId: feed.id
+        }
+      })
     ]);
 
     openHouseData.userId = userId;
@@ -562,7 +773,9 @@ module.exports = function(Feed) {
         GeolocationToFeed: tGeolocationToFeed
       } = models;
 
-      createdFeed = await tFeed.create(listingCopyData, {accessToken: token});
+      createdFeed = await tFeed.create(listingCopyData, {
+        accessToken: token
+      });
 
       if (listingFeedOptionsCopyData) {
         listingFeedOptionsCopyData.feedId = createdFeed.id;
@@ -587,11 +800,17 @@ module.exports = function(Feed) {
       ] = await Promise.all([
         listingFeedOptionsCopyData ? tFeedOptions.create(listingFeedOptionsCopyData) : Promise.resolve(null),
         tOpenHouse.create(openHouseData),
-        tAttachmentToFeed.create(relatedImagesData, {accessToken: token}),
-        tGeolocationToFeed.create(relatedGeolocationData, {accessToken: token})
+        tAttachmentToFeed.create(relatedImagesData, {
+          accessToken: token
+        }),
+        tGeolocationToFeed.create(relatedGeolocationData, {
+          accessToken: token
+        })
       ]);
 
-      await createdFeed.updateAttributes({openHouseId: createdOpenHouse.id});
+      await createdFeed.updateAttributes({
+        openHouseId: createdOpenHouse.id
+      });
     });
 
     if (openHouseData.images && openHouseData.images.length) {
@@ -601,7 +820,7 @@ module.exports = function(Feed) {
           return false;
         }
 
-        let relationInstance =  await Attachment.findById(imageId);
+        let relationInstance = await Attachment.findById(imageId);
         if (!relationInstance) {
           return false;
         }
@@ -615,9 +834,16 @@ module.exports = function(Feed) {
           attachmentId: imageId,
           openHouseId: createdOpenHouse.id
         };
-        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({where: attachmentLinkData});
+        let attachmentToOpenHouse = await AttachmentToOpenHouse.findOne({
+          where: attachmentLinkData
+        });
         if (!attachmentToOpenHouse) {
-          AttachmentToOpenHouse.create({attachmentId: imageId, openHouseId: createdOpenHouse.id}, {accessToken: token});
+          AttachmentToOpenHouse.create({
+            attachmentId: imageId,
+            openHouseId: createdOpenHouse.id
+          }, {
+            accessToken: token
+          });
         }
         return;
       });
@@ -630,7 +856,13 @@ module.exports = function(Feed) {
 
     let relatedImagesIds = relatedImagesData.map(relation => relation.attachmentId);
     if (relatedImagesIds.length) {
-      createdFeedAdditionalImages = await Attachment.find({ where: { id: { inq: relatedImagesIds } } });
+      createdFeedAdditionalImages = await Attachment.find({
+        where: {
+          id: {
+            inq: relatedImagesIds
+          }
+        }
+      });
     }
     if (feed.imageId) {
       copiedFeed.image = await Attachment.findById(feed.imageId);
@@ -640,6 +872,46 @@ module.exports = function(Feed) {
 
     return copiedFeed;
   }
+
+  async function includeCounters(ctx) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    let results = ctx.result;
+    let ds = Feed.app.dataSources.postgres;
+    let replacements = [];
+
+    if (!(userId && results && results.length)) {
+      return;
+    }
+
+    let filter = ctx.args && ctx.args.filter || {};
+
+    if (!(filter && filter.where && filter.offset == 0 && filter.where.type == 'listing')) {
+      return;
+    }
+
+    const query = `SELECT sum(case when "rentType" = 'rent' then 1 else 0 end) as rent,
+                   sum(case when "rentType" = 'sale' then 1 else 0 end) as sale,
+                   sum(case when "feedStatus" = 0 then 1 else 0 end) as available from "spiti"."feed" AS "Feed"
+                  LEFT JOIN "spiti"."feed_options" AS "feedOptions" ON "feedOptions"."feedId" = "Feed"."id"
+                  WHERE "Feed"."userId" = $1 AND "Feed"."type" = 'listing' AND "Feed". "deleted_at" Is NULL`;
+    replacements.push(userId);
+    let counts = await new Promise(
+      (resolve, reject) => {
+        ds.connector.execute(query, replacements, (err, data) => {
+          if (err) {
+            console.log(err);
+            let error = new Error('Error occured');
+            return reject(error);
+          }
+          return resolve(data[0]);
+        });
+      });
+
+    results.forEach(feed => feed.counts = counts);
+    ctx.result = results;
+    return;
+  };
 
   async function includePopulates(ctx) {
     const token = ctx.req.accessToken;
@@ -665,7 +937,9 @@ module.exports = function(Feed) {
       queries.favorites = FavoriteFeed.find({
         where: {
           userId,
-          feedId: { inq: feedIds }
+          feedId: {
+            inq: feedIds
+          }
         }
       });
     }
@@ -677,12 +951,11 @@ module.exports = function(Feed) {
     let props = await Promise.props(queries);
 
     if (props.favorites) {
-      results.forEach(feed =>  {
+      results.forEach(feed => {
         let isFavorite = props.favorites.find(f => f.feedId === feed.id);
         feed.isFavorite = !!isFavorite;
       });
     }
-
     ctx.result = results;
     return;
   };

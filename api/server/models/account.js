@@ -31,6 +31,7 @@ module.exports = function(Account) {
   });
 
   Account.afterRemote('findById', includeCountsAndGeo);
+  Account.afterRemote('prototype.getFavoriteFeeds', includeCounters);
 
   function formatFeedCounts(rows) {
     let counts = {
@@ -619,4 +620,44 @@ module.exports = function(Account) {
       http: { verb: 'post', path: '/user-geolocation' }
     }
   );
+
+  async function includeCounters(ctx) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    let results = ctx.result;
+    let ds = Account.app.dataSources.postgres;
+    let replacements = [];
+
+    if (!(userId && results && results.length)) {
+      return;
+    }
+
+    let filter = ctx.args && ctx.args.filter || {};
+
+    if (!(filter && filter.where && filter.offset == 0 && filter.where.type == 'listing')) {
+      return;
+    }
+
+    const query = `SELECT sum(case when "rentType" = 'rent' then 1 else 0 end) as rent,
+                   sum(case when "rentType" = 'sale' then 1 else 0 end) as sale,
+                   sum(case when "feedStatus" = 0 then 1 else 0 end) as available from "spiti"."feed" AS "Feed"
+                  LEFT JOIN "spiti"."feed_options" AS "feedOptions" ON "feedOptions"."feedId" = "Feed"."id"
+                  WHERE "Feed"."userId" = $1 AND "Feed"."type" = 'listing' AND "Feed". "deleted_at" Is NULL`;
+    replacements.push(userId);
+    let counts = await new Promise(
+      (resolve, reject) => {
+        ds.connector.execute(query, replacements, (err, data) => {
+          if (err) {
+            console.log(err);
+            let error = new Error('Error occured');
+            return reject(error);
+          }
+          return resolve(data[0]);
+        });
+      });
+
+    results.forEach(feed => feed.counts = counts);
+    ctx.result = results;
+    return;
+  };
 };

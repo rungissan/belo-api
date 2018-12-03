@@ -119,7 +119,7 @@ export default class FeedSearch {
     query += this._buildWhereQuery();
     query += this._buildGroupByQuery();
     query = this._buildIncludesQuery(query);
-    //query += orderQuery;
+    // query += orderQuery;
     query += this._buildLimitOffsetQuery(filter);
 
     debug('Finish build query');
