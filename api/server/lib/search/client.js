@@ -29,14 +29,14 @@ export default class ClientSearch extends BaseSearchController {
         case 'prof':
           if (!where.searchString) break;
           query += ` ${this._getJoinKey()} ((`;
-          query += this.fulltextSearchFields.map(column => `LOWER("${column}")`).join(' || ');
-          query += ` || LOWER(CONCAT("Account"."firstName", ' ', "Account"."lastName")) ) LIKE LOWER($${this.replacements.length + 1})) AND "Account"."userId" <> ${userId}`;
+          query += this.fulltextSearchFields.map(column => `"${column}"`).join(' || ');
+          query += ` || CONCAT("Account"."firstName", ' ', "Account"."lastName") ) ilike $${this.replacements.length + 1}) AND "Account"."userId" <> ${userId}`;
           this.replacements.push(`%${where.searchString}%`);
           break;
         default:
           let search = where.searchString || NOTHING_FOUND;
           query += ` ${this._getJoinKey()} (`;
-          query += this.userNameOrBrokerage.map(column => `LOWER("${column}") LIKE LOWER($${this.replacements.length + 1})`).join(' || ');
+          query += this.userNameOrBrokerage.map(column => `"${column}" ilike $${this.replacements.length + 1}`).join(' OR ');
           query += `) AND "Account"."userId" <> ${userId}`;
           this.replacements.push(`${search}`);
       }
