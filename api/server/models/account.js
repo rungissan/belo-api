@@ -23,11 +23,82 @@ module.exports = function(Account) {
   Account.validatesLengthOf('firstName',     {max: 30,  allowBlank: true, allowNull: true});
   Account.validatesLengthOf('type',          {max: 20,  allowBlank: true, allowNull: true});
 
-  delete Account.validations.userName;
-  Account.validatesUniquenessOf('userName', {
-    message: 'Username already exists',
-    scopedTo: ['realm'],
-    ignoreCase: true
+  Account.validateAsync('userName', function(throwError, done) {
+    let accountToModify = this;
+
+    if (accountToModify.type !== 'user') {
+      return done();
+    }
+
+    if (!accountToModify.userName || accountToModify.userName == '') {
+      throwError();
+      return done();
+    }
+
+    const filter = {
+      userName: { ilike: accountToModify.userName },
+      userId: {
+        neq: accountToModify.userId
+      }
+    };
+
+    Account.findOne({
+      where: filter
+    }, (err, accountFound) => {
+      if (err) {
+        throwError();
+        return done();
+      }
+
+      if (!accountFound) return done();
+      if (accountFound.id !== accountToModify.id) {
+        throwError('userName already exists.');
+      }
+
+      done();
+    });
+  }, {
+    message: 'userName already exists',
+    code: 'uniqueness'
+  });
+
+  Account.validateAsync('brokerage', function(throwError, done) {
+    let accountToModify = this;
+
+    if (accountToModify.type !== 'prof') {
+      return done();
+    }
+
+    if (!accountToModify.brokerage || accountToModify.brokerage == '') {
+      throwError();
+      return done();
+    }
+
+    const filter = {
+      brokerage:{
+        ilike: accountToModify.brokerage
+      },
+      userId: {
+        neq: accountToModify.userId
+      }
+    };
+
+    Account.findOne({
+      where: filter
+    }, (err, accountFound) => {
+      if (err) {
+        throwError();
+        return done();
+      }
+
+      if (!accountFound) return done();
+      if (accountFound.id !== accountToModify.id) throwError();
+
+      done();
+    });
+  }, {
+    message: 'brokerage already exists',
+    code: 'uniqueness'
   });
 
   Account.afterRemote('findById', includeCountsAndGeo);
@@ -472,9 +543,9 @@ module.exports = function(Account) {
       oh.host = undefined;
       oh.timeEnd = undefined;
       oh.timeStart = undefined;
-      oh.created_at= undefined;
-      oh.deleted_at= undefined;
-      oh.updated_at= undefined;
+      oh.created_at = undefined;
+      oh.deleted_at = undefined;
+      oh.updated_at = undefined;
     });
     return openHouses;
   };
