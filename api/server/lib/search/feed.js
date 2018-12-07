@@ -80,7 +80,7 @@ export default class FeedSearch extends BaseSearchController {
 
   _addOrder(searchFeed, recentlySold, recentlyRented, noFee, hasOwner) {
     const isFee = noFee ? '"Feed"."noFee" = true' : '',
-          isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '';
+      isListedByOwner = hasOwner ? '"Feed"."hasOwner" = true' : '';
 
     let query = Boolean(recentlySold || recentlyRented) ? ' ORDER BY "Feed"."sold_at" IS NULL ASC, "Feed"."sold_at" DESC' :
              Boolean(searchFeed || isFee || isListedByOwner) ? ' ORDER BY "Feed"."updated_at" DESC' : ' ORDER BY "Feed"."created_at" DESC';
@@ -121,7 +121,20 @@ export default class FeedSearch extends BaseSearchController {
     if (query)  query = ` AND ( ${query})`;
     query = avaliable ? query + ` AND ${isAvalible}` : query;
 
+    if (feedOptions && feedOptions.propertyFeatures) {
+      query += this._buildAdditionalWhereQueryForJSON(feedOptions.propertyFeatures, 'propertyFeatures');
+    }
+    if (feedOptions && feedOptions.keyDetails) {
+      query += this._buildAdditionalWhereQueryForJSON(feedOptions.keyDetails, 'keyDetails');
+    }
     return query;
+  }
+
+  _buildAdditionalWhereQueryForJSON(feature, name) {
+    return Object.keys(feature).reduce((query, key) => {
+      return (typeof(feature[key]) == 'string') ? query + ` AND ("feedOptions"."${name}"->>'${key}' ='${feature[key]}' )` :
+      query + ` AND ("feedOptions"."${name}"->>'${key}')::boolean`;
+    }, '');
   }
 
   _includeAdditionalImages() {

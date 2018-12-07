@@ -323,6 +323,10 @@ module.exports = function(app, options) {
         debug('Verifying username/password: %s %s %s',
           clientInfo(client), username, scope);
 
+          console.log('************************************************************');
+          console.log('************************************************************');
+          console.log('************************************************************');
+
         if (validateClient(client, {
           scope: scope,
           grantType: 'password'
@@ -370,6 +374,11 @@ module.exports = function(app, options) {
         }, done)) {
           return;
         }
+
+        console.log('-------------------------------------------------------------');
+        console.log('-------------------------------------------------------------');
+        console.log('-------------------------------------------------------------');
+      
 
         function generateAccessToken(user) {
           let token = generateToken({

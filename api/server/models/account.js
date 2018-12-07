@@ -52,7 +52,7 @@ module.exports = function(Account) {
 
       if (!accountFound) return done();
       if (accountFound.id !== accountToModify.id) {
-        throwError('userName already exists.');
+        throwError();
       }
 
       done();
