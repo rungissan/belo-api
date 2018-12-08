@@ -922,40 +922,19 @@ module.exports = function(Feed) {
       return;
     }
 
-    let filter = ctx.args && ctx.args.filter || {};
-    let populate = filter.populate;
-    if (!Array.isArray(populate)) {
-      return;
-    }
-
-    let queries = {};
     const FavoriteFeed = Feed.app.models.FavoriteFeed;
-
-    if (populate.includes('isFavorite')) {
-      let feedIds = results.map(f => f.id);
-
-      queries.favorites = FavoriteFeed.find({
-        where: {
-          userId,
-          feedId: {
-            inq: feedIds
-          }
+    let feedIds = results.map(f => f.id);
+    let favorites = await FavoriteFeed.find({
+      where: {
+        userId,
+        feedId: {
+          inq: feedIds
         }
-      });
-    }
+      }
+    });
+    let favoritesIds = favorites.map(f => f.feedId);
+    results.forEach(feed => feed.__data.isFavorite = favoritesIds.includes(feed.id));
 
-    if (Object.keys(queries).length === 0) {
-      return;
-    }
-
-    let props = await Promise.props(queries);
-
-    if (props.favorites) {
-      results.forEach(feed => {
-        let isFavorite = props.favorites.find(f => f.feedId === feed.id);
-        feed.isFavorite = !!isFavorite;
-      });
-    }
     ctx.result = results;
     return;
   };
