@@ -1,5 +1,4 @@
 'use strict';
-import path from 'path';
 
 export default {
   sendEmail: {
@@ -15,27 +14,17 @@ export default {
     }
   }
 };
-const StoragePath = '/usr/src/storage/public/uploads';
 
 async function sendEmail(app, job) {
  
-  let data = job.data || {};
+  const options = job.data;
+ 
+  if (!options) {
+    return false
+  }
+  console.log(options);
 
- 
-  console.log(data);
-  let renderer = app.loopback.template(path.resolve(__dirname, '../../../views/ban-request.ejs'));
- 
-  
-  let options = {
-    type: 'email',
-    to: 'yury@samoshk.in',
-    from: 'test@domain.com',
-    subject: 'Ban request.',
-    html: renderer(data),
-    user: 'abuser'
-  };
-  
-    await app.models.Email.send(options);
-    return true;
+  await app.models.Email.send(options);
+  return true;
    
 }   

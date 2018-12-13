@@ -1,6 +1,7 @@
 'use strict';
 
 import Promise from 'bluebird';
+import path from 'path';
 
 import Search from '../lib/search';
 import ClientSearch from '../lib/search/client';
@@ -731,4 +732,75 @@ module.exports = function(Account) {
     ctx.result = results;
     return;
   };
+
+  Account.sendBanRequest = async function(ctx, data) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    if (!userId) {
+      throw errAccessDenied();
+    }
+
+    let account = await Account.findOne({
+      where: {userId}
+    });
+    console.log(account);
+    let kueJobs = Account.app.kueJobs;
+    let opt = {	user_req_id:	account.userId,
+                user_req_type: account.type,
+                user_req_firstName: account.firstName,
+                user_req_lastName: account.lastName,
+                user_req_userName: account.userName,
+                user_req_brokerage: account.brokerage,
+                title:"What is the indicated sign?",
+                ImageLink: "/assets/images/dummy.jpg"
+                   
+              }
+    
+    console.log(opt);
+    let renderer = Account.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
+ 
+  
+    let options = {
+      type: 'email',
+      to: 'yury@samoshk.in',
+      from: 'test@domain.com',
+      subject: 'Ban request.',
+      html: renderer(opt),
+      user: 'abuser'
+    };
+
+    kueJobs.createJob('sendEmail', options);
+    return;
+
+  }
+
+  Account.remoteMethod(
+    'sendBanRequest',
+    {
+      description: 'Send ban request',
+      accepts: [{
+        arg: 'ctx',
+        type: 'object',
+        http: {
+          source: 'context'
+        }
+      },
+      {
+        arg: 'data',
+        type: 'object',
+        required: true,
+        http: {
+          source: 'body'
+        }
+      }
+      ],
+      returns: [{
+        arg: 'data',
+        type: 'Object',
+        root: true
+      }],
+      returns: { arg: 'data', type: 'object', root: true},
+      http: { verb: 'post', path: '/send-ban-request' }
+    }
+  );
 };

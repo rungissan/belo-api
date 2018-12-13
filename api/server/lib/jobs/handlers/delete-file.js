@@ -23,7 +23,6 @@ async function deleteFile(app, job) {
   if (!data.file) {
     return true;
   }
-  console.log(data.file);
   fs.unlinkSync(data.file);
 
   return true;

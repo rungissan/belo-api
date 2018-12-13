@@ -280,6 +280,12 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "getFavoriteSortedOpenHouses"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "sendBanRequest"
     }
   ],
   "methods": []
