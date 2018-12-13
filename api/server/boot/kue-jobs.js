@@ -7,8 +7,8 @@ module.exports = (app) => {
 
   app.use('/jobs', app.kueJobs.getKueApp());
 
-  
   app.kueJobs.createJob('cleanAttachmentFiles');
+  app.kueJobs.createJob('cleanAttachmentsAfterMonth');
   // app.kueJobs.createJob('sendEmail',
   // {	title:	'Cleaning Supplies',
   // supplies:	['mop', 'broom', 'duster'],
