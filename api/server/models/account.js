@@ -803,4 +803,134 @@ module.exports = function(Account) {
       http: { verb: 'post', path: '/send-ban-request' }
     }
   );
+
+  const  banFeedWithDependencies = async (models, feedId, type, timeBanStart) => {
+    const {
+      StatusCheck,
+      Appointment,
+      Feed
+    } = models;
+   
+    switch(type) {
+      case 'listing':
+        const  openHousesToDelete = await Feed.find({
+          where: {
+            parentId: feedId
+          }
+         });
+
+        if (openHousesToDelete.length) {
+          openHousesToDelete.forEach(async item => {
+            await StatusCheck.updateAll({
+              feedId: item.id
+            }, {
+              banned_at: timeBanStart,
+              deleted_at: timeBanStart,
+              updated_at: timeBanStart
+            });
+           
+            await Appointment.updateAll({
+              feedId: item.id
+            }, {
+              banned_at: timeBanStart,
+              deleted_at: timeBanStart,
+              updated_at: timeBanStart
+            });
+          
+          });
+        }
+        await StatusCheck.updateAll({
+          feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+       
+        await Appointment.updateAll({
+          feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+      
+        await Feed.updateAll({
+          parentId: feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+       
+     
+      default:
+        await Feed.updateAll({
+          id: feedId
+        }, {
+           banned_at: timeBanStart,
+           deleted_at: timeBanStart,
+           updated_at: timeBanStart
+        });
+     
+     }
+  
+    return;
+
+  };
+
+  
+  Account.banUser = async function(ctx, accountId) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    if (!userId) {
+      throw errAccessDenied();
+    }
+    console.log('*****************************************************************');
+    console.log('ban User');
+    console.log('*****************************************************************');
+ 
+
+    let account = await Account.findById(accountId);
+
+    if (!(account)) {
+      throw errAccessDenied();
+    }
+    console.log(account);
+
+    const {
+     Feed
+    } = Account.app.models;
+
+    let feedsToBan = await Feed.find({ where: {userId: accountId}} );
+
+    await Account.app.dataSources.postgres.transaction(async (models) => {
+      const timeBanStart = new Date();
+      feedsToBan.forEach(item =>{
+        console.log(item.type);
+        banFeedWithDependencies(models,feedId,item.type,timeBanStart);
+      })
+     });
+   
+
+   
+    return {
+      status: true,
+      message: `account brokerage:${account.__data.brokerage}    was successfully banned`
+    };
+  };
+ 
+
+  Account.remoteMethod(
+    'banUser',
+    {
+      description: 'Ban Feed info.',
+      accepts: [
+        {arg: 'ctx', type: 'object', http: { source: 'context' }},
+        {arg: 'id', type: 'number', required: true}
+      ],
+      returns: { arg: 'account', type: 'Account', root: true},
+      http: {verb: 'get', path: '/ban-user/:id'}
+    }
+  );
 };

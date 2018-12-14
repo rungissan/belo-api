@@ -73,6 +73,13 @@
           "columnName": "time",
           "dataType": "time without time zone"
         }
+      },
+      "banned_at": {
+        "type": "date",
+        "postgresql": {
+          "columnName": "banned_at",
+          "dataType": "timestamp with time zone"
+        }
       }
     },
     "validations": [],

@@ -161,6 +161,13 @@
       "postgresql": {
         "columnName": "showInBrokerFeed"
       }
+    },
+    "banned_at": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "banned_at",
+        "dataType": "timestamp with time zone"
+      }
     }
   },
   "validations": [],
@@ -258,6 +265,12 @@
       "principalId": "prof",
       "permission": "ALLOW",
       "property": "create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW",
+      "property": "banFeed"
     }
   ],
   "methods": []
