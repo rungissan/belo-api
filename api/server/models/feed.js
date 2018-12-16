@@ -1,12 +1,15 @@
 'use strict';
 
 import Promise from 'bluebird';
-
+import path from 'path';
 import {
   validateBySchema
 } from '../lib/validate';
 import {
-  errValidation
+  errValidation,
+  errFeedNotFound,
+  errAccessDenied
+
 } from '../lib/errors';
 
 const FEATURES_OPTIONS = {
@@ -945,7 +948,6 @@ module.exports = function(Feed) {
       Appointment,
       Feed
     } = models;
-  
 
     let feed = await Feed.findById(feedId);
 
@@ -953,13 +955,13 @@ module.exports = function(Feed) {
       throw errFeedNotFound();
     }
 
-    switch(feed.__data.type) {
+    switch (feed.__data.type) {
       case 'listing':
         const  openHousesToDelete = await Feed.find({
           where: {
             parentId: feedId
           }
-         });
+        });
 
         if (openHousesToDelete.length) {
           openHousesToDelete.forEach(async item => {
@@ -970,7 +972,7 @@ module.exports = function(Feed) {
               deleted_at: timeBanStart,
               updated_at: timeBanStart
             });
-           
+
             await Appointment.updateAll({
               feedId: item.id
             }, {
@@ -978,7 +980,6 @@ module.exports = function(Feed) {
               deleted_at: timeBanStart,
               updated_at: timeBanStart
             });
-          
           });
         }
         await StatusCheck.updateAll({
@@ -988,7 +989,7 @@ module.exports = function(Feed) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-       
+
         await Appointment.updateAll({
           feedId
         }, {
@@ -996,7 +997,7 @@ module.exports = function(Feed) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-      
+
         await Feed.updateAll({
           parentId: feedId
         }, {
@@ -1004,21 +1005,19 @@ module.exports = function(Feed) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-       
-     
+
       default:
         await Feed.updateAll({
           id: feedId
         }, {
-           banned_at: timeBanStart,
-           deleted_at: timeBanStart,
-           updated_at: timeBanStart
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
         });
-     
-     }
-  
-    return;
 
+    }
+
+    return;
   };
 
   Feed.banFeed = async function(ctx, feedId) {
@@ -1029,26 +1028,24 @@ module.exports = function(Feed) {
     }
     if (!feedId) {
       throw errValidation();
-      }
-    
+    }
+
     let feed = await Feed.findById(feedId);
 
     if (!(feed)) {
       throw errFeedNotFound();
-    } 
-     
+    }
+
     await Feed.app.dataSources.postgres.transaction(async (models) => {
-       const timeBanStart = new Date();
-       await banFeedWithDependencies(models,feedId,feed.__data.type,timeBanStart);
+      const timeBanStart = new Date();
+      await banFeedWithDependencies(models, feedId, feed.__data.type, timeBanStart);
     });
-    
-  
-      return {
-        status: true,
-        message: 'feed was successfully banned'
-      };
+
+    return {
+      status: true,
+      message: 'feed was successfully banned'
+    };
   };
- 
 
   Feed.remoteMethod(
     'banFeed',
@@ -1058,9 +1055,109 @@ module.exports = function(Feed) {
         {arg: 'ctx', type: 'object', http: { source: 'context' }},
         {arg: 'id', type: 'number', required: true}
       ],
-      returns: { arg: 'account', type: 'Account', root: true},
+      returns: {
+        arg: 'account',
+        type: 'object',
+        root: true
+      },
       http: {verb: 'get', path: '/ban-feed/:id'}
     }
   );
 
+  Feed.sendBanRequest = async function(ctx, data) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    if (!userId || !data.id || !data.msg) {
+      throw errAccessDenied();
+    }
+
+    const {
+       RoleMapping,
+       User,
+       Account
+     } = Feed.app.models;
+
+    let adminUsers = await RoleMapping.find({
+      where: {
+        principalType: 'USER',
+        roleId: 1
+      }
+    }).map(item => item.__data.principalId);
+
+    let adminEmails = await User.find({
+      where: {
+        id: {
+          inq: adminUsers
+        }
+      }
+    }).map(item => item.__data.email);
+
+    let account = await Account.findOne({
+      where: {
+        userId
+      }
+    });
+    console.log(account);
+    let kueJobs = Feed.app.kueJobs;
+    let opt = {
+      user_req_id: account.userId,
+      user_req_type: account.type,
+      user_req_firstName: account.firstName,
+      user_req_lastName: account.lastName,
+      user_req_userName: account.userName,
+      user_req_brokerage: account.brokerage,
+      title: 'What is the indicated sign?',
+      ImageLink: '/assets/images/dummy.jpg'
+
+    };
+
+    console.log(opt);
+    let renderer = Feed.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
+
+    let options = {
+      type: 'email',
+      to: adminEmails[0],
+      from: 'test@domain.com',
+      subject: `Ban request for ${data.msg}`,
+      html: renderer(opt),
+      user: 'abuser'
+    };
+    if (adminEmails.length > 1) {
+      options.cc = adminEmails.shift().join(',');
+    }
+
+    kueJobs.createJob('sendEmail', options);
+    return;
+  };
+
+  Feed.remoteMethod(
+     'sendBanRequest', {
+       description: 'Send ban request',
+       accepts: [{
+         arg: 'ctx',
+         type: 'object',
+         http: {
+           source: 'context'
+         }
+       },
+       {
+         arg: 'data',
+         type: 'object',
+         required: true,
+         http: {
+           source: 'body'
+         }
+       }
+       ],
+       returns: [{
+         arg: 'data',
+         type: 'Object',
+         root: true
+       }],
+       http: {
+         verb: 'post',
+         path: '/send-ban-request'
+       }
+     }
+   );
 };

@@ -288,12 +288,12 @@
       "permission": "ALLOW",
       "property": "getFavoriteSortedOpenHouses"
     },
-    {
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW",
-      "property": "sendBanRequest"
-    },
+     {
+       "principalType": "ROLE",
+       "principalId": "$authenticated",
+       "permission": "ALLOW",
+       "property": "sendBanRequest"
+     },
     {
       "principalType": "ROLE",
       "principalId": "admin",

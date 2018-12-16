@@ -1,6 +1,5 @@
 'use strict';
 
-
 export default {
   cleanAttachmentsAfterMonth: {
     handler: cleanAttachmentsAfterMonth,
@@ -15,7 +14,6 @@ export default {
   }
 };
 
-
 async function cleanAttachmentsAfterMonth(app, job) {
   const {
     Feed,
@@ -24,21 +22,19 @@ async function cleanAttachmentsAfterMonth(app, job) {
     Attachment
   } = app.models;
   let kueJobs = app.kueJobs;
-  
-  const DAYS_30 = 0; //2592000000; // ms
+
+  const DAYS_30 = 0; // 2592000000; // ms
   const StoragePath = '/usr/src/storage/public/uploads';
 
-  
-   const feedsToDelete = await Feed.find({
-     where: {
-         deleted_at: { neq: null },
-         deleted_at : { lt: Date.now() - DAYS_30 }
-      }
-});
+  const feedsToDelete = await Feed.find({
+    where: {
+      deleted_at: { neq: null },
+      deleted_at : { lt: Date.now() - DAYS_30 }
+    }
+  });
   const imageToDeleteInPosts = feedsToDelete.filter(item=>item.type == 'post' && item.imageId).map(item => item.imageId);
   const imageToDeleteListings = feedsToDelete.filter(item=>item.type == 'listing'  && item.imageId).map(item => item.imageId);
   const imageToDeleteOpenHouses = feedsToDelete.filter(item=>item.type == 'openHouse'  && item.imageId).map(item => item.imageId);
- 
 
   let listingToDelete = feedsToDelete.filter(item=>item.type == 'listing').map(item => item.id);
   let openHousesToDelete = feedsToDelete.filter(item=>item.type == 'openHouse').map(item => item.id);
@@ -61,29 +57,25 @@ async function cleanAttachmentsAfterMonth(app, job) {
 
   let imageOpenHouseToDelete = openHouseAttachmentsToDelete.map(item => item.attachmentId);
 
-  let  attachmentsToDeleteIds = [...new Set([...imageToDeleteInPosts ,
-                                     ...imageToDeleteListings,
-                                     ...imageToDeleteOpenHouses,
-                                     ...imageListingToDeleteAttachments,
-                                     ...imageOpenHouseToDelete])];
+  let  attachmentsToDeleteIds = [...new Set([...imageToDeleteInPosts,
+    ...imageToDeleteListings,
+    ...imageToDeleteOpenHouses,
+    ...imageListingToDeleteAttachments,
+    ...imageOpenHouseToDelete])];
 
-  let  attachmentsToDelete= await Attachment.find({
-                                      fields: {id: true,name:true,sizes:true},
-                                      where: {
-                                        id : { inq: attachmentsToDeleteIds }
-                                      }
-                                    });
- 
-  
- 
-   attachmentsToDelete.forEach(attachment => {
-     if (attachment.name) {  kueJobs.createJob('deleteFile',{file:`${StoragePath}/${attachment.name}`})}
-     if (attachment.big && attachment.big.fileName) { kueJobs.createJob('deleteFile',{file:`${StoragePath}/${attachment.big.fileName}`}) }
-     if (attachment.feed && attachment.feed.fileName) { kueJobs.createJob('deleteFile',{file:`${StoragePath}/${attachment.feed.fileName}`}) }
-     if (attachment.thumbnail && attachment.thumbnail.fileName) { kueJobs.createJob('deleteFile',{file:`${StoragePath}/${attachment.thumbnail.fileName}`}) }
-   });
- 
- 
+  let  attachmentsToDelete = await Attachment.find({
+    fields: {id: true, name:true, sizes:true},
+    where: {
+      id : { inq: attachmentsToDeleteIds }
+    }
+  });
+
+  attachmentsToDelete.forEach(attachment => {
+    if (attachment.name) {  kueJobs.createJob('deleteFile', {file:`${StoragePath}/${attachment.name}`}); }
+    if (attachment.big && attachment.big.fileName) { kueJobs.createJob('deleteFile', {file:`${StoragePath}/${attachment.big.fileName}`}); }
+    if (attachment.feed && attachment.feed.fileName) { kueJobs.createJob('deleteFile', {file:`${StoragePath}/${attachment.feed.fileName}`}); }
+    if (attachment.thumbnail && attachment.thumbnail.fileName) { kueJobs.createJob('deleteFile', {file:`${StoragePath}/${attachment.thumbnail.fileName}`}); }
+  });
 
   return true;
 }

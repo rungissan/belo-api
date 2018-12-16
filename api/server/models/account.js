@@ -1,8 +1,6 @@
 'use strict';
 
 import Promise from 'bluebird';
-import path from 'path';
-
 import Search from '../lib/search';
 import ClientSearch from '../lib/search/client';
 import { errAccessDenied } from '../lib/errors';
@@ -142,8 +140,17 @@ module.exports = function(Account) {
       Feed,
       GeolocationToAccount,
       Geolocation,
-      StatusCheck
+      StatusCheck,
+      RoleMapping
     } = Account.app.models;
+
+    queries.roles = await RoleMapping.find({
+      include: 'role',
+      where: {
+        principalType: 'USER',
+        principalId: `${instance.userId}`
+      }
+    }).map(item => item.__data.role.name);
 
     const areaOfServices = await GeolocationToAccount.find({
       where: { userId: instance.userId }
@@ -732,92 +739,21 @@ module.exports = function(Account) {
     ctx.result = results;
     return;
   };
-
-  Account.sendBanRequest = async function(ctx, data) {
-    const token = ctx.req.accessToken;
-    const userId = token && token.userId;
-    if (!userId) {
-      throw errAccessDenied();
-    }
-
-    let account = await Account.findOne({
-      where: {userId}
-    });
-    console.log(account);
-    let kueJobs = Account.app.kueJobs;
-    let opt = {	user_req_id:	account.userId,
-                user_req_type: account.type,
-                user_req_firstName: account.firstName,
-                user_req_lastName: account.lastName,
-                user_req_userName: account.userName,
-                user_req_brokerage: account.brokerage,
-                title:"What is the indicated sign?",
-                ImageLink: "/assets/images/dummy.jpg"
-                   
-              }
-    
-    console.log(opt);
-    let renderer = Account.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
  
-  
-    let options = {
-      type: 'email',
-      to: 'yury@samoshk.in',
-      from: 'test@domain.com',
-      subject: 'Ban request.',
-      html: renderer(opt),
-      user: 'abuser'
-    };
-
-    kueJobs.createJob('sendEmail', options);
-    return;
-
-  }
-
-  Account.remoteMethod(
-    'sendBanRequest',
-    {
-      description: 'Send ban request',
-      accepts: [{
-        arg: 'ctx',
-        type: 'object',
-        http: {
-          source: 'context'
-        }
-      },
-      {
-        arg: 'data',
-        type: 'object',
-        required: true,
-        http: {
-          source: 'body'
-        }
-      }
-      ],
-      returns: [{
-        arg: 'data',
-        type: 'Object',
-        root: true
-      }],
-      returns: { arg: 'data', type: 'object', root: true},
-      http: { verb: 'post', path: '/send-ban-request' }
-    }
-  );
-
   const  banFeedWithDependencies = async (models, feedId, type, timeBanStart) => {
     const {
       StatusCheck,
       Appointment,
       Feed
     } = models;
-   
-    switch(type) {
+
+    switch (type) {
       case 'listing':
         const  openHousesToDelete = await Feed.find({
           where: {
             parentId: feedId
           }
-         });
+        });
 
         if (openHousesToDelete.length) {
           openHousesToDelete.forEach(async item => {
@@ -828,7 +764,7 @@ module.exports = function(Account) {
               deleted_at: timeBanStart,
               updated_at: timeBanStart
             });
-           
+
             await Appointment.updateAll({
               feedId: item.id
             }, {
@@ -836,7 +772,6 @@ module.exports = function(Account) {
               deleted_at: timeBanStart,
               updated_at: timeBanStart
             });
-          
           });
         }
         await StatusCheck.updateAll({
@@ -846,7 +781,7 @@ module.exports = function(Account) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-       
+
         await Appointment.updateAll({
           feedId
         }, {
@@ -854,7 +789,7 @@ module.exports = function(Account) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-      
+
         await Feed.updateAll({
           parentId: feedId
         }, {
@@ -862,24 +797,21 @@ module.exports = function(Account) {
           deleted_at: timeBanStart,
           updated_at: timeBanStart
         });
-       
-     
+
       default:
         await Feed.updateAll({
           id: feedId
         }, {
-           banned_at: timeBanStart,
-           deleted_at: timeBanStart,
-           updated_at: timeBanStart
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
         });
-     
-     }
-  
-    return;
 
+    }
+
+    return;
   };
 
-  
   Account.banUser = async function(ctx, accountId) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
@@ -889,7 +821,6 @@ module.exports = function(Account) {
     console.log('*****************************************************************');
     console.log('ban User');
     console.log('*****************************************************************');
- 
 
     let account = await Account.findById(accountId);
 
@@ -902,24 +833,21 @@ module.exports = function(Account) {
      Feed
     } = Account.app.models;
 
-    let feedsToBan = await Feed.find({ where: {userId: accountId}} );
+    let feedsToBan = await Feed.find({ where: {userId: accountId}});
 
     await Account.app.dataSources.postgres.transaction(async (models) => {
       const timeBanStart = new Date();
       feedsToBan.forEach(item =>{
         console.log(item.type);
-        banFeedWithDependencies(models,feedId,item.type,timeBanStart);
-      })
-     });
-   
+        banFeedWithDependencies(models, feedId, item.type, timeBanStart);
+      });
+    });
 
-   
     return {
       status: true,
       message: `account brokerage:${account.__data.brokerage}    was successfully banned`
     };
   };
- 
 
   Account.remoteMethod(
     'banUser',
