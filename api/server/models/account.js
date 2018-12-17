@@ -812,35 +812,39 @@ module.exports = function(Account) {
     return;
   };
 
-  Account.banUser = async function(ctx, accountId) {
+  Account.banAccount = async function(ctx, accountId) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
     if (!userId) {
       throw errAccessDenied();
     }
-    console.log('*****************************************************************');
-    console.log('ban User');
-    console.log('*****************************************************************');
-
+  
     let account = await Account.findById(accountId);
 
     if (!(account)) {
       throw errAccessDenied();
     }
-    console.log(account);
-
+   
     const {
-     Feed
+     Feed,
+     OAuthAccessToken
     } = Account.app.models;
+
+    await OAuthAccessToken.destroyAll({userId: accountId} );
 
     let feedsToBan = await Feed.find({ where: {userId: accountId}});
 
     await Account.app.dataSources.postgres.transaction(async (models) => {
       const timeBanStart = new Date();
       feedsToBan.forEach(item =>{
-        console.log(item.type);
-        banFeedWithDependencies(models, feedId, item.type, timeBanStart);
+          banFeedWithDependencies(models, feedId, item.type, timeBanStart);
       });
+      await account.updateAttributes({
+        banned_at: timeBanStart,
+        deleted_at: timeBanStart,
+        updated_at: timeBanStart
+      });
+
     });
 
     return {
@@ -850,7 +854,7 @@ module.exports = function(Account) {
   };
 
   Account.remoteMethod(
-    'banUser',
+    'banAccount',
     {
       description: 'Ban Feed info.',
       accepts: [
@@ -858,7 +862,7 @@ module.exports = function(Account) {
         {arg: 'id', type: 'number', required: true}
       ],
       returns: { arg: 'account', type: 'Account', root: true},
-      http: {verb: 'get', path: '/ban-user/:id'}
+      http: {verb: 'get', path: '/ban-account/:id'}
     }
   );
 };

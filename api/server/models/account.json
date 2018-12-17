@@ -292,7 +292,7 @@
       "principalType": "ROLE",
       "principalId": "admin",
       "permission": "ALLOW",
-      "property": "banUser"
+      "property": "banAccount"
     }
    
   ],
