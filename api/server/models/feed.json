@@ -271,6 +271,12 @@
       "principalId": "admin",
       "permission": "ALLOW",
       "property": "banFeed"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "sendBanRequest"
     }
   ],
   "methods": []

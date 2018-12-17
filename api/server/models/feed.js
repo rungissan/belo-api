@@ -1064,10 +1064,13 @@ module.exports = function(Feed) {
     }
   );
 
-  Feed.sendBanRequest = async function(ctx, data) {
+  Feed.sendBanRequest = async function(ctx, id, msg) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
-    if (!userId || !data.id || !data.msg) {
+    console.log(id);
+    console.log(msg);
+
+    if (!userId || !id || !msg) {
       throw errAccessDenied();
     }
 
@@ -1097,8 +1100,20 @@ module.exports = function(Feed) {
         userId
       }
     });
+    console.log(adminEmails);
     console.log(account);
     let kueJobs = Feed.app.kueJobs;
+  
+    const feedForBan = await Feed.findOne({
+      include: ['account','image','feedOptions','additionalImages'],
+      where: { id }
+    });
+
+    console.log(feedForBan);
+    if (!feedForBan) return;
+    const  acc = feedForBan.__data.account.__data;
+    const  fd = feedForBan.__data;
+
     let opt = {
       user_req_id: account.userId,
       user_req_type: account.type,
@@ -1106,25 +1121,44 @@ module.exports = function(Feed) {
       user_req_lastName: account.lastName,
       user_req_userName: account.userName,
       user_req_brokerage: account.brokerage,
-      title: 'What is the indicated sign?',
-      ImageLink: '/assets/images/dummy.jpg'
+      user_spam_id: acc.userId,
+      user_spam_type: acc.type,
+      user_spam_firstName: acc.firstName,
+      user_spam_lastName: acc.lastName,
+      user_spam_userName: acc.userName,
+      user_spam_brokerage: acc.brokerage,
+      msg: msg,
+      feed_id:fd.id,
+      feed_type: fd.type,
+      feed_title:fd.title,
+      feed_feedStatus: fd.feedStatus,
+      feed_created_at: fd.created_at,
+      ImageLink: '/assets/images/dummy.jpg',
+      cid:'cid:unique@kreata.ee'
 
     };
 
-    console.log(opt);
+
     let renderer = Feed.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
 
     let options = {
       type: 'email',
-      to: adminEmails[0],
+      to: adminEmails.shift(),
       from: 'test@domain.com',
-      subject: `Ban request for ${data.msg}`,
+      subject: `Ban request: ${msg}`,
       html: renderer(opt),
-      user: 'abuser'
+      user: 'abuser',
+      attachments: [{
+        filename: 'a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
+        path: '/usr/src/storage/public/uploads/a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
+        cid: 'cid:unique@kreata.ee'
+    }],
     };
-    if (adminEmails.length > 1) {
-      options.cc = adminEmails.shift().join(',');
+    if (adminEmails.length >= 1) {
+       options.cc = adminEmails.join(',');
     }
+    console.log('options');
+    console.log(options);
 
     kueJobs.createJob('sendEmail', options);
     return;
@@ -1141,13 +1175,15 @@ module.exports = function(Feed) {
          }
        },
        {
-         arg: 'data',
-         type: 'object',
-         required: true,
-         http: {
-           source: 'body'
-         }
-       }
+         arg: 'id',
+         type: 'number',
+         required: true
+        },
+        {
+          arg: 'msg',
+          type: 'string',
+          required: true
+        }
        ],
        returns: [{
          arg: 'data',
