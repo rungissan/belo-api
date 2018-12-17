@@ -1100,19 +1100,38 @@ module.exports = function(Feed) {
         userId
       }
     });
-    console.log(adminEmails);
-    console.log(account);
+
     let kueJobs = Feed.app.kueJobs;
   
     const feedForBan = await Feed.findOne({
-      include: ['account','image','feedOptions','additionalImages'],
+      include: ['account','image','additionalImages'],
       where: { id }
     });
-
-    console.log(feedForBan);
+ 
     if (!feedForBan) return;
     const  acc = feedForBan.__data.account.__data;
     const  fd = feedForBan.__data;
+    const  images = feedForBan.__data.additionalImages;
+    const  image = feedForBan.__data.image;
+
+    if (image) {
+      images.unshift(image);
+    }
+ 
+    const attachments = images.map(item => {
+      let  thumbnail = item.__data.sizes.thumbnail;
+      if (thumbnail) {
+      return {
+        filename: thumbnail.fileName,
+        path: `/usr/src/storage${thumbnail.publicUrl}`,
+        cid: `cid:${thumbnail.fileName}`
+        } 
+      }  
+    });
+
+    console.log(attachments);
+
+
 
     let opt = {
       user_req_id: account.userId,
@@ -1133,10 +1152,13 @@ module.exports = function(Feed) {
       feed_title:fd.title,
       feed_feedStatus: fd.feedStatus,
       feed_created_at: fd.created_at,
-      ImageLink: '/assets/images/dummy.jpg',
-      cid:'cid:unique@kreata.ee'
-
+      cid:'cid:uniq@you'
+    
     };
+
+    if ( attachments.length > 0 ) {
+      opt.cid = attachments[0].cid;
+    }
 
 
     let renderer = Feed.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
@@ -1148,11 +1170,7 @@ module.exports = function(Feed) {
       subject: `Ban request: ${msg}`,
       html: renderer(opt),
       user: 'abuser',
-      attachments: [{
-        filename: 'a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
-        path: '/usr/src/storage/public/uploads/a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
-        cid: 'cid:unique@kreata.ee'
-    }],
+      attachments: attachments,
     };
     if (adminEmails.length >= 1) {
        options.cc = adminEmails.join(',');

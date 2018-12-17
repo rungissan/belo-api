@@ -165,7 +165,7 @@
                 <!-- Hero Image, Flush : BEGIN -->
                 <tr>
                     <td style="background-color: #ffffff;">
-                        <img src="https://via.placeholder.com/1200x600" width="600" height="" alt="alt_text" border="0" style="width: 100%; max-width: 600px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555; margin: auto;" class="g-img">
+                        <img src=<%= cid %> width="600" height="" alt="alt_text" border="0" style="width: 100%; max-width: 600px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #555555; margin: auto;" class="g-img">
                     </td>
                 </tr>
                 <!-- Hero Image, Flush : END -->
@@ -226,8 +226,9 @@
 										<li style="margin:0 0 10px 30px;" class="list-item-first"><%= user_spam_id %> <%= user_spam_type %></li>
                                         <li style="margin:0 0 10px 30px;"><%= user_spam_firstName %> <%= user_spam_lastName %> </li>
                                         <li style="margin:0 0 10px 30px;"><%= user_spam_userName %> </li>
-										<li style="margin: 0 0 0 30px;" class="list-item-last"><%= user_spam_brokerage %></li>
-                                                                  
+                                        <li style="margin: 0 0 0 30px;" class="list-item-last"><%= user_spam_brokerage %></li>
+                                        <li style="margin: 0 0 0 30px;" class="list-item-last"><%= cid %>  </li>
+                                                              
                                     </ul>
                                
                                 </td>
