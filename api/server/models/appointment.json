@@ -107,6 +107,12 @@
         "principalId": "$authenticated",
         "permission": "ALLOW",
         "property": "create"
+      },
+      {
+        "principalType": "ROLE",
+        "principalId": "admin",
+        "permission": "ALLOW",
+        "property": "banAppointment"
       }
     ],
     "methods": []

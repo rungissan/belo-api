@@ -140,4 +140,44 @@ module.exports = function(Appointment) {
             }
         }
     );
+
+    Appointment.banAppointment = async function(ctx, appointmentId) {
+        const token = ctx.req.accessToken;
+        const userId = token && token.userId;
+        if (!userId) {
+          throw errAccessDenied();
+        }
+      
+        let appointment = await Appointment.findById(appointmentId);
+    
+        if (!(appointment)) {
+          throw errAccessDenied();
+        }
+
+        const timeBanStart = new Date();
+         
+        await appointment.updateAttributes({
+            banned_at: timeBanStart,
+            deleted_at: timeBanStart,
+            updated_at: timeBanStart
+          });
+    
+         return {
+          status: true,
+          message: `appointment  was successfully banned`
+        };
+      };
+    
+      Appointment.remoteMethod(
+        'banAppointment',
+        {
+          description: 'Ban Appointment info.',
+          accepts: [
+            {arg: 'ctx', type: 'object', http: { source: 'context' }},
+            {arg: 'id', type: 'number', required: true}
+          ],
+          returns: { arg: 'appointment', type: 'Appointment', root: true},
+          http: {verb: 'get', path: '/ban-appointment/:id'}
+        }
+      );
 }

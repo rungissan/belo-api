@@ -90,4 +90,44 @@ module.exports = function(StatusCheck) {
             }
         }
     );
+
+    StatusCheck.banStatusCheck = async function(ctx, statusCheckId) {
+        const token = ctx.req.accessToken;
+        const userId = token && token.userId;
+        if (!userId) {
+          throw errAccessDenied();
+        }
+      
+        let statusCheck = await StatusCheck.findById(statusCheckId);
+    
+        if (!(statusCheck)) {
+          throw errAccessDenied();
+        }
+
+        const timeBanStart = new Date();
+         
+        await statusCheck.updateAttributes({
+            banned_at: timeBanStart,
+            deleted_at: timeBanStart,
+            updated_at: timeBanStart
+          });
+    
+         return {
+          status: true,
+          message: `statusCheck  was successfully banned`
+        };
+      };
+    
+      StatusCheck.remoteMethod(
+        'banStatusCheck',
+        {
+          description: 'Ban StatusCheck info.',
+          accepts: [
+            {arg: 'ctx', type: 'object', http: { source: 'context' }},
+            {arg: 'id', type: 'number', required: true}
+          ],
+          returns: { arg: 'statusCheck', type: 'StatusCheck', root: true},
+          http: {verb: 'get', path: '/ban-statusCheck/:id'}
+        }
+      );
 }
