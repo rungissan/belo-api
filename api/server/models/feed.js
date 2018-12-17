@@ -1,12 +1,15 @@
 'use strict';
 
 import Promise from 'bluebird';
-
+import path from 'path';
 import {
   validateBySchema
 } from '../lib/validate';
 import {
-  errValidation
+  errValidation,
+  errFeedNotFound,
+  errAccessDenied
+
 } from '../lib/errors';
 
 const FEATURES_OPTIONS = {
@@ -938,4 +941,259 @@ module.exports = function(Feed) {
     ctx.result = results;
     return;
   };
+
+  const  banFeedWithDependencies = async (models, feedId, type, timeBanStart) => {
+    const {
+      StatusCheck,
+      Appointment,
+      Feed
+    } = models;
+
+    let feed = await Feed.findById(feedId);
+
+    if (!(feed)) {
+      throw errFeedNotFound();
+    }
+
+    switch (feed.__data.type) {
+      case 'listing':
+        const  openHousesToDelete = await Feed.find({
+          where: {
+            parentId: feedId
+          }
+        });
+
+        if (openHousesToDelete.length) {
+          openHousesToDelete.forEach(async item => {
+            await StatusCheck.updateAll({
+              feedId: item.id
+            }, {
+              banned_at: timeBanStart,
+              deleted_at: timeBanStart,
+              updated_at: timeBanStart
+            });
+
+            await Appointment.updateAll({
+              feedId: item.id
+            }, {
+              banned_at: timeBanStart,
+              deleted_at: timeBanStart,
+              updated_at: timeBanStart
+            });
+          });
+        }
+        await StatusCheck.updateAll({
+          feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+
+        await Appointment.updateAll({
+          feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+
+        await Feed.updateAll({
+          parentId: feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+
+      default:
+        await Feed.updateAll({
+          id: feedId
+        }, {
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+
+    }
+
+    return;
+  };
+
+  Feed.banFeed = async function(ctx, feedId) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    if (!userId) {
+      throw errAccessDenied();
+    }
+    if (!feedId) {
+      throw errValidation();
+    }
+
+    let feed = await Feed.findById(feedId);
+
+    if (!(feed)) {
+      throw errFeedNotFound();
+    }
+
+    await Feed.app.dataSources.postgres.transaction(async (models) => {
+      const timeBanStart = new Date();
+      await banFeedWithDependencies(models, feedId, feed.__data.type, timeBanStart);
+    });
+
+    return {
+      status: true,
+      message: 'feed was successfully banned'
+    };
+  };
+
+  Feed.remoteMethod(
+    'banFeed',
+    {
+      description: 'ban feed info',
+      accepts: [
+        {arg: 'ctx', type: 'object', http: { source: 'context' }},
+        {arg: 'id', type: 'number', required: true}
+      ],
+      returns: {
+        arg: 'account',
+        type: 'object',
+        root: true
+      },
+      http: {verb: 'get', path: '/ban-feed/:id'}
+    }
+  );
+
+  Feed.sendBanRequest = async function(ctx, id, msg) {
+    const token = ctx.req.accessToken;
+    const userId = token && token.userId;
+    console.log(id);
+    console.log(msg);
+
+    if (!userId || !id || !msg) {
+      throw errAccessDenied();
+    }
+
+    const {
+       RoleMapping,
+       User,
+       Account
+     } = Feed.app.models;
+
+    let adminUsers = await RoleMapping.find({
+      where: {
+        principalType: 'USER',
+        roleId: 1
+      }
+    }).map(item => item.__data.principalId);
+
+    let adminEmails = await User.find({
+      where: {
+        id: {
+          inq: adminUsers
+        }
+      }
+    }).map(item => item.__data.email);
+
+    let account = await Account.findOne({
+      where: {
+        userId
+      }
+    });
+    console.log(adminEmails);
+    console.log(account);
+    let kueJobs = Feed.app.kueJobs;
+  
+    const feedForBan = await Feed.findOne({
+      include: ['account','image','feedOptions','additionalImages'],
+      where: { id }
+    });
+
+    console.log(feedForBan);
+    if (!feedForBan) return;
+    const  acc = feedForBan.__data.account.__data;
+    const  fd = feedForBan.__data;
+
+    let opt = {
+      user_req_id: account.userId,
+      user_req_type: account.type,
+      user_req_firstName: account.firstName,
+      user_req_lastName: account.lastName,
+      user_req_userName: account.userName,
+      user_req_brokerage: account.brokerage,
+      user_spam_id: acc.userId,
+      user_spam_type: acc.type,
+      user_spam_firstName: acc.firstName,
+      user_spam_lastName: acc.lastName,
+      user_spam_userName: acc.userName,
+      user_spam_brokerage: acc.brokerage,
+      msg: msg,
+      feed_id:fd.id,
+      feed_type: fd.type,
+      feed_title:fd.title,
+      feed_feedStatus: fd.feedStatus,
+      feed_created_at: fd.created_at,
+      ImageLink: '/assets/images/dummy.jpg',
+      cid:'cid:unique@kreata.ee'
+
+    };
+
+
+    let renderer = Feed.app.loopback.template(path.resolve(__dirname, '../views/ban-request.ejs'));
+
+    let options = {
+      type: 'email',
+      to: adminEmails.shift(),
+      from: 'test@domain.com',
+      subject: `Ban request: ${msg}`,
+      html: renderer(opt),
+      user: 'abuser',
+      attachments: [{
+        filename: 'a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
+        path: '/usr/src/storage/public/uploads/a6170b98-6b47-4b6d-8dd0-688725ed5d14_thumbnail.JPG',
+        cid: 'cid:unique@kreata.ee'
+    }],
+    };
+    if (adminEmails.length >= 1) {
+       options.cc = adminEmails.join(',');
+    }
+    console.log('options');
+    console.log(options);
+
+    kueJobs.createJob('sendEmail', options);
+    return;
+  };
+
+  Feed.remoteMethod(
+     'sendBanRequest', {
+       description: 'Send ban request',
+       accepts: [{
+         arg: 'ctx',
+         type: 'object',
+         http: {
+           source: 'context'
+         }
+       },
+       {
+         arg: 'id',
+         type: 'number',
+         required: true
+        },
+        {
+          arg: 'msg',
+          type: 'string',
+          required: true
+        }
+       ],
+       returns: [{
+         arg: 'data',
+         type: 'Object',
+         root: true
+       }],
+       http: {
+         verb: 'post',
+         path: '/send-ban-request'
+       }
+     }
+   );
 };

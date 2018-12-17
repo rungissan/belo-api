@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 
-
 export default {
   cleanAttachmentFiles: {
     handler: cleanAttachmentFiles,
@@ -17,7 +16,6 @@ export default {
   }
 };
 
-
 async function cleanAttachmentFiles(app, job) {
   const {
     Attachment
@@ -26,7 +24,6 @@ async function cleanAttachmentFiles(app, job) {
   const StoragePath = '/usr/src/storage/public/uploads';
 
   fs.readdirSync(StoragePath)
-  // .filter(file => (file.indexOf('.') !== 0))
    .forEach(async(file) => {
      console.log(file);
      const attachment = await Attachment.findOne({
@@ -46,12 +43,8 @@ async function cleanAttachmentFiles(app, job) {
          ]
        }
      });
-     console.log('I am here');
      if (!attachment) {
-         console.log('I am inside');
-         console.log(`${StoragePath}/${file}`);
-         kueJobs.createJob('deleteFile',{file:`${StoragePath}/${file}`})
-     
+       kueJobs.createJob('deleteFile', {file:`${StoragePath}/${file}`});
      };
    });
 

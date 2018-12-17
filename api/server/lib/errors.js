@@ -25,6 +25,14 @@ export const errEmailNotFound = () => {
   return error;
 };
 
+export const errFeedNotFound = () => {
+  let error = new Error('This Feed is unknown to the system');
+  error.statusCode = 404;
+  error.code = 'FEED_NOT_FOUND';
+
+  return error;
+};
+
 export const errInvalidVerificationCode = (code) => {
   let error = new Error(`Invalid verification code: ${code}`);
   error.statusCode = 400;

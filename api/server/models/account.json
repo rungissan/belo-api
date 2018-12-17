@@ -160,6 +160,13 @@
         "columnName": "backgroundId",
         "dataType": "integer"
       }
+    },
+    "banned_at": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "banned_at",
+        "dataType": "timestamp with time zone"
+      }
     }
   },
   "validations": [],
@@ -283,10 +290,11 @@
     },
     {
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "admin",
       "permission": "ALLOW",
-      "property": "sendBanRequest"
+      "property": "banUser"
     }
+   
   ],
   "methods": []
 }
