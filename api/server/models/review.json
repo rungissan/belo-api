@@ -1,0 +1,110 @@
+{
+    "name": "Review",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+      "validateUpsert": true,
+      "postgresql": {
+        "schema": "spiti",
+        "table": "review"
+      }
+    },
+    "mixins": {
+      "RemoteRouting": {
+        "only": [
+          "@find",
+          "@findById",
+          "updateAttributes"
+     
+        ]
+      },
+      "ReadOnly": {
+        "userId": true,
+        "feedId": true
+      }
+    },
+    "properties": {
+      "id": {
+        "type": "number",
+        "id": true
+      },
+      "userId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "userId",
+          "dataType": "integer"
+        }
+      },
+      "profId": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "profId",
+          "dataType": "integer"
+        }
+      },
+      "rating": {
+        "type": "number",
+        "postgresql": {
+          "columnName": "rating",
+          "dataType": "integer"
+        }
+      },
+      "review": {
+        "type": "text",
+        "postgresql": {
+          "columnName": "review",
+          "dataType": "text"
+           }
+      },
+      "created_at": {
+        "type": "date",
+        "postgresql": {
+          "dataType": "timestamp with time zone"
+        }
+      },
+      "updated_at": {
+        "type": "date",
+        "postgresql": {
+          "dataType": "timestamp with time zone"
+        }
+      },
+      "deleted_at": {
+        "type": "date",
+        "postgresql": {
+          "dataType": "timestamp with time zone"
+        }
+      },
+      "banned_at": {
+        "type": "date",
+        "postgresql": {
+          "columnName": "banned_at",
+          "dataType": "timestamp with time zone"
+        }
+      }  
+    },
+    "validations": [],
+    "relations": {
+      "account": {
+        "type": "belongsTo",
+        "model": "Account",
+        "foreignKey": "userId"
+      }
+    },
+    "acls": [{
+        "accessType": "READ",
+        "principalType": "ROLE",
+        "principalId": "$authenticated",
+        "permission": "ALLOW"
+      },
+      {
+        "accessType": "WRITE",
+        "principalType": "ROLE",
+        "principalId": "$authenticated",
+        "permission": "ALLOW"
+      }
+    ],
+    "methods": []
+  }
+  
+  
+  
