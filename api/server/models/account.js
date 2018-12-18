@@ -818,39 +818,46 @@ module.exports = function(Account) {
     if (!userId) {
       throw errAccessDenied();
     }
+    try {
   
-    let account = await Account.findById(accountId);
+      let account = await Account.findById(accountId);
 
-    if (!(account)) {
-      throw errAccessDenied();
-    }
+      if (!(account)) {
+        throw errAccessDenied();
+      }
    
-    const {
-     Feed,
-     OAuthAccessToken
-    } = Account.app.models;
+      const {
+        Feed,
+        OAuthAccessToken
+      } = Account.app.models;
 
-    await OAuthAccessToken.destroyAll({userId: accountId} );
+      await OAuthAccessToken.destroyAll({userId: accountId} );
 
-    let feedsToBan = await Feed.find({ where: {userId: accountId}});
+      let feedsToBan = await Feed.find({ where: {userId: accountId}});
 
-    await Account.app.dataSources.postgres.transaction(async (models) => {
-      const timeBanStart = new Date();
-      feedsToBan.forEach(item =>{
+      await Account.app.dataSources.postgres.transaction(async (models) => {
+        const timeBanStart = new Date();
+        feedsToBan.forEach(item =>{
           banFeedWithDependencies(models, feedId, item.type, timeBanStart);
-      });
-      await account.updateAttributes({
-        banned_at: timeBanStart,
-        deleted_at: timeBanStart,
-        updated_at: timeBanStart
+        });
+        await account.updateAttributes({
+          banned_at: timeBanStart,
+          deleted_at: timeBanStart,
+          updated_at: timeBanStart
+        });
+
       });
 
-    });
-
-    return {
-      status: true,
-      message: `account brokerage:${account.__data.brokerage}    was successfully banned`
-    };
+      return {
+        status: true,
+        message: `account brokerage:${account.__data.brokerage}    was successfully banned`
+      };
+    }  catch {
+        return {
+          status: false,
+          message: `Something is going wrong`
+        };
+      }
   };
 
   Account.remoteMethod(

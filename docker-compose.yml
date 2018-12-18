@@ -100,7 +100,7 @@ services:
     logging:
       options:
         max-size: 1000m
-    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB --appendonly yes
+    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB 
     restart: 'no'
 
 volumes:

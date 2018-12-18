@@ -1043,7 +1043,7 @@ module.exports = function(Feed) {
 
     return {
       status: true,
-      message: 'feed was successfully banned'
+      message: 'Feed was successfully banned'
     };
   };
 
