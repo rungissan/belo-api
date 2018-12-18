@@ -818,8 +818,7 @@ module.exports = function(Account) {
     if (!userId) {
       throw errAccessDenied();
     }
-    try {
-  
+   
       let account = await Account.findById(accountId);
 
       if (!(account)) {
@@ -852,12 +851,7 @@ module.exports = function(Account) {
         status: true,
         message: `account brokerage:${account.__data.brokerage}    was successfully banned`
       };
-    }  catch {
-        return {
-          status: false,
-          message: `Something is going wrong`
-        };
-      }
+   
   };
 
   Account.remoteMethod(

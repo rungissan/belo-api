@@ -1067,8 +1067,7 @@ module.exports = function(Feed) {
   Feed.sendBanRequest = async function(ctx, id, msg) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
-    console.log(id);
-    console.log(msg);
+   
 
     if (!userId || !id || !msg) {
       throw errAccessDenied();
@@ -1175,9 +1174,7 @@ module.exports = function(Feed) {
     if (adminEmails.length >= 1) {
        options.cc = adminEmails.join(',');
     }
-    console.log('options');
-    console.log(options);
-
+ 
     kueJobs.createJob('sendEmail', options);
     return;
   };
