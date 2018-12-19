@@ -33,6 +33,14 @@ export const errFeedNotFound = () => {
   return error;
 };
 
+export const errReviewNotFound = () => {
+  let error = new Error('This Review is unknown to the system');
+  error.statusCode = 404;
+  error.code = 'REVIEW_NOT_FOUND';
+
+  return error;
+};
+
 export const errInvalidVerificationCode = (code) => {
   let error = new Error(`Invalid verification code: ${code}`);
   error.statusCode = 400;

@@ -10,6 +10,8 @@
       }
     },
     "mixins": {
+      "Timestamp": {},
+      "SetOwner": {},
       "RemoteRouting": {
         "only": [
           "@find",
@@ -20,7 +22,7 @@
       },
       "ReadOnly": {
         "userId": true,
-        "feedId": true
+        "profId": true
       }
     },
     "properties": {
@@ -84,10 +86,15 @@
     },
     "validations": [],
     "relations": {
-      "account": {
+      "user": {
         "type": "belongsTo",
         "model": "Account",
         "foreignKey": "userId"
+      },
+      "account": {
+        "type": "belongsTo",
+        "model": "Account",
+        "foreignKey": "profId"
       }
     },
     "acls": [{
@@ -101,6 +108,12 @@
         "principalType": "ROLE",
         "principalId": "$authenticated",
         "permission": "ALLOW"
+      },
+      {
+        "principalType": "ROLE",
+        "principalId": "$authenticated",
+        "permission": "ALLOW",
+        "property": "createReview"
       }
     ],
     "methods": []

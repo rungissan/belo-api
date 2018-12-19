@@ -10,8 +10,9 @@ async function updateDatabaseSchema(app) {
   let datastore = app.datasources.postgres;
 
   for (let model of app.models()) {
-    console.log(model.modelName);
+    
     if (model.modelName == 'Review') {
+    //  console.log(model);
     if (await doesModelNeedUpdate(datastore, model.modelName) === true) {
       try {
         await updateSchemaForModel(datastore, model.modelName);
