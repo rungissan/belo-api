@@ -641,15 +641,6 @@ module.exports = function(Feed) {
     return await OpenHouse.destroyById(feed.openHouseId);
   };
 
-  // NOTE: openHouse now is a separate feed instance, should be deleted same way as listings
-  // Feed.remoteMethod(
-  //   'prototype.deleteOpenHouse',
-  //   {
-  //     description: 'Delete open house for listing.',
-  //     http: {verb: 'delete', path: '/open-house'}
-  //   }
-  // );
-
   function getBeforeSaveHook(options = {}) {
     return async function beforeSaveHook(ctx, modelInstance) {
       let feed = ctx.args.instance || ctx.args.data;
@@ -1128,10 +1119,7 @@ module.exports = function(Feed) {
       }  
     });
 
-    console.log(attachments);
-
-
-
+   
     let opt = {
       user_req_id: account.userId,
       user_req_type: account.type,
@@ -1174,7 +1162,7 @@ module.exports = function(Feed) {
     if (adminEmails.length >= 1) {
        options.cc = adminEmails.join(',');
     }
- 
+   
     kueJobs.createJob('sendEmail', options);
     return;
   };

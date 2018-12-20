@@ -1,8 +1,17 @@
 version: '3.3'
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
 services:
 
   balancer:
     build: ./nginx
+    networks:
+      backend:
+        ipv4_address: 10.5.0.2
     privileged: true
     volumes:
       - "./nginx/nginx2.conf:/etc/nginx/nginx.conf"
@@ -22,6 +31,9 @@ services:
 
   postgres:
     image: postgres:10.0
+    networks:
+      backend:
+          ipv4_address: 10.5.0.11
     ports:
       - "5432"
     volumes:
@@ -44,6 +56,9 @@ services:
   api:
     build: ./api
     user: "${UID}:${GID}"
+    networks:
+      backend:
+        ipv4_address: 10.5.0.3
     ports:
       - "127.0.0.1::3000"
     volumes:
@@ -72,6 +87,9 @@ services:
   auth:
     build: ./auth
     user: "${UID}:${GID}"
+    networks:
+      backend:
+         ipv4_address: 10.5.0.4
     ports:
       - "127.0.0.1::3000"
     volumes:
@@ -94,6 +112,9 @@ services:
 
   redis:
     image: redis:alpine
+    networks:
+      backend:
+        ipv4_address: 10.5.0.5
     volumes:
       - "./data/redis:/data"
       - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"

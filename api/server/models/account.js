@@ -851,8 +851,7 @@ module.exports = function(Account) {
         status: true,
         message: `account brokerage:${account.__data.brokerage}    was successfully banned`
       };
-   
-  };
+    };
 
   Account.remoteMethod(
     'banAccount',

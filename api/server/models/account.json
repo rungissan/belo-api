@@ -161,6 +161,20 @@
         "dataType": "integer"
       }
     },
+    "reviewsCount": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "reviewsCount",
+        "dataType": "integer"
+      }
+    },
+    "reviewsScoreSum": {
+      "type": "number",
+      "postgresql": {
+        "columnName": "reviewsScoreSum",
+        "dataType": "integer"
+      }
+    },
     "banned_at": {
       "type": "date",
       "postgresql": {
