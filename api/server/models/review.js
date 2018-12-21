@@ -162,8 +162,9 @@ module.exports = function(Review) {
  
 
   Review.banReview = async function(ctx, reviewId) {
-    const token = ctx.req.accessToken;
     const userId = token && token.userId;
+    const reviewId = data.reviewId || data.id;
+    let reviewsCount,reviewsScoreSum;
  
     if (!userId) {
       throw errAccessDenied();
@@ -173,27 +174,45 @@ module.exports = function(Review) {
     }
 
     const timeBanStart = new Date();
+  
+    const { Account } = Review.app.models;
 
-    let review = await Review.updateAll({
-      id: feedId
-    }, {
-      banned_at: timeBanStart,
-      deleted_at: timeBanStart,
-      updated_at: timeBanStart
+    const review = await Review.findById(reviewId);
+    if (!review) return errReviewNotFound();
+  
+    let account = await Account.findOne({
+      where: {
+        userId:review.__data.profId
+      }
     });
-
-     if (!(review)) {
-      throw errFeedNotFound();
-    }
 
     await Review.app.dataSources.postgres.transaction(async (models) => {
-      //
+     
+      await Review.destroyById(reviewId);
+      if (account.__data.reviewsCount <=0 ) {
+        reviewsCount = 0;
+        reviewsScoreSum = 0;
+      } else {
+        reviewsCount =  --account.__data.reviewsCount;
+        reviewsScoreSum = account.__data.reviewsScoreSum - review.rating;
+
+      }
+      await review.updateAttributes( {
+        banned_at: timeBanStart,
+        deleted_at: timeBanStart,
+        updated_at: timeBanStart
+      });
+      await account.updateAttributes({reviewsCount: reviewsCount, reviewsScoreSum: reviewsScoreSum});  
+           
     });
 
+    
     return {
       status: true,
-      message: 'Review was successfully banned'
+      message: 'Review was successfully banned',
+      data, reviewsCount,reviewsScoreSum 
     };
+    
   };
 
   Review.remoteMethod(
