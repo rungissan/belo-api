@@ -162,8 +162,9 @@ module.exports = function(Review) {
  
 
   Review.banReview = async function(ctx, reviewId) {
+    const token = ctx.req.accessToken;
     const userId = token && token.userId;
-    const reviewId = data.reviewId || data.id;
+   
     let reviewsCount,reviewsScoreSum;
  
     if (!userId) {
