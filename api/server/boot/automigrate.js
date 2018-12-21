@@ -11,7 +11,7 @@ async function updateDatabaseSchema(app) {
 
   for (let model of app.models()) {
     
-    if (model.modelName == 'Account') {
+    if (model.modelName == 'Account1111') {
     //  console.log(model);
     if (await doesModelNeedUpdate(datastore, model.modelName) === true) {
       try {

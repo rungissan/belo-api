@@ -50,7 +50,8 @@ module.exports = function(Review) {
     
     return {
       status: true,
-      message: 'Review was successfully deleted'
+      message: 'Review was successfully deleted',
+      data, reviewsCount,reviewsScoreSum 
     };
   };
 
@@ -89,6 +90,9 @@ module.exports = function(Review) {
     const token = ctx.req.accessToken;
     const userId = token && token.userId;
     let data;
+    let reviewsCount;
+    let reviewsScoreSum;
+
     const { Account } = Review.app.models;
 
     if (!userId) {
@@ -115,15 +119,17 @@ module.exports = function(Review) {
         }
       });
               
-      let reviewsCount = account.__data.reviewsCount;
-      let reviewsScoreSum = account.__data.reviewsScoreSum + review.rating;
+      reviewsCount = account.__data.reviewsCount;
+      reviewsScoreSum = account.__data.reviewsScoreSum + review.rating;
       await account.updateAttributes({reviewsCount: ++reviewsCount, reviewsScoreSum: reviewsScoreSum});  
            
     });
 
     console.log(review)
 
-    return data;
+    return {   status: true,
+               message: 'Review was successfully added',
+               data, reviewsCount,reviewsScoreSum  };
 }
 
 
