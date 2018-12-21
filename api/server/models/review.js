@@ -7,12 +7,8 @@ import {
 
 module.exports = function(Review) {
  
-  
-  //Review.afterRemote('create', afterSaveHook);
-  //Review.afterRemote('prototype.patchAttributes', afterSaveHook);
-  
- 
- 
+  Review.validatesNumericalityOf('rating', {int: true});
+  Review.validatesInclusionOf('rating', {in: [0,1,2,3,4,5]});
 
   Review.destroyReview = async function(ctx, data) {
     const reviewId = data.reviewId || data.id;
