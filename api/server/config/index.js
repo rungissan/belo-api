@@ -21,7 +21,7 @@ export default {
     db: 3
   },
   postgresql: {
-    baseSchema: 'spiti',
+    baseSchema: 'belo',
     authSchems: 'auth'
   },
   nodeEnv: process.env.NODE_ENV
