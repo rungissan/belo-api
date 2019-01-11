@@ -134,7 +134,7 @@ services:
       - "127.0.0.1::3000"
     volumes:
       - "./front:/usr/src/app"
-     environment:
+    environment:
       PRODUCTION_MODE: "OFF"
     logging:
       options:
