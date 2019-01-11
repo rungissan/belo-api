@@ -134,24 +134,16 @@ services:
       - "127.0.0.1::3000"
     volumes:
       - "./front:/usr/src/app"
-      - front_modules:/usr/src/app/node_modules/
-      - "/var/run/postgresql:/usr/src/postgresql"
-    environment:
+     environment:
       PRODUCTION_MODE: "OFF"
-      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
-      POSTGRES_USER: admin
-      POSTGRES_DB: belo
-      POSTGRES_HOST: postgres
-    depends_on:
-      - postgres
     logging:
       options:
         max-size: 1000m
     restart: 'no'
+    command: npm run serve:ssr
  
 
 volumes:
-  front_modules:
   api_modules:
   auth_modules:
   redis_socket:

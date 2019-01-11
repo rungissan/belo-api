@@ -6,10 +6,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "/etc/letsencrypt/archive/spiti.cert:/etc/nginx/certs"
+      - "/etc/letsencrypt/archive/belo.cert:/etc/nginx/certs"
       - "/etc/nginx/certroot:/etc/nginx/certroot"
     environment:
-      NGINX_HOST: "spiti.clever-hosting.com"
+      NGINX_HOST: "autohub.od.ua"
       NGINX_SSL: "ON"
       NGINX_PROD: "ON"
 
@@ -17,17 +17,27 @@ services:
     tty: true
     environment:
       NODE_ENV: production
-      domain: spiti.clever-hosting.com
+      domain: autohub.od.ua
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
     command: npm start
 
+   front:
+    tty: true
+    environment:
+      NODE_ENV: production
+      domain: autohub.od.ua
+      protocol: http
+      LOG_LEVEL: "debug"
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
+    command: npm run serve:ssr
+
   auth:
     tty: true
     environment:
       NODE_ENV: production
-      domain: spiti.clever-hosting.com
+      domain: autohub.od.ua
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
