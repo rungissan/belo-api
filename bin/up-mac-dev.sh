@@ -3,5 +3,5 @@
 cd ..
 export UID
 export GID
-docker-compose -p spiti -f docker-compose.mac-dev.yml  up $@
+docker-compose -p belo -f docker-compose.mac-dev.yml  up $@
 

@@ -7,7 +7,7 @@
     "host": "postgres",
     "port": 5432,
     "url": "",
-    "database": "spiti",
+    "database": "belo",
     "password": "UU6iyHsoTxAUznVgJDjewr8S",
     "name": "postgres",
     "user": "admin",
@@ -43,7 +43,7 @@
       "secure": true,
       "port": 465,
       "auth": {
-        "user": "spiti.social.testing@gmail.com",
+        "user": "ng@gmail.com",
         "pass": "VVz9iG9z7yPcOw7SgLnVVz9"
       }
     }]

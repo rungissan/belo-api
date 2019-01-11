@@ -6,7 +6,7 @@
     "validateUpsert": true,
     "postgresql": {
       "table": "attachment_to_open_house",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "mixins": {

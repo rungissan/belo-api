@@ -3,7 +3,7 @@
     "host": "postgres",
     "port": 5432,
     "url": "",
-    "database": "spiti",
+    "database": "belo",
     "password": "UU6iyHsoTxAUznVgJDjewr8S",
     "name": "postgres",
     "user": "admin",

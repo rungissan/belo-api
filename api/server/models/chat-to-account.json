@@ -6,7 +6,7 @@
     "validateUpsert": true,
     "postgresql": {
       "table": "chat_to_account",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "properties": {

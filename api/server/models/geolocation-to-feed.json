@@ -6,7 +6,7 @@
     "validateUpsert": true,
     "postgresql": {
       "table": "geolocation_to_feed",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "mixins": {

@@ -6,7 +6,7 @@
     "validateUpsert": true,
     "postgresql": {
       "table": "followed",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "mixins": {

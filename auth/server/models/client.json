@@ -10,7 +10,7 @@
     "resetPasswordTokenTTL": 900,
     "postgresql": {
       "table": "user",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "properties": {},

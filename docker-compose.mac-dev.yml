@@ -49,7 +49,7 @@ services:
       - "./data/backup:/usr/src/backup"
       - ./postgres/init-scripts:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_MULTIPLE_DATABASES: spiti,spiti_test
+      POSTGRES_MULTIPLE_DATABASES: belo,belo
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
       POSTGRES_HOST: postgres
@@ -80,18 +80,18 @@ services:
       PRODUCTION_MODE: "OFF"
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: spiti
+      POSTGRES_DB: belo
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB
-      baseSchema: spiti
+      baseSchema: belo
       NODE_ENV: development
       domain: localhost
       protocol: http
       LOG_LEVEL: "debug"
-      # DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,spiti:boot,loopback:mixin:readonly,spiti:validations,spiti:jobs,spiti:feed:search
-      DEBUG: spiti:boot:socket,socketio-auth,loopback:oauth2,loopback:connector:postgresql,spiti:boot*,spiti:validations,spiti:jobs,spiti:feed:search
+      # DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:*,oauth2orize,belo:boot,loopback:mixin:readonly,belo:validations,belo:jobs,belo:feed:search
+      DEBUG: belo:boot:socket,socketio-auth,loopback:oauth2,loopback:connector:postgresql,belo:boot*,belo:validations,belo:jobs,belo:feed:search
       BABEL_DISABLE_CACHE: 1
     
     depends_on:
@@ -121,13 +121,13 @@ services:
       PRODUCTION_MODE: "OFF"
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: spiti
+      POSTGRES_DB: belo
       POSTGRES_HOST: postgres
       NODE_ENV: development
       domain: localhost
       protocol: http
       LOG_LEVEL: "debug"
-      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize,spiti:boot
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize,belo:boot
       BABEL_DISABLE_CACHE: 1
     depends_on:
       - postgres
@@ -136,8 +136,31 @@ services:
       options:
         max-size: 1000m
     restart: 'no'
-    command: ./wait-for-postgres.sh 
-    
+    command: ./wait-for-postgres.sh
+   
+  front:
+    build: ./front
+    tty: true
+    user: "${UID}:${GID}"
+    networks:
+      backend:
+        ipv4_address: 10.5.0.10
+    ports:
+        - "127.0.0.1::3000"
+    volumes:
+      - "./front:/usr/src/app"
+    environment:
+      PRODUCTION_MODE: "OFF"
+      CONTEXT: front
+      PORT: 3000
+    depends_on:
+      - postgres
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+    command: npm run serve:ssr
+          
   redis:
     image: redis:alpine
     networks:
@@ -158,5 +181,5 @@ services:
 volumes:
   api_modules:
   auth_modules:
-  redis_socket:
+  redis_socket: 
  

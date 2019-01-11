@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 cd ..
-docker-compose -p spiti stop
+docker-compose -p belo stop

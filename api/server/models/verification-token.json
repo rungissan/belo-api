@@ -3,7 +3,7 @@
   "options": {
     "postgresql": {
       "table": "verification_token",
-      "schema": "spiti"
+      "schema": "belo"
     }
   },
   "properties": {

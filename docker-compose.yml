@@ -43,7 +43,7 @@ services:
       - "/var/run/postgresql:/var/run/postgresql"
       - ./postgres/init-scripts:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_MULTIPLE_DATABASES: spiti,spiti_test
+      POSTGRES_MULTIPLE_DATABASES: belo,belo_test
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
       POSTGRES_HOST: postgres
@@ -70,12 +70,12 @@ services:
       PRODUCTION_MODE: "OFF"
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: spiti
+      POSTGRES_DB: belo
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB
-      baseSchema: spiti
+      baseSchema: belo
     depends_on:
       - postgres
       - redis
@@ -100,7 +100,7 @@ services:
       PRODUCTION_MODE: "OFF"
       POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
       POSTGRES_USER: admin
-      POSTGRES_DB: spiti
+      POSTGRES_DB: belo
       POSTGRES_HOST: postgres
     depends_on:
       - postgres
@@ -124,7 +124,34 @@ services:
     command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB 
     restart: 'no'
 
+  front:
+    build: ./front
+    user: "${UID}:${GID}"
+    networks:
+      backend:
+        ipv4_address: 10.5.0.10
+    ports:
+      - "127.0.0.1::3000"
+    volumes:
+      - "./front:/usr/src/app"
+      - front_modules:/usr/src/app/node_modules/
+      - "/var/run/postgresql:/usr/src/postgresql"
+    environment:
+      PRODUCTION_MODE: "OFF"
+      POSTGRES_PASSWORD: UU6iyHsoTxAUznVgJDjewr8S
+      POSTGRES_USER: admin
+      POSTGRES_DB: belo
+      POSTGRES_HOST: postgres
+    depends_on:
+      - postgres
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+ 
+
 volumes:
+  front_modules:
   api_modules:
   auth_modules:
   redis_socket:
