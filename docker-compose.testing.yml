@@ -23,7 +23,7 @@ services:
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
     command: npm start
 
-   front:
+  front:
     tty: true
     environment:
       NODE_ENV: production
