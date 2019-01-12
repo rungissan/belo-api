@@ -16,7 +16,7 @@
     "lint": "ng lint belo-web",
     "build:client-and-server-bundles": "ng build --prod && ng run belo-web:server:production",
     "build:prerender": "yarn run build:client-and-server-bundles && yarn run webpack:server && yarn run generate:prerender",
-    "build:ssr": "yarn run build:client-and-server-bundles && yarn run compile:server",
+    "build:ssr": "yarn run build:client-and-server-bundles && yarn run webpack:server",
     "compile:server": "tsc -p server.tsconfig.json",
     "webpack:server": "webpack --config webpack.server.config.js --progress --colors",
     "generate:prerender": "node dist/prerender",

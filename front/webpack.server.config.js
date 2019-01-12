@@ -10,6 +10,9 @@ module.exports = {
     extensions: ['.js', '.ts']
   },
   target: 'node',
+  optimization: {
+    minimize: false
+  },
   // this makes sure we include node_modules and other 3rd party libraries
   externals: [/(node_modules|main\..*\.js)/],
   output: {
@@ -20,7 +23,14 @@ module.exports = {
     rules: [{
       test: /\.ts$/,
       loader: 'ts-loader'
-    }]
+    },
+    {
+        // Mark files inside `@angular/core` as using SystemJS style dynamic imports.
+        // Removing this will cause deprecation warnings to appear.
+        test: /(\\|\/)@angular(\\|\/)core(\\|\/).+\.js$/,
+        parser: { system: true },
+      },
+  ]
   },
   plugins: [
     // Temporary Fix for issue: https://github.com/angular/angular/issues/11580
