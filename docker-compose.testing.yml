@@ -10,8 +10,8 @@ services:
       - "/etc/nginx/certroot:/etc/nginx/certroot"
     environment:
       NGINX_HOST: "autohub.od.ua"
-      NGINX_SSL: "ON"
-      NGINX_PROD: "ON"
+      NGINX_SSL: "OFF"
+      NGINX_PROD: "OFF"
 
   api:
     tty: true
