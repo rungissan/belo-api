@@ -278,6 +278,9 @@ END OF TERMS AND CONDITIONS
 @nguniversal/common
 MIT
 
+@angular/service-worker
+MIT
+
 core-js
 MIT
 Copyright (c) 2014-2019 Denis Pushkarev
