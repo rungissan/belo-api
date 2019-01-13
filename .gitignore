@@ -10,6 +10,7 @@ npm-debug.log*
 # Mac system file
 .DS_Store
 node_modules
+dist
 
 # postgres db data
 /data/backup
