@@ -21,7 +21,7 @@ import { environment } from '../environments/environment';
       { path: 'lazy/nested', loadChildren: './lazy/lazy.module#LazyModule'}
     ]),
     TransferHttpCacheModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: true }),
   ],
   providers: [],
   bootstrap: [AppComponent]
