@@ -21,7 +21,7 @@ services:
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
-    command: npm start
+    command: ./wait-for-postgres.sh
 
   front:
     tty: true
@@ -41,4 +41,4 @@ services:
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
-    command: npm start
+    command: ./wait-for-postgres.sh
