@@ -137,6 +137,7 @@ services:
     volumes:
       - "./front:/usr/src/app"
       - front_modules:/usr/src/app/node_modules/
+      - dist_front:/usr/src/app/dist/
     environment:
       PRODUCTION_MODE: "OFF"
     logging:
@@ -147,6 +148,7 @@ services:
  
 
 volumes:
+  dist_front:
   front_modules:
   api_modules:
   auth_modules:
