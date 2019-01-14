@@ -140,6 +140,8 @@ services:
       - dist_front:/usr/src/app/dist/
     environment:
       PRODUCTION_MODE: "OFF"
+      CONTEXT: front
+      PORT: 3000
     logging:
       options:
         max-size: 1000m
