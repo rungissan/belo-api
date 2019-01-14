@@ -17,7 +17,8 @@ RUN yarn install
 # Скопировать исходники приложения
 COPY . ./
 
-RUN yarn run build:ssr
+RUN yarn run build:prerender
+COPY robots.txt ./dist/browser/
 
 EXPOSE 3000
 

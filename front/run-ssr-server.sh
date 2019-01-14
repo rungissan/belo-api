@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# yarn build
-yarn run build:ssr
-yarn run serve:ssr
+# Serve
+cd /usr/src/app/dist/browser/
+http-server
