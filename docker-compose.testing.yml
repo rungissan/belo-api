@@ -31,7 +31,7 @@ services:
       protocol: http
       LOG_LEVEL: "debug"
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
-    command: npm run serve:ssr
+    command: yarn run serve:prerender
 
   auth:
     tty: true

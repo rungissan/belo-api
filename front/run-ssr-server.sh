@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Serve
-cd /usr/src/app/dist/browser/
+cd dist/browser
 http-server

@@ -144,7 +144,7 @@ services:
       options:
         max-size: 1000m
     restart: 'no'
-    command: npm run serve:ssr
+    command: yarn run serve:prerender
  
 
 volumes:

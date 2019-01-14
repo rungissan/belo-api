@@ -149,6 +149,8 @@ services:
         - "127.0.0.1::3000"
     volumes:
       - "./front:/usr/src/app"
+      - front_modules:/usr/src/app/node_modules/
+      - dist_front:/usr/src/app/dist/
     environment:
       PRODUCTION_MODE: "OFF"
       CONTEXT: front
@@ -159,7 +161,7 @@ services:
       options:
         max-size: 1000m
     restart: 'no'
-    command: npm run serve:ssr
+    command: yarn run serve:prerender
           
   redis:
     image: redis:alpine
@@ -179,6 +181,8 @@ services:
 
 
 volumes:
+  dist_front:
+  front_modules:
   api_modules:
   auth_modules:
   redis_socket: 
