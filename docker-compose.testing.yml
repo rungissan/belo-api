@@ -20,7 +20,7 @@ services:
       domain: autohub.od.ua
       protocol: http
       LOG_LEVEL: "debug"
-      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
+      DEBUG: loopback:connector:postgresql, loopback:connector:mail, loopback:oauth2, loopback:security:acl,oauth2orize
     command: ./wait-for-postgres.sh
 
   front:
