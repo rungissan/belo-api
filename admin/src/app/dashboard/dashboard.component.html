@@ -1,0 +1,72 @@
+<div class='all-wrap'>
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button> Angular Starter App
+</mat-toolbar>
+
+<mat-sidenav-container class='sidenav' >
+  <mat-sidenav [opened]="!mobile" #sidenav [mode]="sideNavMode" >
+    <mat-nav-list>
+      <ng-template ngFor let-view [ngForOf]="views" let-even="even" let-odd="odd" let-rowIndex="index">
+        <a mat-list-item [routerLink]="view.link" routerLinkActive="active-link" (click)="mobile ? sidenav.close() : {}">
+          <mat-icon mat-list-icon>{{view.icon}}</mat-icon>
+          <span mat-line>{{view.name}}</span>
+          <span mat-line class="secondary">{{view.description}}</span>
+        </a>
+      </ng-template>
+    </mat-nav-list>
+  </mat-sidenav>
+  
+<mat-card id="my-page-card">
+  <router-outlet (activate)="activateEvent($event)" (deactivate)="deactivateEvent($event)"></router-outlet>
+</mat-card>
+
+</mat-sidenav-container>
+<footer class='footer'>
+   <mat-toolbar color="primary">
+      <h2>Sticky Footer !!</h2>
+      <p>... with variable height</p>
+     
+    </mat-toolbar>
+  
+</footer>
+</div>
+
+<!-- <mat-sidenav-container class="all-wrap">
+ 
+  <mat-sidenav #sidenav over>
+    <mat-list>
+      <mat-list-item>...</mat-list-item>
+    </mat-list>
+  </mat-sidenav>
+ 
+  <mat-sidenav-content class="page-wrap ...">
+ 
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <span>
+          <mat-icon
+            (click)="sidenav.open()"
+          >menu
+          </mat-icon>
+        </span>
+        <span><h1>Toolbar</h1></span>
+      </mat-toolbar-row>
+    </mat-toolbar>
+ 
+    
+ 
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+ 
+    <footer>
+      <h2>Sticky Footer !!</h2>
+      <p>... with variable height</p>
+    </footer>
+ 
+  </mat-sidenav-content>
+ 
+</mat-sidenav-container> -->
+

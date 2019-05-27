@@ -21,6 +21,7 @@ services:
       - "./nginx/nginx2.conf:/etc/nginx/nginx.conf"
       - "./nginx/nginx.conf:/etc/nginx/conf.d/default.j2"
       - "./data/storage/public:/uploads-public"
+      - "dist_admin:/admin"
       - "./nginx/pass/explorer.txt:/etc/nginx/passwords/explorer.txt"
     ports:
       - "80:80"
@@ -28,6 +29,8 @@ services:
     command: /bin/bash -c "j2 /etc/nginx/conf.d/default.j2 > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     depends_on:
       - api
+      - admin
+      - front
     logging:
       options:
         max-size: 1000m
@@ -138,6 +141,31 @@ services:
     restart: 'no'
     command: ./wait-for-postgres.sh
    
+  admin:
+    build: ./admin
+    tty: true
+    user: "${UID}:${GID}"
+    networks:
+      backend:
+        ipv4_address: 10.5.0.12
+    ports:
+        - "127.0.0.1::4200"
+    volumes:
+      - "./admin:/usr/src/app"
+      - admin_modules:/usr/src/app/node_modules/
+      - dist_admin:/usr/src/app/dist/
+    environment:
+      PRODUCTION_MODE: "OFF"
+      CONTEXT: admin
+      PORT: 3000
+    depends_on:
+      - postgres
+    logging:
+      options:
+        max-size: 1000m
+    restart: 'no'
+ #   command: yarn run start
+
   front:
     build: ./front
     tty: true
@@ -176,13 +204,15 @@ services:
     logging:
       options:
         max-size: 1000m
-    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB --appendonly yes
+    command: redis-server --requirepass 6fUrsxGqCmQjxhVTUX7UjAWGxVUZr8AvoroplRR8ZRB --appendonly no
     restart: 'no'
 
 
 volumes:
   dist_front:
   front_modules:
+  dist_admin:
+  admin_modules:
   api_modules:
   auth_modules:
   redis_socket: 

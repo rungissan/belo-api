@@ -5,7 +5,7 @@
 set -x
 
 BACKUP_NAME=backup_testing
-docker cp ~/Downloads/backup_testing/. belo_postgres_1:$BACKUP_NAME
+# docker cp ~/Downloads/backup_testing/. belo_postgres_1:$BACKUP_NAME
 
 docker exec belo_postgres_1 psql -c 'DROP SCHEMA IF EXISTS auth CASCADE;' -d belo -U admin
 docker exec belo_postgres_1 psql -c 'DROP SCHEMA IF EXISTS belo CASCADE;' -d belo -U admin

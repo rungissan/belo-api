@@ -33,6 +33,16 @@ services:
       DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
     command: yarn run serve:prerender
 
+  admin:
+    tty: true
+    environment:
+      NODE_ENV: production
+      domain: autohub.od.ua
+      protocol: http
+      LOG_LEVEL: "debug"
+      DEBUG: loopback:connector:postgresql,loopback:connector:mail,loopback:oauth2,loopback:security:acl,oauth2orize
+    command: yarn run serve:prerender
+
   auth:
     tty: true
     environment:
