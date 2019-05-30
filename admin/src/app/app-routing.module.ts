@@ -3,8 +3,6 @@ import { Routes, RouterModule, PreloadAllModules, NoPreloading } from '@angular/
 
 
 export const routes: Routes = [
-//  { path: '', loadChildren: './features/dashboard/dashboard.module#DashboardModule' , pathMatch: 'full' },
-
 {
   path: 'dashboard',
   loadChildren: './dashboard/dashboard.module#DashboardModule',
@@ -16,7 +14,11 @@ export const routes: Routes = [
   pathMatch: 'full'
 //    canActivate: [ AuthGuard ]
 },
- { path: '**', loadChildren: './not-found404/index#NotFound404Module' }
+{
+  path: 'auth',
+  loadChildren: './auth/auth.module#AuthModule',
+},
+{ path: '**', loadChildren: './not-found404/index#NotFound404Module' }
 ];
 
 @NgModule({

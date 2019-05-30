@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 
 import * as store from 'src/app/store';
 import * as authActions from 'src/app/store/actions/auth.action';
+import * as routerActions from 'src/app/store/actions/router.action';
 import { User } from 'src/app/store/models';
 
 import { LoginForm, RegisterForm } from 'src/app/store/models';
@@ -27,18 +28,23 @@ export class AuthSandbox {
 
   private subscriptions: Array<Subscription> = [];
 
-  /**
-   * Uncapitalize response keys
-   */
-  static authAdapter(user: any): any {
-    return Object.assign({}, user, { email: user.Email });
-  }
+  // /**
+  //  * Uncapitalize response keys
+  //  */
+  // static authAdapter(user: any): any {
+  //   return Object.assign({}, user, { email: user.Email });
+  // }
 
   /**
    * Dispatches login action
    */
   public login(form: any): void {
     this.appState$.dispatch(new authActions.DoLoginAction(new LoginForm(form)));
+  }
+
+
+  public go(route: string): void {
+    this.appState$.dispatch(new routerActions.Go({path: [route]}));
   }
 
   /**

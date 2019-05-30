@@ -1,23 +1,48 @@
-<div class="form-container">
-  <a routerLink="/login" class="register-backBtn">Back</a>
+<section fxLayout="row wrap" fxLayoutAlign="center center" style="min-height: 100vh">
+  <mat-card fxFlex="500px" fxFlex.xs="100%">
+    <mat-card-title> Регистрация </mat-card-title>
+    <form [formGroup]="registerForm" autocomplete="off" novalidate >
+      <mat-card-content>
+        <mat-form-field>
+          <input matInput type="text" placeholder="Name" formControlName="name" id="name">
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-hint align="end">Must be between 4 and 60 characters long.</mat-hint>
+          <mat-error *ngIf="hasError('name', 'required')">Name is required</mat-error>
+          <mat-error *ngIf="hasError('name', 'minlength')">You have less than 3 characters</mat-error>
+          <mat-error *ngIf="hasError('name', 'maxlength')">You have more than 60 characters</mat-error>
+        </mat-form-field>
 
-  <h2 class="register-title">Title</h2>
+        <mat-form-field>
+          <input matInput type="email" placeholder="Email" formControlName="email" id="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="hasError('email', 'required')">Email is required</mat-error>
+          <mat-error *ngIf="hasError('email', 'validateEmail')">Email is not correct </mat-error>
+        </mat-form-field>
 
-  <div class="error-wrapper">
-    <label *ngIf="submitted && email.hasError('required')" class="error-label"> 'Auth.EmailRequiredError'</label>
-    <label *ngIf="submitted && !email.hasError('required') && email.hasError('validateEmail')" class="error-label">'Auth.EmailFormatError'</label>
-    <label *ngIf="submitted && password.hasError('required')" class="error-label">'PasswordRequiredError'</label>
-    <label *ngIf="submitted && registerForm.hasError('mismatch')" class="error-label">'ConfirmPasswordError'</label>
-    <label *ngIf="submitted && password.hasError('minlength')" class="error-label">'Auth.PasswordLengthError' </label>
-  </div>
 
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit($event, registerForm.value)">
-    <input type="text" [formControl]="email" placeholder="Email" class="txt">
-    <input type="password" [formControl]="password" placeholder="Password" class="txt" minLength="6">
-    <input type="password" [formControl]="confirmPassword" placeholder="ConfirmPassword' | translate }}" class="txt">
-
-    <button type="submit" class="basic-btn register-submitBtn">Submit </button>
-
-    <spinner [isRunning]="authSandbox.loginLoading$ | async"></spinner>
-  </form>
-</div>
+        <div formGroupName="passwords">
+          <mat-form-field>
+            <input matInput type="password" placeholder="Password" formControlName="password">
+            <mat-icon matSuffix>vpn_key</mat-icon>
+            <mat-hint align="end">Not less then 4 characters long.</mat-hint>
+            <mat-error *ngIf="hasError1('password', 'required')">Password is required</mat-error>
+            <mat-error *ngIf="hasError1('password', 'minlength')">You have less than 4 characters</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="password" placeholder="Confirm Password" formControlName="confirmPassword">
+            <mat-hint align="end">Not less then 4 characters long.</mat-hint>
+            <mat-error *ngIf="hasError1('confirmPassword', 'required')">Password is required</mat-error>
+            <mat-error *ngIf="hasError1('confirmPassword', 'minlength')">You have less than 4 characters</mat-error>
+            <mat-error *ngIf="hasError1('confirmPassword', 'mismatch')">Mismatch Password </mat-error>
+          </mat-form-field>
+          <mat-error *ngIf="hasError('passwords', 'mismatch')">Mismatch Password </mat-error>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="center">
+        <button type="button" mat-raised-button color="primary" [disabled]="!registerForm.valid" (click)="signup(registerForm.value)">Ок</button>
+        <button type="button" mat-raised-button color="warn" (click)="onLogin()"> Вход </button>
+      </mat-card-actions>
+      <mat-card-footer> <a href="admin/auth/reset">Забыли пароль?</a> </mat-card-footer>
+    </form>
+  </mat-card>
+</section>

@@ -25,11 +25,12 @@ export class ValidationService {
    * Validates matching string values
    *
    */
-  public matchingPasswords(controlKey: string, matchingControlKey: string): {[error: string]: any} {
+  public matchingFields(controlKey: string, matchingControlKey: string): {[error: string]: any} {
     return (group: FormGroup): {[key: string]: any} => {
       if (group.controls[controlKey].value !== group.controls[matchingControlKey].value) {
         return { mismatch: { valid: false } };
       }
     };
   }
+
 }

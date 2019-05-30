@@ -2,7 +2,31 @@
 <mat-toolbar color="primary">
   <button mat-icon-button (click)="sidenav.toggle()">
     <mat-icon>menu</mat-icon>
-  </button> Angular Starter App
+  </button> Belocom Admin
+
+  <mat-menu #appMenu="matMenu">
+      <button mat-menu-item>Settings</button>
+      <button mat-menu-item>Help</button>
+  </mat-menu>
+    
+  <button mat-icon-button [matMenuTriggerFor]="appMenu">
+      <mat-icon>more_vert</mat-icon>
+  </button>
+ 
+      <!-- <button mat-raised-button [mat-menu-trigger-for]="menu">
+         Menu
+      </button>
+    
+      <mat-menu #menu>
+          <button mat-menu-item>Profile</button>
+          <button mat-menu-item>Settings</button>
+          <button mat-menu-item>Account</button>
+          <button mat-menu-item>Sign Out</button>
+      </mat-menu> -->
+   
+  <span>
+    <img mat-card-avatar src="https://source.unsplash.com/random/200x200">
+  </span>
 </mat-toolbar>
 
 <mat-sidenav-container class='sidenav' >
@@ -32,41 +56,3 @@
   
 </footer>
 </div>
-
-<!-- <mat-sidenav-container class="all-wrap">
- 
-  <mat-sidenav #sidenav over>
-    <mat-list>
-      <mat-list-item>...</mat-list-item>
-    </mat-list>
-  </mat-sidenav>
- 
-  <mat-sidenav-content class="page-wrap ...">
- 
-    <mat-toolbar>
-      <mat-toolbar-row>
-        <span>
-          <mat-icon
-            (click)="sidenav.open()"
-          >menu
-          </mat-icon>
-        </span>
-        <span><h1>Toolbar</h1></span>
-      </mat-toolbar-row>
-    </mat-toolbar>
- 
-    
- 
-    <main class="content">
-      <router-outlet></router-outlet>
-    </main>
- 
-    <footer>
-      <h2>Sticky Footer !!</h2>
-      <p>... with variable height</p>
-    </footer>
- 
-  </mat-sidenav-content>
- 
-</mat-sidenav-container> -->
-

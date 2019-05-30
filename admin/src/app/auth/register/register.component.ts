@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
   Validators,
-  AbstractControl
+  AbstractControl,
+  FormControl
 } from '@angular/forms';
 
 import { AuthSandbox } from '../auth.sandbox';
@@ -11,57 +12,56 @@ import { AuthSandbox } from '../auth.sandbox';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
-
+  styleUrls: ['./register.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RegisterComponent implements OnInit {
   public submitted = false;
+  public name: AbstractControl;
   public email: AbstractControl;
   public password: AbstractControl;
   public confirmPassword: AbstractControl;
   public registerForm: FormGroup;
-  private validators;
+  public passwords: FormGroup;
 
-  constructor(private fb: FormBuilder, public authSandbox: AuthSandbox) {
-    this.validators = authSandbox.validationService;
-  }
+  constructor(private fb: FormBuilder, public authSandbox: AuthSandbox) {}
 
   ngOnInit() {
-    this.initRegisterForm();
+   this.registerForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(4)]],
+    email: ['', [Validators.required, this.authSandbox.validationService.validateEmail]],
+    passwords: this.fb.group({
+      password: ['', [Validators.required, Validators.minLength(4)]],
+      confirmPassword: ['', [Validators.required, Validators.minLength(4)]]
+    },
+    {validator: this.authSandbox.validationService.matchingFields('password', 'confirmPassword') })
+  });
+
+   this.name = this.registerForm.controls.name;
+   this.email = this.registerForm.controls.email;
+
+  //  this.password = this.registerForm.controls.password;
+  //  this.confirmPassword = this.registerForm.controls.confirmPassword;
   }
 
-  /**
-   * Builds a form instance (using FormBuilder) with corresponding validation rules
-   */
-  public initRegisterForm(): void {
-    this.registerForm = this.fb.group(
-      {
-        email: ['', [Validators.required, this.validators.validateEmail]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
-      },
-      {
-        validator: this.validators.matchingPasswords(
-          'password',
-          'confirmPassword'
-        )
-      }
-    );
-
-    this.email = this.registerForm.controls.email;
-    this.password = this.registerForm.controls.password;
-    this.confirmPassword = this.registerForm.controls.confirmPassword;
+  public hasError = (controlName: string, errorName: string) => {
+    return this.registerForm.controls[controlName].hasError(errorName);
   }
 
-  /**
-   * Handles form 'submit' event. Calls sandbox register function if form is valid.
-   *
-   */
-  public onSubmit(event: Event, form: any): void {
-    event.stopPropagation();
+  public hasError1 = (controlName: string, errorName: string) => {
+    const pass = this.registerForm.get('passwords');
+    return pass.get(controlName).hasError(errorName);
+  }
+
+  public onLogin = () => {
+    this.authSandbox.go('auth/login');
+  }
+
+  public signup = (registerFormValue) => {
     this.submitted = true;
     if (this.registerForm.valid) {
-      this.authSandbox.register(form);
+      this.authSandbox.login(registerFormValue);
     }
   }
 }
+

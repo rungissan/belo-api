@@ -3,7 +3,8 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  AbstractControl
+  AbstractControl,
+  FormControl
 } from '@angular/forms';
 
 import { AuthSandbox } from '../auth.sandbox';
@@ -23,33 +24,27 @@ export class LoginComponent implements OnInit {
   constructor(private fb: FormBuilder, public authSandbox: AuthSandbox) {}
 
   ngOnInit() {
-    this.initLoginForm();
-  }
-
-  /**
-   * Builds a form instance (using FormBuilder) with corresponding validation rules
-   */
-  public initLoginForm(): void {
     this.loginForm = this.fb.group({
-      email: [
-        '',
-        [Validators.required, this.authSandbox.validationService.validateEmail]
-      ],
-      password: ['', Validators.required]
-    });
-
+      email: new FormControl('', [Validators.required, this.authSandbox.validationService.validateEmail]),
+      password: new FormControl('', [Validators.required, Validators.minLength(4)])
+   });
     this.email = this.loginForm.controls.email;
     this.password = this.loginForm.controls.password;
   }
 
-  /**
-   * Handles form 'submit' event. Calls sandbox login function if form is valid.
-   *
-   */
-  public onSubmit(event: Event, form: any): void {
-    event.stopPropagation();
-    this.submitted = true;
+  public hasError = (controlName: string, errorName: string) => {
+    return this.loginForm.controls[controlName].hasError(errorName);
+  }
 
-    if (this.loginForm.valid) { this.authSandbox.login(form); }
+  public onRegistration = () => {
+    this.authSandbox.go('auth/register');
+    // this.location.back();
+  }
+
+  public signin = (loginFormValue) => {
+    this.submitted = true;
+    if (this.loginForm.valid) {
+      this.authSandbox.login(loginFormValue);
+    }
   }
 }

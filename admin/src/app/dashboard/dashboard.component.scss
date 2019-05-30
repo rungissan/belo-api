@@ -1,5 +1,5 @@
 
-#my-logout-button { background: #F44336 }
+
 
 .all-wrap {
   min-height: 100vh; // same height as browser window height
@@ -12,11 +12,12 @@
   height:60px;   /* Height of the footer */
 }
 
+.foo {
+  min-height: 60vh;
+}
 .sidenav {
+  min-height: 60vh;
   padding:10px;
   padding-bottom:60px;   /* Height of the footer */
   padding-top:60px;
 }
-
- 
- 
