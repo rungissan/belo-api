@@ -25,7 +25,7 @@
     "seed:test": "sequelize --env test db:seed:all --debug"
   },
   "dependencies": {
-    "ajv": "^5.3.0",
+    "ajv": "^6.12.3",
     "babel-plugin-module-resolver": "^2.7.1",
     "babel-preset-env": "^1.6.1",
     "babel-preset-stage-2": "^6.24.1",
