@@ -42,7 +42,7 @@
     "loopback-boot": "^2.6.5",
     "loopback-component-explorer": "^5.0.0",
     "loopback-component-passport": "^3.4.1",
-    "loopback-connector-postgresql": "^3.1.0",
+    "loopback-connector-postgresql": "^5.5.1",
     "oauth2orize": "^1.11.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
